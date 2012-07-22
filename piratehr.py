@@ -38,6 +38,7 @@ def create_user():
 		email = user_data['email'],
 		dob = user_data['dob']
 	)
+	if not user: return "Invalid user data", 422
 	print """piratehr.py: new user legal_name:""" + user.legal_name
 	print """piratehr.py: new user uuid:""" + user.uuid
 	ret = {
