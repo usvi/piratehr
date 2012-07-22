@@ -1,0 +1,6 @@
+DEBUG = True
+SECRET_KEY = 'development key'
+
+DATABASE = 'mysql://piratehr:piratehr@localhost/piratehr'
+DATABASE_DEBUG = False
+
