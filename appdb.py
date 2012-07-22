@@ -29,7 +29,7 @@ class User(Base):
 	name = Column(String(128), nullable=False, unique=True) # Name/nick the user wants to be called and displayed as
 	legal_name = Column(String(256), nullable=False) # Legal name as in governmental records
 	residence = Column(String(512)) # Users's place of residence. City/town/municipality + country
-	address_id = Column(Integer, unique=True, ForeignKey('address.id', onupdate="RESTRICT", ondelete="RESTRICT")) # Current address of user from Address table
+	address_id = Column(Integer, ForeignKey('address.id', onupdate="RESTRICT", ondelete="RESTRICT"), unique=True) # Current address of user from Address table
 	phone = Column(String(128)) # User's phone number, preferably in international format
 	email = Column(String(256)) # User's active email address
 	dob = Column(Date, nullable=False) # User's official date of birth
@@ -62,7 +62,7 @@ class User(Base):
 class Address(Base):
 	__tablename__ = 'address'
 	id = Column(Integer, primary_key=True) # Id of this address
-	user_id = Column(Integer, nullable=False, ForeignKey('user.id', onupdate="RESTRICT", ondelete="RESTRICT", use_alter=True, name="user_id_altc")) # Reference to the id of the user having this address
+	user_id = Column(Integer, ForeignKey('user.id', onupdate="RESTRICT", ondelete="RESTRICT", use_alter=True, name="user_id_altc"), nullable=False) # Reference to the id of the user having this address
 	line1 = Column(String(512), nullable=False) # First address line; name of the recipient
 	line2 = Column(String(512)) # Second address line; company, etc
 	street = Column(String(512)) # Street address
@@ -75,7 +75,7 @@ class Address(Base):
 class Auth(Base):
 	__tablename__ = 'auth'
 	id = Column(Integer, primary_key=True) # Id of this token
-	user_id = Column(Integer, nullable=False, ForeignKey('user.id')) # Reference to the id of the user having this token
+	user_id = Column(Integer, ForeignKey('user.id'), nullable=False) # Reference to the id of the user having this token
 	token_type = Column(Enum('pw_hash', 'pw_reset', 'facebook', 'openid', name='token_types'), nullable=False, primary_key=True) # Auth type
 	token_content = Column(String(512)) # Auth token content
 	expiration_time = Column(DateTime) # Expiration of the token
@@ -92,8 +92,8 @@ class Organization(Base):
 class Membership(Base):
 	__tablename__ = 'membership'
 	id = Column(Integer, primary_key=True) # Id of this membership
-	user_id = Column(Integer, nullable=False, ForeignKey('user.id', onupdate="RESTRICT", ondelete="RESTRICT")) # User id this membership applies to
-	organization_id = Column(Integer, unique=True, ForeignKey('organization.id', onupdate="RESTRICT", ondelete="RESTRICT")) # Organization this membership applies to
+	user_id = Column(Integer, ForeignKey('user.id', onupdate="RESTRICT", ondelete="RESTRICT"), nullable=False) # User id this membership applies to
+	organization_id = Column(Integer, ForeignKey('organization.id', onupdate="RESTRICT", ondelete="RESTRICT"), unique=True) # Organization this membership applies to
 	status = Column(Enum('applied', 'member', 'honorary_member', 'expelled', 'resigned' , name='status_types'), nullable=True) # Status type
 	position = Column(Enum('nonpriv', 'chair', 'vice_chair', 'secretary', 'board' , name='position_types'), nullable=True) # Position type
 	title = Column(String(256)) # Description of a special position in the organization
@@ -107,7 +107,7 @@ class Membership(Base):
 class MetaDef(Base):
 	__tablename__ = 'metadef'
 	id = Column(Integer, primary_key=True) # Id of this metadata definition
-	organization_id = Column(Integer, nullable=False, ForeignKey('organization.id', onupdate="RESTRICT", ondelete="RESTRICT")) # Organization owning this metadata
+	organization_id = Column(Integer, ForeignKey('organization.id', onupdate="RESTRICT", ondelete="RESTRICT"), nullable=False) # Organization owning this metadata
 	label = Column(String(256), nullable=False, unique=True) # Label of the metadata
 	type = Column(Enum('string', 'checkbox', 'date', name='meta_types'), nullable=False) # Metadata type
 	readonly = Column(Boolean, nullable=False) # Is the metadata editable by the user
@@ -116,8 +116,8 @@ class MetaDef(Base):
 class MetaData(Base):
 	__tablename__ = 'metadata'
 	id = Column(Integer, primary_key=True) # Id of this metadata entry
-	metadef_id = Column(Integer, nullable=False, ForeignKey('metadef.id', onupdate="RESTRICT", ondelete="RESTRICT"), primary_key=True) # Metadata definition this data applies to
-	user_id = Column(Integer, nullable=False, ForeignKey('user.id', onupdate="RESTRICT", ondelete="RESTRICT"), primary_key=True) # User this data applies to
+	metadef_id = Column(Integer, ForeignKey('metadef.id', onupdate="RESTRICT", ondelete="RESTRICT"), primary_key=True) # Metadata definition this data applies to
+	user_id = Column(Integer, ForeignKey('user.id', onupdate="RESTRICT", ondelete="RESTRICT"), primary_key=True) # User this data applies to
 	value = Column(Text) # The actual metadata
 
 
@@ -126,7 +126,7 @@ class Log(Base):
 	id = Column(Integer, primary_key=True) # Id of this log entry
 	time = Column(DateTime, nullable=False) # Time of this log entry
 	ip = Column(String(45), nullable=False) # IP address of the request generating this log entry
-	logged_user_id = Column(Integer, nullable=False, ForeignKey('user.id', onupdate="RESTRICT", ondelete="RESTRICT")) # User id of the user performing the action
+	logged_user_id = Column(Integer, ForeignKey('user.id', onupdate="RESTRICT", ondelete="RESTRICT"), nullable=False) # User id of the user performing the action
 	target_user_id = Column(Integer, ForeignKey('user.id', onupdate="RESTRICT", ondelete="RESTRICT")) # User id this log entry applies to
 	target_organization_id = Column(Integer, ForeignKey('organization.id', onupdate="RESTRICT", ondelete="RESTRICT")) # Organization this log entry applies to
 	target_membership_id = Column(Integer, ForeignKey('membership.id', onupdate="RESTRICT", ondelete="RESTRICT")) # Membership this log entry applies to
