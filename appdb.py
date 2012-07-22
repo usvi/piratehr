@@ -28,13 +28,13 @@ class User(Base):
 	login = Column(String(128), unique=True) # Login name, can be used in URLs
 	name = Column(String(128), unique=True) # Name/nick the user wants to be called and displayed as
 	legal_name = Column(String(256), nullable=False) # Legal name as in governmental records
-	residence = Column(String(512)) # Users's place of residence. City/town/municipality + country
+	residence = Column(String(128)) # Users's place of residence. City/town/municipality + country
 	address_id = Column(Integer, ForeignKey('address.id', onupdate="RESTRICT", ondelete="RESTRICT"), unique=True) # Current address of user from Address table
 	phone = Column(String(128)) # User's phone number, preferably in international format
 	email = Column(String(256)) # User's active email address
 	dob = Column(Date, nullable=False) # User's official date of birth
-	ssn = Column(String(256), unique=True) # Official social security number of the user
-	location = Column(String(256)) # Users gps coordinates
+	ssn = Column(String(128), unique=True) # Official social security number of the user
+	location = Column(String(128)) # User's gps coordinates
 	joined = Column(DateTime, nullable=False) # Time when user initially joined
 	last_seen = Column(DateTime, nullable=False) # Time when user was last seen active on system
 	@staticmethod
@@ -63,13 +63,13 @@ class Address(Base):
 	__tablename__ = 'address'
 	id = Column(Integer, primary_key=True) # Id of this address
 	user_id = Column(Integer, ForeignKey('user.id', onupdate="RESTRICT", ondelete="RESTRICT", use_alter=True, name="user_id_altc"), nullable=False) # Reference to the id of the user having this address
-	line1 = Column(String(512), nullable=False) # First address line; name of the recipient
-	line2 = Column(String(512)) # Second address line; company, etc
-	street = Column(String(512)) # Street address
-	zipcode = Column(String(128), nullable=False) # ZIP number in international format
-	city = Column(String(512), nullable=False) # City/town/municipality of the recipient
-	state = Column(String(512)) #  State, if applicable
-	country = Column(String(512), nullable=False) # Country
+	line1 = Column(String(128), nullable=False) # First address line; name of the recipient
+	line2 = Column(String(128)) # Second address line; company, etc
+	street = Column(String(128)) # Street address
+	zipcode = Column(String(64), nullable=False) # ZIP number in international format
+	city = Column(String(64), nullable=False) # City/town/municipality of the recipient
+	state = Column(String(64)) #  State, if applicable
+	country = Column(String(64), nullable=False) # Country
 
 		   
 class Auth(Base):
@@ -85,8 +85,8 @@ class Organization(Base):
 	__tablename__ = 'organization'
 	id = Column(Integer, primary_key=True) # Id of this organization
 	parent_id = Column(Integer, ForeignKey('organization.id', onupdate="RESTRICT", ondelete="RESTRICT")) # Reference to the 
-	legal_name = Column(String(512), nullable=False, unique=True) # Full legal name of the organization
-	friendly_name = Column(String(512)) # Friendly short name of the organization
+	legal_name = Column(String(128), nullable=False, unique=True) # Full legal name of the organization
+	friendly_name = Column(String(128)) # Friendly short name of the organization
 
 
 class Membership(Base):
@@ -96,8 +96,8 @@ class Membership(Base):
 	organization_id = Column(Integer, ForeignKey('organization.id', onupdate="RESTRICT", ondelete="RESTRICT"), unique=True) # Organization this membership applies to
 	status = Column(Enum('applied', 'member', 'honorary_member', 'expelled', 'resigned' , name='status_types'), nullable=True) # Status type
 	position = Column(Enum('nonpriv', 'chair', 'vice_chair', 'secretary', 'board' , name='position_types'), nullable=True) # Position type
-	title = Column(String(256)) # Description of a special position in the organization
-	application = Column(String(512), nullable=False) # Includes UUID string and legal name of the applicant
+	title = Column(String(128)) # Description of a special position in the organization
+	application = Column(Text, nullable=False) # As information for the board of the organization (includes UUID + name also)
 	applied_time = Column(DateTime, nullable=False) # Time of membership application
 	accepted_time = Column(DateTime) # Time of membership acceptance
 	terminated_time = Column(DateTime) # Time of membership termination
@@ -108,7 +108,7 @@ class MetaDef(Base):
 	__tablename__ = 'metadef'
 	id = Column(Integer, primary_key=True) # Id of this metadata definition
 	organization_id = Column(Integer, ForeignKey('organization.id', onupdate="RESTRICT", ondelete="RESTRICT"), nullable=False) # Organization owning this metadata
-	label = Column(String(256), nullable=False, unique=True) # Label of the metadata
+	label = Column(String(128), nullable=False, unique=True) # Label of the metadata
 	type = Column(Enum('string', 'checkbox', 'date', name='meta_types'), nullable=False) # Metadata type
 	readonly = Column(Boolean, nullable=False) # Is the metadata editable by the user
 
@@ -125,7 +125,7 @@ class Log(Base):
 	__tablename__ = 'log'
 	id = Column(Integer, primary_key=True) # Id of this log entry
 	time = Column(DateTime, nullable=False) # Time of this log entry
-	ip = Column(String(45), nullable=False) # IP address of the request generating this log entry
+	ip = Column(String(64), nullable=False) # IP address of the request generating this log entry
 	logged_user_id = Column(Integer, ForeignKey('user.id', onupdate="RESTRICT", ondelete="RESTRICT"), nullable=False) # User id of the user performing the action
 	target_user_id = Column(Integer, ForeignKey('user.id', onupdate="RESTRICT", ondelete="RESTRICT")) # User id this log entry applies to
 	target_organization_id = Column(Integer, ForeignKey('organization.id', onupdate="RESTRICT", ondelete="RESTRICT")) # Organization this log entry applies to
