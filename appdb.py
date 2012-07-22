@@ -25,8 +25,8 @@ class User(Base):
 	__tablename__ = 'user'
 	id = Column(Integer, nullable=False, primary_key=True) # Internal database ID
 	uuid = Column(String(128), nullable=False, unique=True) # Valid chars: ABCDEFGHJKLMNPQRSTUWXYZ23456789
-	login = Column(String(128), nullable=False, unique=True) # Login name, can be used in URLs
-	name = Column(String(128), nullable=False, unique=True) # Name/nick the user wants to be called and displayed as
+	login = Column(String(128), unique=True) # Login name, can be used in URLs
+	name = Column(String(128), unique=True) # Name/nick the user wants to be called and displayed as
 	legal_name = Column(String(256), nullable=False) # Legal name as in governmental records
 	residence = Column(String(512)) # Users's place of residence. City/town/municipality + country
 	address_id = Column(Integer, ForeignKey('address.id', onupdate="RESTRICT", ondelete="RESTRICT"), unique=True) # Current address of user from Address table
