@@ -25,6 +25,10 @@ api = Blueprint("api", __name__, url_prefix="/api")
 
 @api.route("/new-user.json", methods=["POST"])
 def create_user():
+	print """HEADERS:""" + repr(request.headers)
+	print """DATA:""" + request.data
+        print """VALUES:""" + repr(request.values)
+        print """JSON:""" + repr(request.json)
 	user = appdb.User.create(
 		legal_name='John Doe',
 		residence='City, County',
