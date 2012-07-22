@@ -2,16 +2,28 @@
 
 <p>register</p>
 
-<form action="/api/new-user.json" method="POST" onclick="return true">
-<input type="text" value="email">
-<input type="text" value="residence">
-<input type="text" value="phone">
-<input type="text" value="email">
+<form class="ajaxform" action="/api/new-user.json" method="POST">
+<input type="text" name="email">
+<input type="text" name="residence">
+<input type="text" name="phone">
+<input type="text" name="email">
+<input type="checkbox" name="boksi">
+<input type="color" name="vari">
+<input type="date" name="dob">
 <input type="submit" value="Send">
 </form>
 
-<script type="text/javascript" src="js/jquery.js"></script>
-<script type="text/javascript">
+<script src="/js/jquery.js"></script>
+<script src="/js/jquery.form.js"></script> 
+<script>
+
+// wait for the DOM to be loaded 
+$(document).ready(function() { 
+	// bind 'myForm' and provide a simple callback function 
+	$('.ajaxform').ajaxForm(function() { 
+		alert("Thank you for your comment!"); 
+	});
+});
 
 </script>
 
