@@ -29,14 +29,17 @@ def create_user():
 	print """DATA:""" + request.data
 	print """VALUES:""" + repr(request.values)
 	print """JSON:""" + repr(request.json)
+	user_data = unpack_request(request)
+	if not user_data: return "Invalid user data", 422
 	user = appdb.User.create(
-		legal_name='John Doe',
-		residence='City, County',
-		phone='123456',
-		email='',
-		dob='1985-12-31'
+		legal_name = user_data['legal_name'],
+		residence = user_data['residence'],
+		phone = user_data['phone'],
+		email = user_data['email'],
+		dob = user_data['dob']
 	)
-	if not user: return "Invalid user data", 422
+	print """piratehr.py: new user legal_name:""" + user.legal_name
+	print """piratehr.py: new user uuid:""" + user.uuid
 	ret = {
 		'uuid': user.uuid,
 		'url': url_for('static', filename = "user/" + user.uuid, _external = True)
@@ -69,8 +72,17 @@ def delete(self, user_id):
 	# do your stuff
 	return "DELETED", 200
 
+
+def unpack_request(input_request):
+	if input_request.json == None:
+		if input_request.values:
+			return input_request.values
+		else:
+			return None
+	else: # Unpack json
+		return input_request.json
+
+
 if __name__ == '__main__':
 	app.register_blueprint(api)
 	app.run()
-
-
