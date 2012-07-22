@@ -7,7 +7,7 @@
 <input type="text" name="residence" placeholder="City, Country" required><br>
 <input type="phone" name="phone" placeholder="Phone number"><br>
 <input type="email" name="email" placeholder="Email address"><br>
-<input type="date" name="dob" placeholder="Date of birth" required><br>
+<input type="text" name="dob" placeholder="Date of birth" required><br>
 <br><br>
 <input type="submit" value="Send">
 </form>
@@ -18,21 +18,24 @@
 <script>
 $('.ajaxform').submit(function(ev) {
 	ev.preventDefault();
+	// FIXME: Disable form
 	var settings = {
-		data: $(this).formParams(),
+		data: JSON.stringify($(this).formParams()),
 		url: $(this).attr('action'),
 		type: $(this).attr('method'),
 		contentType: "application/json",
-		success: function() { alert("OK"); },
-		error: function() { alert("FAIL"); }
+		success: function(ev) { /*$(this).reset();*/ },
+		error: function(xhr, textStatus, errorThrown) { alert("Unable to submit form: " + errorThrown); }
 	};
 	$.ajax(settings);
 })
 </script>
 
+<!--
 <script src="/js/js-webshim/extras/modernizr-custom.js"></script>
 <script src="/js/js-webshim/polyfiller.js"></script>
 <script>
 $.webshims.polyfill();
 </script>
+-->
 
