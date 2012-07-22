@@ -14,11 +14,11 @@ appdb.init(app);
 
 # Display static files at root
 if app.config['DEBUG']:
-    from werkzeug import SharedDataMiddleware
-    import os
-    app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {
-      '/': os.path.join(os.path.dirname(__file__), 'static')
-    })
+	from werkzeug import SharedDataMiddleware
+	import os
+	app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {
+		'/': os.path.join(os.path.dirname(__file__), 'static')
+	})
 
 # Subclass a RestResource and configure it
 api = Blueprint("api", __name__, url_prefix="/api")
@@ -27,19 +27,20 @@ api = Blueprint("api", __name__, url_prefix="/api")
 def create_user():
 	print """HEADERS:""" + repr(request.headers)
 	print """DATA:""" + request.data
-        print """VALUES:""" + repr(request.values)
-        print """JSON:""" + repr(request.json)
+	print """VALUES:""" + repr(request.values)
+	print """JSON:""" + repr(request.json)
 	user = appdb.User.create(
 		legal_name='John Doe',
 		residence='City, County',
 		phone='123456',
 		email='',
-		dob='1985-12-31')
+		dob='1985-12-31'
+	)
 	if not user: return "Invalid user data", 422
 	ret = {
 		'uuid': user.uuid,
 		'url': url_for('static', filename = "user/" + user.uuid, _external = True)
-		}
+	}
 	return json.dumps(ret), 201, {'Location': ret['url'] }
 
 @api.route("/user_<user_id>.json", methods=["GET"])
@@ -49,7 +50,7 @@ def get_user(user_id):
 	ret = {
 		'login': user.login,
 		'uuid': user.uuid
-		}
+	}
 	return json.dumps(ret), 200
 
 @api.route("/user_<user_id>.json", methods=["PUT"])
