@@ -68,7 +68,7 @@ def clear_database():
 def auth_user():
 	auth_request = unpack_request(request)
 	if not auth_request: return "Invalid auth request", 422
-	if auth_request['type'] == "do_reset" and auth_request['email'] != None: # Asking for password reset. FIXME: If authed, don't answer to this unless privileged user group
+#	if auth_request['type'] == "do_reset" and auth_request['email'] != None: # Asking for password reset. FIXME: If authed, don't answer to this unless privileged user group
 		
 		
 		
