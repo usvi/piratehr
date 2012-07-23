@@ -25,10 +25,8 @@ api = Blueprint("api", __name__, url_prefix="/api")
 
 @api.route("/new-user.json", methods=["POST"])
 def create_user():
-	print """HEADERS:""" + repr(request.headers)
-	print """DATA:""" + request.data
-	print """VALUES:""" + repr(request.values)
-	print """JSON:""" + repr(request.json)
+	
+	app.logger.debug("HEADERS:" + repr(request.headers) + "\n" + "DATA:" + request.data + "\n" + "VALUES:" + repr(request.values) + "\n" + "JSON:" + repr(request.json))
 	user_data = unpack_request(request)
 	if not user_data: return "Invalid user data", 422
 	user = appdb.User.create(
@@ -39,8 +37,7 @@ def create_user():
 		dob = user_data['dob']
 	)
 	if not user: return "Invalid user data", 422
-	print """piratehr.py: new user legal_name:""" + user.legal_name
-	print """piratehr.py: new user uuid:""" + user.uuid
+	app.logger.debug("piratehr.py: new user legal_name:" + user.legal_name + "\n" + "piratehr.py: new user uuid:" + user.uuid)
 	ret = {
 		'uuid': user.uuid,
 		'url': url_for('static', filename = "user/" + user.uuid, _external = True)
@@ -66,6 +63,17 @@ def update_user(user_id):
 def clear_database():
 	appdb.clear_database()
 	return "DELETED", 200
+
+@api.route("/auth.json", methods=["POST"])
+def auth_user():
+	auth_request = unpack_request(request)
+	if not auth_request: return "Invalid auth request", 422
+	if auth_request['type'] == "do_reset" and auth_request['email'] != None: # Asking for password reset. FIXME: If authed, don't answer to this unless privileged user group
+		
+		
+		
+
+
 
 # you can use the "need_auth" decorator to do things for you
 #@need_auth(authentifier_callable, "project") # injects the "project" argument if authorised
