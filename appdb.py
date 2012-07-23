@@ -79,6 +79,12 @@ class Auth(Base):
 	token_type = Column(Enum('pw_hash', 'pw_reset', 'facebook', 'openid', name='token_types'), nullable=False, primary_key=True) # Auth type
 	token_content = Column(String(512)) # Auth token content
 	expiration_time = Column(DateTime) # Expiration of the token
+	@staticmethod
+	def find_by_email(email, token_type): #return g.db.query(Auth).filter_by(user_id=user_id, token_type=token_type).first()
+		users = g.db.query(User).filter_by(email=email)
+		print "users:" + repr(users)
+		for instance in users:
+			print instance.uuid
 
 
 class Organization(Base):

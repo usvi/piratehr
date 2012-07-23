@@ -69,11 +69,13 @@ def auth_user():
 	auth_request = unpack_request(request)
 	if not auth_request: return "Invalid auth request", 422
 #	if auth_request['type'] == "do_reset" and auth_request['email'] != None: # Asking for password reset. FIXME: If authed, don't answer to this unless privileged user group
-		
-		
-		
 
-
+@api.route("/debug", methods=["DEBUG"])
+def do_debug():
+	print "Entering debug"
+	appdb.Auth.find_by_email("sidj@a", "pw_reset")
+	print "Exiting debug"
+	return "DEBUG", 200
 
 # you can use the "need_auth" decorator to do things for you
 #@need_auth(authentifier_callable, "project") # injects the "project" argument if authorised
