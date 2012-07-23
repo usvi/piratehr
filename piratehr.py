@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from flask import Flask, Blueprint, request, session, g, redirect, url_for, abort, render_template, flash
+from flask import Flask, Blueprint, request, session, g, redirect, url_for, abort, send_file
 import json
 import appdb
 
@@ -19,6 +19,16 @@ if app.config['DEBUG']:
 	app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {
 		'/': os.path.join(os.path.dirname(__file__), 'static')
 	})
+
+# Static routing for index.html
+@app.route("/")
+@app.route("/register/")
+@app.route("/user/")
+@app.route("/user/<string:path>")
+@app.route("/org/")
+@app.route("/org/<string:path>")
+def index(*args, **kwargs):
+	return send_file("static/index.html")
 
 # Subclass a RestResource and configure it
 api = Blueprint("api", __name__, url_prefix="/api")
