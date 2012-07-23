@@ -1,15 +1,44 @@
 <!doctype html>
 <meta charset=utf-8>
 <link rel="shortcut icon" href="/favicon.ico">
-<link rel=stylesheet type=text/css href="/css/style.css">
+<link rel=stylesheet type=text/css href="/resources/style.css">
+<script src="/resources/libs/all.js"></script>
+
 <title>PirateHR</title>
 
-<div class=page>
-	<div class=content>
-		<h1>PirateHR</h1>
-		<p>Lorem ipsum</p>
-	</div><div class=sidebar>
-		<p>Sidebar</p>
+<div id=outerlayout><div id=innerlayout>
+	<img src="/resources/logo.png" id="logo">
+
+	<noscript>The web no longer works without Javascript.</noscript>
+
+	<div id="pagenav">
+		<a href="/register">Register</a>
+		<a href="/user">User</a>
 	</div>
-</div>
+	
+	<div class="page" id="register">
+		<p>register</p>
+
+		<p>
+		<form class="ajaxform" action="/api/new-user.json" method="POST">
+		<input type="text" name="legal_name" placeholder="Full name" required><br>
+		<input type="text" name="residence" placeholder="City, Country" required><br>
+		<input type="phone" name="phone" placeholder="Phone number"><br>
+		<input type="email" name="email" placeholder="Email address"><br>
+		<input type="text" name="dob" placeholder="Date of birth" required>
+		</p>
+		<input type="submit" value="Send">
+		</form>
+	</div>
+
+	<div class="page" id="user">
+		<p>user</p>
+		<div id="userpage"></div>
+
+	</div>
+
+
+</div></div>
+
+<script src="/resources/main.js"></script>
 

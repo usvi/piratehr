@@ -1,40 +1,37 @@
-<style>
-.page { display: none; /* Until JQuery hide/show takes over */ }
-</style>
+var path;
 
-<noscript>The web no longer works without Javascript.</noscript>
-
-<div class="page" id="register">
-<p>register</p>
-
-<form class="ajaxform" action="/api/new-user.json" method="POST">
-<input type="text" name="legal_name" placeholder="Full name" required><br>
-<input type="text" name="residence" placeholder="City, Country" required><br>
-<input type="phone" name="phone" placeholder="Phone number"><br>
-<input type="email" name="email" placeholder="Email address"><br>
-<input type="text" name="dob" placeholder="Date of birth" required><br>
-<br><br>
-<input type="submit" value="Send">
-</form>
-</div>
-
-<div class="page" id="user">
-<p>user</p>
-
-</div>
-
-<script src="/js/jquery.js"></script>
-<script src="/js/jquery.formparams.js"></script>
-
-<script>
 function switchPage() {
 	$('.page').hide();
-	var path = window.location.pathname.split('/');	
-	$('#' + path[1]).show();
+	path = window.location.pathname.split('/');
+	var page = $('#' + path[1]);
+	if (page.length != 1) navigate("/user/9a031641-2065-4481-b890-4ab9a33d793a");  // FIXME: Use something else
+	else page.show();
+	$(page).trigger("show");
 }
 
 $(document).ready(function() {
 	$(window).on("popstate", switchPage);
+	$('input[type=text],input[type=phone],input[type=email]').addClass('inputfield');
+	$('input[type=submit]').addClass('inputsubmit');
+	$('#user').on('show', function() {
+		var uuid = path[2];
+		if (uuid == null) return;
+		var settings = {
+			data: "",
+			url: "/api/user_" + uuid + ".json",
+			type: "GET",
+			contentType: "application/json",
+			success: function(data, textStatus, xhr) {
+				$('#userpage')[0].innerHTML = data;
+			},
+			error: function(xhr, textStatus, errorThrown) { alert("Unable to get user: " + errorThrown); },
+		};
+		$.ajax(settings);		
+	});
+	$('#pagenav a').on('click', function(ev) {
+		ev.preventDefault();
+		navigate(this.href);
+	});
 });
 
 function navigate(url) {
@@ -67,14 +64,4 @@ $('.ajaxform').submit(function(ev) {
 	};
 	$.ajax(settings);
 })
-
-</script>
-
-<!--
-<script src="/js/js-webshim/extras/modernizr-custom.js"></script>
-<script src="/js/js-webshim/polyfiller.js"></script>
-<script>
-$.webshims.polyfill();
-</script>
--->
 
