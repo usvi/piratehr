@@ -1,5 +1,10 @@
+<style>
+.page { display: none; /* Until JQuery hide/show takes over */ }
+</style>
+
 <noscript>The web no longer works without Javascript.</noscript>
 
+<div class="page" id="register">
 <p>register</p>
 
 <form class="ajaxform" action="/api/new-user.json" method="POST">
@@ -11,24 +16,58 @@
 <br><br>
 <input type="submit" value="Send">
 </form>
+</div>
+
+<div class="page" id="user">
+<p>user</p>
+
+</div>
 
 <script src="/js/jquery.js"></script>
 <script src="/js/jquery.formparams.js"></script>
 
 <script>
+function switchPage() {
+	$('.page').hide();
+	var path = window.location.pathname.split('/');	
+	$('#' + path[1]).show();
+}
+
+$(document).ready(function() {
+	$(window).on("popstate", switchPage);
+});
+
+function navigate(url) {
+	// Allow for current events to finish before navigating
+	window.setTimeout(function() {
+		// Navigate without reloading if the browser supports it
+		if (history.pushState) history.pushState(null, null, url);
+		else window.location(url);
+		$(window).trigger("popstate");  // Not fired automatically, it seems
+	}, 0);
+}
+
 $('.ajaxform').submit(function(ev) {
 	ev.preventDefault();
-	// FIXME: Disable form
+	var form = $(this);
+	var submit = $('input[type=submit]', this);
+	submit.attr('disabled', 'disabled');  // Disable form while submission is in progress
 	var settings = {
-		data: JSON.stringify($(this).formParams()),
-		url: $(this).attr('action'),
-		type: $(this).attr('method'),
+		data: JSON.stringify(form.formParams()),
+		url: form.attr('action'),
+		type: form.attr('method'),
 		contentType: "application/json",
-		success: function(ev) { /*$(this).reset();*/ },
-		error: function(xhr, textStatus, errorThrown) { alert("Unable to submit form: " + errorThrown); }
+		success: function(data, textStatus, xhr) {
+			form[0].reset();  // Clear the form
+			var d = JSON.parse(data);
+			if (d && d.url) navigate(d.url);
+		},
+		error: function(xhr, textStatus, errorThrown) { alert("Unable to submit form: " + errorThrown); },
+		complete: function() { submit.removeAttr('disabled'); }
 	};
 	$.ajax(settings);
 })
+
 </script>
 
 <!--
