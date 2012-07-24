@@ -78,12 +78,14 @@ def clear_database():
 def auth_user():
 	auth_request = unpack_request(request)
 	if not auth_request: return "Invalid auth request", 422
-#	if auth_request['type'] == "do_reset" and auth_request['email'] != None: # Asking for password reset. FIXME: If authed, don't answer to this unless privileged user group
+	if auth_request['type'] == "request_reset" and auth_request['email'] != None: # Asking for password reset by email.
+		appdb.Auth.find_by_email(auth_request['email']) # Fetch old tokens (yes, we might have multiple email addresses)
 
 @api.route("/debug_<debug_param>", methods=["DEBUG"])
 def do_debug(debug_param):
 	print "Entering debug with param " + debug_param
-	appdb.Auth.find_by_email(debug_param, "pw_reset")
+	#appdb.Auth.find_by_email(debug_param, "pw_reset")
+	appdb.Auth.reset_token_email(debug_param)
 	print "Exiting debug"
 	return "DEBUG", 200
 

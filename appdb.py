@@ -81,11 +81,20 @@ class Auth(Base):
 	expiration_time = Column(DateTime) # Expiration of the token
 	@staticmethod
 	def find_by_email(email, token_type): #return g.db.query(Auth).filter_by(user_id=user_id, token_type=token_type).first()
-		results = g.db.query(User, Auth).filter(User.id==Auth.user_id).filter(User.email==email).filter(Auth.token_type==token_type).all()
-		for row in results:
-			print row.Auth.token_content
-		return results
+		print "find_by_email"
+		return g.db.query(User, Auth).filter(User.id==Auth.user_id).filter(User.email==email).filter(Auth.token_type==token_type).all()
+	@staticmethod
+	def reset_token_email(email): # 1. Figure out missing token users 2. Make missing tokens 3. Modify rest of the tokens
+		print "reset_token_email"
+		missing_token_users = g.db.query(User).filter(User.email==email).all() # All users; we pick out users who have already a token
+		existing_token_tuples = Auth.find_by_email(email, 'pw_reset')
+		for temp_tuple in existing_token_tuples:
+			if temp_tuple.User in missing_token_users:
+				missing_token_users.remove(temp_tuple.User)
+		for new_token_user in missing_token_users:
+			print "New token needed for user: " + str(new_token_user.id)
 
+		
 
 class Organization(Base):
 	__tablename__ = 'organization'
