@@ -1,5 +1,12 @@
 var path;
 
+function flash(msg) {
+	var elem = $('#flash');
+	elem[0].innerText = msg;
+	elem.slideDown('slow');
+	elem.click(function () { $(this).slideUp('fast') });
+}
+
 function switchPage() {
 	$('.page').hide();
 	path = window.location.pathname.split('/');
@@ -22,9 +29,21 @@ $(document).ready(function() {
 			type: "GET",
 			contentType: "application/json",
 			success: function(data, textStatus, xhr) {
-				$('#userpage')[0].innerHTML = data;
+				flash(data);
+				var r = JSON.parse(data);
+				for (var key in r) {
+					var elem = $('#user_' + key)[0];
+					if (elem) elem.innerText = r[key];
+					else flash(key + "=" + r[key]);
+				}
+				var elem = $('#user_uuid')[0]
+				if (uuid != elem.innerText) flash("Unexpected UUID returned by server");
+				var qr = qrcode(4, 'L');
+				qr.addData(document.location.href);
+				qr.make();
+				$(elem).prepend(qr.createImgTag() + '<br>');
 			},
-			error: function(xhr, textStatus, errorThrown) { alert("Unable to get user: " + errorThrown); },
+			error: function(xhr, textStatus, errorThrown) { flash("Unable to get user: " + errorThrown); },
 		};
 		$.ajax(settings);		
 	});
@@ -59,7 +78,7 @@ $('.ajaxform').submit(function(ev) {
 			var d = JSON.parse(data);
 			if (d && d.url) navigate(d.url);
 		},
-		error: function(xhr, textStatus, errorThrown) { alert("Unable to submit form: " + errorThrown); },
+		error: function(xhr, textStatus, errorThrown) { flash("Unable to submit form: " + errorThrown); },
 		complete: function() { submit.removeAttr('disabled'); }
 	};
 	$.ajax(settings);
