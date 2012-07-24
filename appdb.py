@@ -64,6 +64,9 @@ class User(Base):
 	@staticmethod
 	def find(user_id):
 		return g.db.query(User).filter_by(uuid=user_id).first()
+	@staticmethod
+	def find_by_email(email):
+		return g.db.query(User).filter_by(email=email).all()
 
 
 class Address(Base):
