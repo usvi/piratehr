@@ -25,9 +25,9 @@ if app.config['DEBUG']:
 @app.route("/")
 @app.route("/register/")
 @app.route("/user/")
-@app.route("/user/<string:path>")
+@app.route("/user/<path:path>")
 @app.route("/org/")
-@app.route("/org/<string:path>")
+@app.route("/org/<path:path>")
 def index(*args, **kwargs):
 	return send_file("static/index.html")
 
