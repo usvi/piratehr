@@ -11,7 +11,7 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 
-class Setting(Base):
+class Settings(Base):
 	__tablename__ = 'settings'
 	key = Column(String(64), primary_key=True)
 	value = Column(String(4032))
