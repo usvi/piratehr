@@ -1,6 +1,7 @@
 DEBUG = True
 SECRET_KEY = 'development key'
 
-DATABASE = 'mysql://piratehr:piratehr@localhost/piratehr'
-DATABASE_DEBUG = False  # False, True (commands) or "debug" (full)
+#DATABASE = 'mysql+oursql://piratehr:piratehr@localhost/piratehr'
+#DATABASE = 'postgresql://piratehr:piratehr@localhost/piratehr'
+DATABASE_DEBUG = False  # False, True (commands) or 'debug' (full)
 

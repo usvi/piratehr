@@ -54,7 +54,7 @@ class User(Base):
 		import uuid
 		from datetime import datetime
 		user = User()
-		user.uuid = uuid.uuid4()
+		user.uuid = str(uuid.uuid4())
 		user.residence = residence
 		user.legal_name = legal_name
 		user.name = legal_name   # TODO: Remove middle names
@@ -177,11 +177,9 @@ class Log(Base):
 
 # Without this, MySQL will silently insert invalid values in the
 # database, causing very long debugging sessions in the long run
-# Also, it will use latin1 even though encoding=utf8!
 def fix_mysql_connect(dbapi_con, connection_record):
 	cur = dbapi_con.cursor()
 	cur.execute("SET SESSION sql_mode='TRADITIONAL'")
-	cur.execute("SET NAMES 'utf8'")
 	cur = None
 
 def init(app):
