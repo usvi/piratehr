@@ -5,6 +5,8 @@ from flask import Flask, Blueprint, request, session, g, redirect, url_for, abor
 import json
 import appdb
 import datetime
+import messenger
+
 
 # create our little application :)
 app = Flask(__name__, static_path="/")
@@ -97,13 +99,15 @@ def auth_user():
 	auth_request = unpack_request(request)
 	if not auth_request: return "Invalid auth request", 422
 	if auth_request['type'] == "request_reset" and auth_request['email'] != None: # Asking for password reset by email.
-		appdb.Auth.find_by_email(auth_request['email']) # Fetch old tokens (yes, we might have multiple email addresses)
+		reset_tuples = appdb.Auth.reset_token_email(auth_request['email'])
+		
 
 @api.route("/debug_<debug_param>", methods=["DEBUG"])
 def do_debug(debug_param):
 	print "Entering debug with param " + debug_param
 	#appdb.Auth.find_by_email(debug_param, "pw_reset")
-	appdb.Auth.reset_token_email(debug_param)
+	reset_list = appdb.Auth.reset_token_email(debug_param)
+	messenger.send_password_reset_emails(reset_list)
 	print "Exiting debug"
 	return "DEBUG", 200
 
