@@ -96,13 +96,15 @@ class Auth(Base):
 				temp_tuple.Auth.token_content = urlsafe_b64encode(bytes(uuid.uuid4()))
 				temp_tuple.Auth.expiration_time = datetime.utcnow() + timedelta(days=30)
 		for new_token_user in missing_token_users:
-			token = Auth() # This user needs new token
-			token.user_id = new_token_user.id
-			token.token_type = 'pw_reset'
-			token.token_content = urlsafe_b64encode(bytes(uuid.uuid4()))
-			token.expiration_time = datetime.utcnow() + timedelta(days=30)
-			g.db.add(token)
+			new_token = Auth() # This user needs new token
+			new_token.user_id = new_token_user.id
+			new_token.token_type = 'pw_reset'
+			new_token.token_content = urlsafe_b64encode(bytes(uuid.uuid4()))
+			new_token.expiration_time = datetime.utcnow() + timedelta(days=30)
+			g.db.add(new_token)
+			existing_token_tuples.append((new_token_user,new_token))
 		g.db.commit()
+		return existing_token_tuples
 
 
 class Organization(Base):
