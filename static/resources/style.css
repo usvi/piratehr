@@ -1,4 +1,4 @@
-#flash { position: fixed; top: 0; left: 0; display: none; width: 100%; background: #FFFF00; font-weight: bold; padding: 3px; border-bottom: 3px solid black; }
+#flash { position: fixed; top: 0; left: 0; display: none; width: 100%; background: #FFFF00; font-weight: bold; border-bottom: 3px solid black; }
 .page { display: none; /* Until JQuery hide/show takes over */ }
 body { margin: 0; }
 /*#logo { position: relative; margin-left: -150px; margin-top: -50px; }*/

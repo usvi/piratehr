@@ -2,7 +2,11 @@ var path;
 
 function flash(msg) {
 	var elem = $('#flash');
-	elem[0].innerText = msg;
+	var p = $('<p>', {
+		text: msg
+	});
+	setTimeout(function() { p.slideUp('slow', function() { p.remove() }); }, 2000);
+	p.appendTo(elem[0]);
 	elem.slideDown('slow');
 	elem.click(function () { $(this).slideUp('fast') });
 }
