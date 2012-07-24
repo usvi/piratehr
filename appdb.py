@@ -20,6 +20,11 @@ class Settings(Base):
 		self.value = value
 	def __repr__(self):
 		return '<%s=%s>' % (self.key, self.value)
+	@staticmethod
+	def make_setting(key, value):
+		setting = Settings(key, value)
+		g.db.merge(setting)
+		g.db.commit()
 
 
 class User(Base):
@@ -54,7 +59,7 @@ class User(Base):
 		user.phone = phone
 		g.db.add(user)
 		g.db.commit()
-		return user
+		return user # FIXME: Stricter checks here?
 	@staticmethod
 	def find(user_id):
 		return g.db.query(User).filter_by(uuid=user_id).first()
@@ -85,6 +90,7 @@ class Auth(Base):
 		return g.db.query(User, Auth).filter(User.id==Auth.user_id).filter(User.email==email).filter(Auth.token_type==token_type).all()
 	@staticmethod
 	def reset_token_email(email): # 1. Figure out missing token users 2. Modify rest of the tokens 3. Make missing tokens
+		# FIXME: Couldn't we use session.merge here?
 		import uuid
 		from datetime import datetime, timedelta
 		from base64 import urlsafe_b64encode

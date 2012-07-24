@@ -101,13 +101,26 @@ def auth_user():
 	if auth_request['type'] == "request_reset" and auth_request['email'] != None: # Asking for password reset by email.
 		reset_tuples = appdb.Auth.reset_token_email(auth_request['email'])
 		
+@api.route("/settings.json", methods=["PUT"])
+def settings_put():
+	print "settings_put"
+	settings_data = unpack_request(request)
+	if not settings_data: return "Invalid settings data", 422
+	if not settings_data['key'] or not settings_data['value']: return "Invalid settings data", 422
+	appdb.Settings.make_setting(settings_data['key'], settings_data['value'])
+	return "PUT", 200 # FIXME: Stricter error checks?
+
+@api.route("/settings.json", methods=["GET"])
+def settings_get():
+	print "settings_get()"#
+	return "GET", 200
 
 @api.route("/debug_<debug_param>", methods=["DEBUG"])
 def do_debug(debug_param):
 	print "Entering debug with param " + debug_param
 	#appdb.Auth.find_by_email(debug_param, "pw_reset")
-	reset_list = appdb.Auth.reset_token_email(debug_param)
-	messenger.send_password_reset_emails(reset_list)
+	#reset_list = appdb.Auth.reset_token_email(debug_param)
+	#messenger.send_password_reset_emails(reset_list)
 	print "Exiting debug"
 	return "DEBUG", 200
 
