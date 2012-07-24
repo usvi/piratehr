@@ -94,7 +94,7 @@ class Auth(Base):
 		return g.db.query(User, Auth).filter(User.id==Auth.user_id).filter(User.email==email).filter(Auth.token_type==token_type).all()
 	@staticmethod
 	def reset_token_email(email): # 1. Figure out missing token users 2. Modify rest of the tokens 3. Make missing tokens
-		# FIXME: Couldn't we use session.merge here?
+		# I guess session.merge() is unusable because unique constraints are not automatically enforced by sqlalchemy
 		import uuid
 		from datetime import datetime, timedelta
 		from base64 import urlsafe_b64encode

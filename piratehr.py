@@ -99,16 +99,22 @@ def clear_database():
 @api.route("/auth.json", methods=["POST"])
 def auth_user():
 	auth_request = unpack_request(request)
-	if not auth_request: return "Invalid auth request", 422
-	if auth_request['type'] == "request_reset" and auth_request['email'] != None: # Asking for password reset by email.
-		reset_tuples = appdb.Auth.reset_token_email(auth_request['email'])
-		
+	if not auth_request: return "Invalid auth data", 422
+	if auth_request['type'] == "request_reset":
+		if auth_request['email'] != None: # Asking for password reset by email.
+			reset_list = appdb.Auth.reset_token_email(auth_request['email'])
+			messenger.send_password_reset_emails(reset_list)
+		return "POST", 200 # Always return ok here: Attacker must not get knowledge about whether we have the email or not
+	else:
+		return "Invalid auth data", 422
+
+
 @api.route("/settings.json", methods=["PUT"])
 def settings_put():
 	print "settings_put"
 	settings_data = unpack_request(request)
-	if not settings_data: return "Invalid settings data", 422
-	if not settings_data['key'] or not settings_data['value']: return "Invalid settings data", 422
+	if settings_data == None: return "Invalid settings data", 422
+	if settings_data['key'] == None or settings_data['value'] == None: return "Invalid settings data", 422
 	appdb.Settings.make_setting(settings_data['key'], settings_data['value'])
 	return "PUT", 200 # FIXME: Stricter error checks?
 
