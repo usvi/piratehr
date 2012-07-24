@@ -3,6 +3,7 @@
 
 from flask import Flask, g
 from sqlalchemy import *
+from sqlalchemy import event
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -148,10 +149,19 @@ class Log(Base):
 	type = Column(Enum('view', 'change', 'delete', 'other', name='log_types'), nullable=False) # Log entry type
 	description = Column(Text) # Free format log entry description
 
-	
+# Without this, MySQL will silently insert invalid values in the
+# database, causing very long debugging sessions in the long run
+# Also, it will use latin1 even though encoding=utf8!
+def fix_mysql_connect(dbapi_con, connection_record):
+	cur = dbapi_con.cursor()
+	cur.execute("SET SESSION sql_mode='TRADITIONAL'")
+	cur.execute("SET NAMES 'utf8'")
+	cur = None
+
 def init(app):
 	global engine;
 	engine = create_engine(app.config['DATABASE'], echo=app.config['DATABASE_DEBUG'])
+	if (app.config['DATABASE'][0:5] == 'mysql') event.listen(engine, 'connect', fix_mysql_connect)
 	Session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
 	Base.metadata.create_all(bind=engine)  # Create tables etc.
 	@app.before_request
