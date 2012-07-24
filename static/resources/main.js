@@ -11,11 +11,15 @@ function flash(msg) {
 	elem.click(function () { $(this).slideUp('fast') });
 }
 
+var oldPage;
+
 function switchPage() {
+	if (oldPage == window.location.href) return;  // Nothing to do
+	oldPage = window.location.href;
 	$('.page').hide();
 	path = window.location.pathname.split('/');
 	var page = $('#' + path[1]);
-	if (page.length != 1) navigate("/user/9a031641-2065-4481-b890-4ab9a33d793a");  // FIXME: Use something else
+	if (page.length != 1) navigate("/register/");
 	else page.show();
 	$(page).trigger("show");
 }
@@ -33,19 +37,17 @@ $(document).ready(function() {
 			type: "GET",
 			contentType: "application/json",
 			success: function(data, textStatus, xhr) {
-				flash(data);
 				var r = JSON.parse(data);
+				if (uuid != r.uuid) { flash("Unexpected UUID returned by server"); return; }
 				for (var key in r) {
 					var elem = $('#user_' + key)[0];
-					if (elem) elem.innerText = r[key];
-					else flash(key + "=" + r[key]);
+					if (elem) $(elem).text(r[key] || '');
+					//else flash("Warning: Value ignored: " + key + "=" + r[key]);
 				}
-				var elem = $('#user_uuid')[0]
-				if (uuid != elem.innerText) flash("Unexpected UUID returned by server");
 				var qr = qrcode(4, 'L');
-				qr.addData(document.location.href);
+				qr.addData(r.user_url);
 				qr.make();
-				$(elem).prepend(qr.createImgTag() + '<br>');
+				$('#user_uuid').prepend('<a href="' + r.user_url + '" onclick="return false">' + qr.createImgTag() + '</a><br>');
 			},
 			error: function(xhr, textStatus, errorThrown) { flash("Unable to get user: " + errorThrown); },
 		};
@@ -55,6 +57,7 @@ $(document).ready(function() {
 		ev.preventDefault();
 		navigate(this.href);
 	});
+	switchPage();
 });
 
 function navigate(url) {
@@ -80,7 +83,7 @@ $('.ajaxform').submit(function(ev) {
 		success: function(data, textStatus, xhr) {
 			form[0].reset();  // Clear the form
 			var d = JSON.parse(data);
-			if (d && d.url) navigate(d.url);
+			if (d && d.user_url) navigate(d.user_url);
 		},
 		error: function(xhr, textStatus, errorThrown) { flash("Unable to submit form: " + errorThrown); },
 		complete: function() { submit.removeAttr('disabled'); }

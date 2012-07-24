@@ -53,9 +53,10 @@ def create_user():
 	app.logger.debug("piratehr.py: new user legal_name:" + user.legal_name + "\n" + "piratehr.py: new user uuid:" + user.uuid)
 	ret = {
 		'uuid': user.uuid,
-		'url': url_for('static', filename = "user/" + user.uuid, _external = True)
+		'api_url': url_for('.get_user', user_id = user.uuid, _external = True),
+		'user_url': url_for('static', filename = "user/" + user.uuid, _external = True)
 	}
-	return json.dumps(ret), 201, {'Location': ret['url'] }
+	return json.dumps(ret), 201, {'Location': ret['api_url'] }
 
 @api.route("/user_<user_id>.json", methods=["GET"])
 def get_user(user_id):
@@ -66,6 +67,8 @@ def get_user(user_id):
 	#   (b) moved elsewhere (appdb.py?)
 	ret = {
 		'uuid': user.uuid,
+		'api_url': url_for('.get_user', user_id = user.uuid, _external = True),
+		'user_url': url_for('static', filename = "user/" + user.uuid, _external = True),
 		'login': user.login,
 		'name': user.name,
 		'legal_name': user.legal_name,
@@ -79,7 +82,6 @@ def get_user(user_id):
 		'joined': user.joined,
 		'last_seen': user.last_seen
 	}
-	print user.legal_name
 	# Conversion function is needed for datetime objects :/
 	jsonconvert = lambda obj: obj.isoformat() if isinstance(obj, datetime.datetime) else None
 	return json.dumps(ret, default=jsonconvert), 200

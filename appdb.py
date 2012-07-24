@@ -32,7 +32,7 @@ class User(Base):
 	id = Column(Integer, nullable=False, primary_key=True) # Internal database ID
 	uuid = Column(String(128), nullable=False, unique=True) # Valid chars: ABCDEFGHJKLMNPQRSTUWXYZ23456789
 	login = Column(String(128), unique=True) # Login name, can be used in URLs
-	name = Column(String(128), unique=True) # Name/nick the user wants to be called and displayed as
+	name = Column(String(128), nullable=False) # Name/nick the user wants to be called and displayed as
 	legal_name = Column(String(256), nullable=False) # Legal name as in governmental records
 	residence = Column(String(128)) # Users's place of residence. City/town/municipality + country
 	location = Column(String(128)) # User's gps coordinates
@@ -51,6 +51,7 @@ class User(Base):
 		user.uuid = uuid.uuid4()
 		user.residence = residence
 		user.legal_name = legal_name
+		user.name = legal_name   # TODO: Remove middle names
 		user.joined = datetime.utcnow()
 		user.last_seen = user.joined
 		user.dob = dob
