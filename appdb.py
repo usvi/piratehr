@@ -29,12 +29,12 @@ class User(Base):
 	name = Column(String(128), unique=True) # Name/nick the user wants to be called and displayed as
 	legal_name = Column(String(256), nullable=False) # Legal name as in governmental records
 	residence = Column(String(128)) # Users's place of residence. City/town/municipality + country
+	location = Column(String(128)) # User's gps coordinates
 	address_id = Column(Integer, ForeignKey('address.id', onupdate="RESTRICT", ondelete="RESTRICT"), unique=True) # Current address of user from Address table
 	phone = Column(String(128)) # User's phone number, preferably in international format
 	email = Column(String(256)) # User's active email address
 	dob = Column(Date, nullable=False) # User's official date of birth
 	ssn = Column(String(128), unique=True) # Official social security number of the user
-	location = Column(String(128)) # User's gps coordinates
 	joined = Column(DateTime, nullable=False) # Time when user initially joined
 	last_seen = Column(DateTime, nullable=False) # Time when user was last seen active on system
 	@staticmethod
@@ -81,10 +81,10 @@ class Auth(Base):
 	expiration_time = Column(DateTime) # Expiration of the token
 	@staticmethod
 	def find_by_email(email, token_type): #return g.db.query(Auth).filter_by(user_id=user_id, token_type=token_type).first()
-		users = g.db.query(User).filter_by(email=email)
-		print "users:" + repr(users)
-		for instance in users:
-			print instance.uuid
+		results = g.db.query(User, Auth).filter(User.id==Auth.user_id).filter(User.email==email).filter(Auth.token_type==token_type).all()
+		for row in results:
+			print row.Auth.token_content
+		return results
 
 
 class Organization(Base):
