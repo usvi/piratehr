@@ -25,6 +25,12 @@ class Settings(Base):
 		setting = Settings(key, value)
 		g.db.merge(setting)
 		g.db.commit()
+	@staticmethod
+	def get_all():
+		result_dict = {}
+		for row in g.db.query(Settings).all():
+			result_dict[row.key] = row.value # Don't really know why direct .all() return fails...
+		return result_dict
 
 
 class User(Base):
