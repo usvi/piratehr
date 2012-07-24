@@ -34,7 +34,7 @@ def index(*args, **kwargs):
 # Subclass a RestResource and configure it
 api = Blueprint("api", __name__, url_prefix="/api")
 
-@api.route("/new-user.json", methods=["POST"])
+@api.route("/new_user.json", methods=["POST"])
 def create_user():
 	
 	app.logger.debug("HEADERS:" + repr(request.headers) + "\n" + "DATA:" + request.data + "\n" + "VALUES:" + repr(request.values) + "\n" + "JSON:" + repr(request.json))
