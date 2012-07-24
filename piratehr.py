@@ -4,6 +4,7 @@
 from flask import Flask, Blueprint, request, session, g, redirect, url_for, abort, send_file
 import json
 import appdb
+import datetime
 
 # create our little application :)
 app = Flask(__name__, static_path="/")
@@ -58,11 +59,28 @@ def create_user():
 def get_user(user_id):
 	user = appdb.User.find(user_id)
 	if user == None: abort(404)
+	# TODO: The following code should be
+	#   (a) eliminated if possible, or at least
+	#   (b) moved elsewhere (appdb.py?)
 	ret = {
+		'uuid': user.uuid,
 		'login': user.login,
-		'uuid': user.uuid
+		'name': user.name,
+		'legal_name': user.legal_name,
+		'residence': user.residence,
+		'addresses': None,
+		'phone': user.phone,
+		'email': user.email,
+		'dob': user.dob,
+		'ssn': user.ssn,
+		'location': user.location,
+		'joined': user.joined,
+		'last_seen': user.last_seen
 	}
-	return json.dumps(ret), 200
+	print user.legal_name
+	# Conversion function is needed for datetime objects :/
+	jsonconvert = lambda obj: obj.isoformat() if isinstance(obj, datetime.datetime) else None
+	return json.dumps(ret, default=jsonconvert), 200
 
 @api.route("/user_<user_id>.json", methods=["PUT"])
 def update_user(user_id):

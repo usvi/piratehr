@@ -6,18 +6,21 @@
 
 <title>PirateHR</title>
 
+<div id=flash></div>
+
 <div id=outerlayout><div id=innerlayout>
 	<img src="/resources/logo.png" id="logo">
 
 	<noscript>The web no longer works without Javascript.</noscript>
 
 	<div id="pagenav">
-		<a href="/register">Register</a>
-		<a href="/user">User</a>
+		<a href="/register/">Register</a>
+		<a href="/user/">User</a>
+		<a href="/org/">Organization</a>
 	</div>
 	
 	<div class="page" id="register">
-		<p>register</p>
+		<h2>Register</h2>
 
 		<p>
 		<form class="ajaxform" action="/api/new-user.json" method="POST">
@@ -32,8 +35,26 @@
 	</div>
 
 	<div class="page" id="user">
-		<p>user</p>
-		<div id="userpage"></div>
+		<h2>User</h2>
+		
+		<table>
+		<tr><td>UUID</td><td class="ajaxfield" id="user_uuid"></td></tr>
+		<tr><td>Login</td><td class="ajaxfield" id="user_login"></td></tr>
+		<tr><td>Name</td><td class="ajaxfield" id="user_name"></td></tr>
+		<tr><td>Legal Name</td><td class="ajaxfield" id="user_legal_name"></td></tr>
+		<tr><td>Residence</td><td class="ajaxfield" id="user_residence"></td></tr>
+		<tr><td>Location</td><td class="ajaxfield" id="user_location"></td></tr>
+		<tr><td>Phone</td><td class="ajaxfield" id="user_phone"></td></tr>
+		<tr><td>Email</td><td class="ajaxfield" id="user_email"></td></tr>
+		<tr><td>Date of Birth</td><td class="ajaxfield" id="user_dob"></td></tr>
+		<tr><td>SSN/Passport#</td><td class="ajaxfield" id="user_ssn"></td></tr>
+		<tr><td>Account Created</td><td class="ajaxfield" id="user_joined"></td></tr>
+		<tr><td>Last Seen</td><td class="ajaxfield" id="user_last_seen"></td></tr>
+		</table>
+	</div>
+
+	<div class="page" id="org">
+		<h2>Organization</h2>
 
 	</div>
 
