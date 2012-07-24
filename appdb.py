@@ -81,20 +81,28 @@ class Auth(Base):
 	expiration_time = Column(DateTime) # Expiration of the token
 	@staticmethod
 	def find_by_email(email, token_type): #return g.db.query(Auth).filter_by(user_id=user_id, token_type=token_type).first()
-		print "find_by_email"
 		return g.db.query(User, Auth).filter(User.id==Auth.user_id).filter(User.email==email).filter(Auth.token_type==token_type).all()
 	@staticmethod
-	def reset_token_email(email): # 1. Figure out missing token users 2. Make missing tokens 3. Modify rest of the tokens
-		print "reset_token_email"
+	def reset_token_email(email): # 1. Figure out missing token users 2. Modify rest of the tokens 3. Make missing tokens
+		import uuid
+		from datetime import datetime, timedelta
+		from base64 import urlsafe_b64encode
 		missing_token_users = g.db.query(User).filter(User.email==email).all() # All users; we pick out users who have already a token
 		existing_token_tuples = Auth.find_by_email(email, 'pw_reset')
 		for temp_tuple in existing_token_tuples:
 			if temp_tuple.User in missing_token_users:
-				missing_token_users.remove(temp_tuple.User)
+				missing_token_users.remove(temp_tuple.User) # Modify token
+				temp_tuple.Auth.token_content = urlsafe_b64encode(bytes(uuid.uuid4()))
+				temp_tuple.Auth.expiration_time = datetime.utcnow() + timedelta(days=30)
 		for new_token_user in missing_token_users:
-			print "New token needed for user: " + str(new_token_user.id)
+			token = Auth() # This user needs new token
+			token.user_id = new_token_user
+			token.token_type = 'pw_hash'
+			token.token_content = urlsafe_b64encode(bytes(uuid.uuid4()))
+			token.expiration_time = datetime.utcnow() + timedelta(days=30)
+			g.db.add(token)
+		g.db.commit()
 
-		
 
 class Organization(Base):
 	__tablename__ = 'organization'
