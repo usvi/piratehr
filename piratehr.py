@@ -103,7 +103,7 @@ def auth_user():
 	if auth_request['type'] == "request_reset":
 		if auth_request['email'] != None: # Asking for password reset by email.
 			reset_list = appdb.Auth.reset_token_email(auth_request['email'])
-			messenger.send_password_reset_emails(reset_list)
+			messenger.send_password_reset_emails(reset_list, request.url_root + "reset/")
 		return "POST", 200 # Always return ok here: Attacker must not get knowledge about whether we have the email or not
 	else:
 		return "Invalid auth data", 422
