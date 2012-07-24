@@ -13,9 +13,10 @@ def send_password_reset_emails(reset_list, reset_url_base): # reset_list contain
 	s = smtplib.SMTP(settings['smtp_server'])
 	for recipient, token in reset_list:
 		#print recipient.email + "  :" + token.token_content
-		msg = MIMEText("You have requested a password reset on PirateHR for " + recipient.legal_name + "." + 
-			       " You can reset your password by using this link: " + reset_url_base + token.token_content + "\n\n"+
-			       "If you think that this is an error, you can safely ignore this message")
+		msg_text = "You have requested a password reset on PirateHR for " + recipient.legal_name + "."
+		msg_text += "You can reset your password by using this link: " + reset_url_base + token.token_content + "\n\n"
+		msg_text += "If you think that this is an error, you can safely ignore this message";
+		msg = MIMEText(msg_text, 'plain', 'utf8')
 		msg['Subject'] = "Password reset from PirateHR"
 		msg['From'] = "PirateHR <" + settings['email_reset_from'] + ">"
 		msg['To'] = recipient.email

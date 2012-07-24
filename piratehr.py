@@ -120,7 +120,7 @@ def settings_put():
 
 @api.route("/settings.json", methods=["GET"])
 def settings_get():
-	print "settings_get()"#
+	print "settings_get()" #
 	return "GET", 200
 
 @api.route("/debug_<debug_param>", methods=["DEBUG"])
