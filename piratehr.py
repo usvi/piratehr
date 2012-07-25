@@ -109,6 +109,15 @@ def auth_user():
 		return "Invalid auth data", 422
 
 
+@api.route("/organization.json", methods=["PUT"])
+def organizaiont_put():
+	print "organization_put"
+	organization_data = unpack_request(request)
+	if organization_data == None or organization_data['legal_name'] == None: return "Invalid organization data", 422
+	appdb.Organization.create(legal_name=organization_data['legal_name'], friendly_name=organization_data['friendly_name'])
+	return "PUT", 200
+
+
 @api.route("/settings.json", methods=["PUT"])
 def settings_put():
 	print "settings_put"

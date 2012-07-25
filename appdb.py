@@ -129,6 +129,15 @@ class Organization(Base):
 	parent_id = Column(Integer, ForeignKey('organization.id', onupdate="RESTRICT", ondelete="RESTRICT")) # Reference to the 
 	legal_name = Column(String(128), nullable=False, unique=True) # Full legal name of the organization
 	friendly_name = Column(String(128)) # Friendly short name of the organization
+	@staticmethod
+	def create(legal_name, friendly_name):
+		organization = Organization()
+		organization.legal_name = legal_name
+		organization.friendly_name = friendly_name
+		g.db.add(organization)
+		g.db.commit()
+
+	
 
 
 class Membership(Base):
