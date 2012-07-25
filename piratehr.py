@@ -102,12 +102,9 @@ def before_request():
 	g.user = None
 	try: g.req = request.json
 	except: pass  # Ignore anything raised by request.json
-	app.logger.warn(type(request.json));
 	g.req = g.req or request.values
-	app.logger.warn(type(g.req));
 	if g.req:
 		auth = g.req.get('auth', None)
-		app.logger.warn(type(auth))
 		if auth:
 			g.user = appdb.Auth.authenticate(json.loads(auth))
 			if not g.user: return "Invalid authentication", 401
@@ -170,7 +167,7 @@ def organization_put():
 	return json.dumps(ret), 201
 
 
-@api.route("/organization.json", methods=["GET"])
+@api.route("/organization.json", methods=["PROPFIND"])
 def organization_get():
 	print "organization_get"
 	# FIXME: Proper error checking here?
@@ -197,7 +194,7 @@ def settings_put():
 	appdb.Settings.make_setting(req['key'], req['value'])
 	return "PUT", 200 # FIXME: Stricter error checks?, JSON response
 
-@api.route("/settings.json", methods=["GET"])
+@api.route("/settings.json", methods=["PROPFIND"])
 def settings_get():
 	print "settings_get()" #
 	return "GET", 200 # FIXME: JSON response

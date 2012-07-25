@@ -16,6 +16,7 @@ function switchPage() {
 	if (oldPage == window.location.href) return;  // Nothing to do
 	oldPage = window.location.href;
 	$('.page').hide();
+	$('.ajaxfield').empty();
 	path = window.location.pathname.split('/');
 	var page = $('#' + path[1]);
 	if (page.length != 1) navigate("/register/");
@@ -78,41 +79,34 @@ function ajaxError(e, xhr, textStatus, errorThrown) {
 }
 
 function prepareOrgPages() {
-
-	if(path[1] == "org") {
-		loadOrgList();
-		if(path[2]) { // We have org id
-			$('#orgdetails').show();
-		} else {
-			$('#orglist').show();
-		}
-
+	loadOrgList();
+	if(path[2]) { // We have org id
+		$('#orgdetails').show();
+	} else {
+		$('#orglist').show();
 	}
 }
 
-			
-
 function loadOrgList() {
-	
 	flash("Loading organization list");
-		var settings = {
-			data: "",
-			url: "/api/organization.json",
-			type: "GET",
-			contentType: "application/json",
-			success: function(data, textStatus, xhr) {
-				var ds = "";
-				var r = JSON.parse(data);
-				$('#orglisttable').children().remove();
-				for (var key in r) {
-					var org_link = "<a href=\"/org/" + r[key].id + "\">" +  r[key].legal_name + "</a>"
-					var table_row = "<tr><td>" + org_link + "</td></tr>";
-					$('#orglisttable').append(table_row);
-				}
-			},
-			error: function(xhr, textStatus, errorThrown) { flash("Unable to get organizations: " + errorThrown); },
-		};
-		$.ajax(settings);
+	var settings = {
+		data: "",
+		url: "/api/organization.json",
+		type: "PROPFIND",
+		contentType: "application/json",
+		success: function(data, textStatus, xhr) {
+			var ds = "";
+			var r = JSON.parse(data);
+			$('#orglisttable').children().remove();
+			for (var key in r) {
+				var org_link = "<a href=\"/org/" + r[key].id + "\">" +  r[key].legal_name + "</a>"
+				var table_row = "<tr><td>" + org_link + "</td></tr>";
+				$('#orglisttable').append(table_row);
+			}
+		},
+		error: function(xhr, textStatus, errorThrown) { flash("Unable to get organizations: " + errorThrown); },
+	};
+	$.ajax(settings);
 }
 
 function login(auth) {
