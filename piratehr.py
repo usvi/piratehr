@@ -5,6 +5,7 @@ from flask import Flask, Blueprint, request, session, g, redirect, url_for, abor
 import json
 import appdb
 import datetime
+import time
 import messenger
 
 
@@ -96,17 +97,41 @@ def clear_database():
 	appdb.clear_database()
 	return "DELETED", 200
 
+def sleep_until(t):
+	timedelta = t - datetime.datetime.utcnow()
+	duration = timedelta.seconds + timedelta.microseconds / 1E6 + timedelta.days * 86400
+	if duration > 0: time.sleep(duration)
+	else: app.logger.warn('sleep_until called ' + duration + ' s after the deadline')
+
 @api.route("/auth.json", methods=["POST"])
-def auth_user():
-	auth_request = unpack_request(request)
-	if not auth_request: return "Invalid auth data", 422
-	if auth_request['type'] == "request_reset":
+def auth():
+	req = unpack_request(request)
+	if not req: return "Invalid auth request", 422
+	responsetime = datetime.datetime.utcnow() + datetime.timedelta(milliseconds = 1500)
+	login = req['login']
+	if req['type'] == "login_password":
+		if not req['login'] or not req['password']: return "Fields login or password missing", 422
+		user = appdb.User.find_by_email(login)
+		sleep_until(responsetime)
+		if len(user) != 1: return "Authorization failed", 403
+		user = user[0]
+		ret = {
+			'auth': {
+				'token': 12345,  # FIXME
+				'name': user.name
+			}
+		}
+		return json.dumps(ret), 200
+	elif req['type'] == "request_reset":
 		if auth_request['email'] != None: # Asking for password reset by email.
+			# TODO/SECURITY: Add request to queue instead of sending it to avoid information leakage by measuring request time
 			reset_list = appdb.Auth.reset_token_email(auth_request['email'])
 			messenger.send_password_reset_emails(reset_list, request.url_root + "reset/")
-		return "POST", 200 # Always return ok here: Attacker must not get knowledge about whether we have the email or not
+		sleep_until(responsetime)
+		# Always return ok here: Attacker must not get knowledge about whether we have the email or not
+		return json.dumps({"status":"Password reset requested"}), 202
 	else:
-		return "Invalid auth data", 422
+		return "Auth type not specified or not supported", 422
 
 
 @api.route("/organization.json", methods=["PUT"])
