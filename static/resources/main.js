@@ -77,22 +77,6 @@ function ajaxError(e, xhr, textStatus, errorThrown) {
 	flash(errorThrown + ": " + xhr.responseText);
 }
 
-function loadOrgDetails()
-{
-	;
-}
-
-function showOrgPages() {
-	$('.org').hide();
-	loadOrgList();
-	//$('#orgdetails').on('show', loadOrgDetails())
-	if(path[2]) { // We have org id
-		$('#orgdetails').show();
-	} else {
-		$('#orglist').show();
-	}
-}
-
 
 function jsonQuery(inputData, inputUrl, inputType, successFunc, completeFunc) {
 	var settings = {
@@ -118,6 +102,29 @@ function loadOrgList() {
 		}
 	}, undefined);
 }
+
+
+function loadOrgDetails(inputOrgFriendly) {
+	jsonQuery("", "/api/organization_" + inputOrgFriendly + ".json", "PROPFIND", function(data, textStatus, xhr) {
+		var r = JSON.parse(data);
+		$('#orgdetails_friendly_name').text(r.friendly_name);
+		$('#orgdetails_legal_name').text(r.friendly_name);
+	}, undefined);
+}
+
+
+function showOrgPages() {
+	$('.org').hide();
+	loadOrgList();
+	//$('#orgdetails').on('show', loadOrgDetails())
+	if(path[2]) { // We have org friendly_name
+		loadOrgDetails(path[2]); // Load, and..
+		$('#orgdetails').show(); // show them all in place
+	} else {
+		$('#orglist').show();
+	}
+}
+
 
 function login(auth) {
 	localStorage["auth"] = JSON.stringify(auth);
