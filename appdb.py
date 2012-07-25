@@ -6,6 +6,9 @@ from sqlalchemy import *
 from sqlalchemy import event
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+import uuid
+from datetime import datetime, timedelta
+from base64 import urlsafe_b64encode
 
 
 Base = declarative_base()
@@ -51,8 +54,6 @@ class User(Base):
 	last_seen = Column(DateTime, nullable=False) # Time when user was last seen active on system
 	@staticmethod
 	def create(legal_name, residence, phone, email, dob):
-		import uuid
-		from datetime import datetime
 		user = User()
 		user.uuid = str(uuid.uuid4())
 		user.residence = residence
@@ -91,19 +92,18 @@ class Address(Base):
 class Auth(Base):
 	__tablename__ = 'auth'
 	id = Column(Integer, primary_key=True) # Id of this token
-	user_id = Column(Integer, ForeignKey('user.id'), nullable=False) # Reference to the id of the user having this token
-	token_type = Column(Enum('pw_hash', 'pw_reset', 'facebook', 'openid', name='token_types'), nullable=False, primary_key=True) # Auth type
+	user_id = Column(Integer, ForeignKey('user.id'), nullable=False, primary_key=True) # Reference to the id of the user having this token
+	token_type = Column(Enum('session', 'pw_hash', 'pw_reset', 'facebook', 'openid', name='token_types'), nullable=False, primary_key=True) # Auth type
 	token_content = Column(String(512)) # Auth token content
 	expiration_time = Column(DateTime) # Expiration of the token
+	
 	@staticmethod
 	def find_by_email(email, token_type): #return g.db.query(Auth).filter_by(user_id=user_id, token_type=token_type).first()
 		return g.db.query(User, Auth).filter(User.id==Auth.user_id).filter(User.email==email).filter(Auth.token_type==token_type).all()
+	
 	@staticmethod
 	def reset_token_email(email): # 1. Figure out missing token users 2. Modify rest of the tokens 3. Make missing tokens
 		# I guess session.merge() is unusable because unique constraints are not automatically enforced by sqlalchemy
-		import uuid
-		from datetime import datetime, timedelta
-		from base64 import urlsafe_b64encode
 		missing_token_users = g.db.query(User).filter(User.email==email).all() # All users; we pick out users who have already a token
 		existing_token_tuples = Auth.find_by_email(email, 'pw_reset')
 		for temp_tuple in existing_token_tuples:
@@ -121,6 +121,17 @@ class Auth(Base):
 			existing_token_tuples.append((new_token_user,new_token))
 		g.db.commit()
 		return existing_token_tuples
+	
+	@staticmethod
+	def create_session(user):
+		auth = Auth()
+		auth.user_id = user
+		auth.token_type = 'session'
+		auth.token_content = urlsafe_b64encode(bytes(uuid.uuid4()))
+		auth.expiration_time = datetime.utcnow() + timedelta(days=1)
+		g.db.add(auth)
+		g.db.commit()
+		return auth
 
 
 class Organization(Base):
