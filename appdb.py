@@ -136,11 +136,15 @@ class Auth(Base):
 	@staticmethod
 	def authenticate(auth_req):
 		if auth_req.has_key('uuid') and auth_req.has_key('token'):  # Session token
-			return g.db.query(User).join(Auth) \
+			u = g.db.query(User).join(Auth) \
 			  .filter(User.uuid == auth_req['uuid']) \
 			  .filter(Auth.token_type == 'session') \
 			  .filter(Auth.token_content == auth_req['token']) \
 			  .first()
+			u.last_seen = datetime.utcnow()
+			g.db.commit()
+			return u
+		# Other (per request) authentication methods may be added here
 		else: return None
 
 
@@ -161,8 +165,6 @@ class Organization(Base):
 	@staticmethod
 	def get_all():
 		return g.db.query(Organization).all()
-		
-	
 
 
 class Membership(Base):

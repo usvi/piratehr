@@ -29,6 +29,8 @@ if app.config['DEBUG']:
 @app.route("/register/")
 @app.route("/user/")
 @app.route("/user/<path:path>")
+@app.route("/memberships/")
+@app.route("/memberships/<path:path>")
 @app.route("/org/")
 @app.route("/org/<path:path>")
 def index(*args, **kwargs):
