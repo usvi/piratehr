@@ -2,14 +2,14 @@
 
 set -e
 
+echo Drop and re-create the database
 mysql piratehr -upiratehr -ppiratehr <<EOF
 drop database piratehr;
 create database piratehr;
 EOF
 
-echo Restart local server
-killall piratehr.py || echo Not killed
-./piratehr.py&
+echo Restart the application
+touch piratehr.py
 
 sleep 5
 
@@ -33,8 +33,6 @@ echo Test User 2
 curl -X POST http://localhost:5000/api/new_user.json --data "legal_name=Test%20User%202&residence=%C3%84k%C3%A4slompolo%2C%20Finland&phone=%2B358123456&email=user@nowhere.tld&dob=1980-12-31"
 echo
 
-echo Kill the server
-killall piratehr.py
+echo Done.
 
-echo Done, feel free to restart the server now
 
