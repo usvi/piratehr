@@ -65,8 +65,8 @@ class User(Base):
 		user.email = email
 		user.phone = phone
 		g.db.add(user)
-		g.db.commit()
-		return user # FIXME: Stricter checks here?
+		if g.db.commit() == None: return user
+		return False
 	@staticmethod
 	def find(user_id):
 		return g.db.query(User).filter_by(uuid=user_id).first()
@@ -135,7 +135,8 @@ class Organization(Base):
 		organization.legal_name = legal_name
 		organization.friendly_name = friendly_name
 		g.db.add(organization)
-		g.db.commit()
+		if g.db.commit() == None: return organization
+		return False
 
 	
 
