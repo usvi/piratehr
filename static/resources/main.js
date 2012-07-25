@@ -16,7 +16,6 @@ function switchPage() {
 	if (oldPage == window.location.href) return;  // Nothing to do
 	oldPage = window.location.href;
 	$('.page').hide();
-	$('.ajaxfield').empty();
 	path = window.location.pathname.split('/');
 	var page = $('#' + path[1]);
 	if (page.length != 1) navigate("/register/");
@@ -177,7 +176,7 @@ $('.ajaxform').submit(function(ev) {
 		type: form.attr('method'),
 		contentType: "application/json",
 		success: function(data, textStatus, xhr) {
-			form[0].reset();  // Clear the form
+			if (xhr.type == 'POST') form[0].reset();  // Clear the form after successful POST
 			var d = JSON.parse(data);
 			if (d) {
 				if (d.user_url) navigate(d.user_url);
