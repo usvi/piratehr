@@ -116,8 +116,8 @@ function login(auth) {
 function logout(msg) {
 	localStorage.removeItem("auth");
 	flash(msg || "You have been logged out. Close this page and clear history to remove any remaining sensitive data.");
-	$('#authform').focus();
 	updateAuth();
+	$('#authform input[name=login]').focus();
 }
 
 function updateAuth() {
