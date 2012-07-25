@@ -58,10 +58,24 @@ $(document).ready(function() {
 	});
 	switchPage();
 	updateAuth();
-	loadOrgList();
+	prepareOrgPages();
 	$('#auth_logout').on('click', logout);
-	$('#org').on('show', loadOrgList);
+	$('#org').on('show', prepareOrgPages);
 });
+
+
+function prepareOrgPages() {
+
+	if(path[1] == "org") {
+		loadOrgList();
+		if(path[2]) { // We have org id
+			$('#orgdetails').show();
+		} else {
+			$('#orglist').show();
+		}
+			
+	}
+}
 
 
 function loadOrgList() {
