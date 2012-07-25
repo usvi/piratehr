@@ -125,13 +125,23 @@ class Auth(Base):
 	@staticmethod
 	def create_session(user):
 		auth = Auth()
-		auth.user_id = user
+		auth.user_id = user.id
 		auth.token_type = 'session'
 		auth.token_content = urlsafe_b64encode(bytes(uuid.uuid4()))
 		auth.expiration_time = datetime.utcnow() + timedelta(days=1)
 		g.db.add(auth)
 		g.db.commit()
 		return auth
+	
+	@staticmethod
+	def authenticate(auth_req):
+		if auth_req.has_key('uuid') and auth_req.has_key('token'):  # Session token
+			return g.db.query(User).join(Auth) \
+			  .filter(User.uuid == auth_req['uuid']) \
+			  .filter(Auth.token_type == 'session') \
+			  .filter(Auth.token_content == auth_req['token']) \
+			  .first()
+		else: return None
 
 
 class Organization(Base):
