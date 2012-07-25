@@ -72,15 +72,17 @@
 	<div class="page" id="org">
 		<h2>Organization</h2>
 
-		<p>
-		<form class="ajaxform" action="/api/organization.json" method="PUT">
-		<table>
-		<tr><td>Legal name of the organization</td><td><input type="text" name="legal_name" placeholder="The Pirate Organization of X" required></td></tr>
-		<tr><td>Friendly name of the organization</td><td><input type="text" name="friendly_name" placeholder="Pirates of X" required></td></tr>
-		</table>
-		</p>
-		<input type="submit" value="Create">
-		</form>
+		<div id="orgcreateform">
+			<form class="ajaxform" action="/api/organization.json" method="PUT">
+			<table>
+			<tr><td>Legal name of the organization</td><td><input type="text" name="legal_name" placeholder="The Pirate Organization of X" required></td></tr>
+			<tr><td>Friendly name of the organization</td><td><input type="text" name="friendly_name" placeholder="Pirates of X" required></td></tr>
+			</table>
+			<input type="submit" value="Create">
+			</form>
+		</div>
+		<div id="orglist">
+		</div>
 	</div>
 
 
