@@ -77,9 +77,15 @@ function ajaxError(e, xhr, textStatus, errorThrown) {
 	flash(errorThrown + ": " + xhr.responseText);
 }
 
+function loadOrgDetails()
+{
+	;
+}
+
 function showOrgPages() {
 	$('.org').hide();
 	loadOrgList();
+	//$('#orgdetails').on('show', loadOrgDetails())
 	if(path[2]) { // We have org id
 		$('#orgdetails').show();
 	} else {
@@ -98,7 +104,7 @@ function loadOrgList() {
 			var r = JSON.parse(data);
 			$('#orglisttable').children().remove();
 			for (var key in r) {
-				var org_link = "<a href=\"/org/" + r[key].id + "\">" +  r[key].friendly_name + "</a>"
+				var org_link = "<a href=\"/org/" + r[key].friendly_name + "\">" +  r[key].friendly_name + "</a>"
 				var table_row = "<tr><td>" + org_link + "</td></tr>";
 				$('#orglisttable').append(table_row);
 			}
