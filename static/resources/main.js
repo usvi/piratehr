@@ -30,10 +30,13 @@ $(document).ready(function() {
 	$('#user').on('show', function() {
 		var uuid = path[2];
 		if (uuid == null) return;
+		data = {};
+		auth = localStorage['auth'];
+		if (auth) data.auth = auth;
 		var settings = {
-			data: "",
+			data: JSON.stringify(data),
 			url: "/api/user_" + uuid + ".json",
-			type: "GET",
+			type: "PROPFIND",
 			contentType: "application/json",
 			success: function(data, textStatus, xhr) {
 				var r = JSON.parse(data);
@@ -61,8 +64,18 @@ $(document).ready(function() {
 	prepareOrgPages();
 	$('#auth_logout').on('click', logout);
 	$('#org').on('show', prepareOrgPages);
+	$(document).ajaxError(ajaxError);
 });
 
+function ajaxError(e, xhr, textStatus, errorThrown) {
+	if (xhr.status == 401) {
+		storage = localStorage["auth"];
+		if (storage) logout("Your session has expired and you need to login again.");
+		else flash("You need to be logged in to access this function.");
+		return;
+	}
+	flash(errorThrown + ": " + xhr.responseText);
+}
 
 function prepareOrgPages() {
 
@@ -73,10 +86,11 @@ function prepareOrgPages() {
 		} else {
 			$('#orglist').show();
 		}
-			
+
 	}
 }
 
+			
 
 function loadOrgList() {
 	
@@ -98,7 +112,7 @@ function loadOrgList() {
 			},
 			error: function(xhr, textStatus, errorThrown) { flash("Unable to get organizations: " + errorThrown); },
 		};
-		$.ajax(settings);		
+		$.ajax(settings);
 }
 
 function login(auth) {
@@ -107,9 +121,10 @@ function login(auth) {
 	updateAuth();
 }
 
-function logout() {
+function logout(msg) {
 	localStorage.removeItem("auth");
-	flash("You have been logged out. Close this page and clear history to remove any remaining sensitive data.");
+	flash(msg || "You have been logged out. Close this page and clear history to remove any remaining sensitive data.");
+	$('#authform').focus();
 	updateAuth();
 }
 
@@ -142,10 +157,13 @@ $('.ajaxform').submit(function(ev) {
 	var form = $(this);
 	var submit = $('input[type=submit]', this);
 	submit.attr('disabled', 'disabled');  // Disable form while submission is in progress
+	data = form.formParams();
+	auth = localStorage['auth'];
+	if (auth) data.auth = auth;
 	var settings = {
-		data: JSON.stringify(form.formParams()),
+		data: JSON.stringify(data),
 		url: form.attr('action'),
-		type: 'POST', //form.attr('method'),
+		type: form.attr('method'),
 		contentType: "application/json",
 		success: function(data, textStatus, xhr) {
 			form[0].reset();  // Clear the form
