@@ -148,6 +148,7 @@ class Organization(Base):
 		g.db.add(organization)
 		if g.db.commit() == None: return organization
 		return False
+	@staticmethod
 	def get_all():
 		return g.db.query(Organization).all()
 		

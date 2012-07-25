@@ -149,6 +149,7 @@ def organization_put():
 	print "New organization: " + organization.legal_name + "/" + organization.friendly_name
 	ret = {
 		'id': organization.id,
+		'parent_id': organization.parent_id,
 		'legal_name': organization.legal_name,
 		'friendly_name': organization.friendly_name
 	}
@@ -160,8 +161,16 @@ def organization_get():
 	print "organization_get"
 	# FIXME: Proper error checking here?
 	organizations = appdb.Organization.get_all()
-	print repr(organizations)
-	return 200
+	ret = []
+	for organization in organizations:
+		tuple = {
+			'id': organization.id,
+			'parent_id': organization.parent_id,
+			'legal_name': organization.legal_name,
+			'friendly_name': organization.friendly_name
+			}
+		ret.append(tuple)
+	return json.dumps(ret), 200
 
 
 

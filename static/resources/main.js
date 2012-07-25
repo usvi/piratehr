@@ -59,12 +59,32 @@ $(document).ready(function() {
 	switchPage();
 	updateAuth();
 	$('#auth_logout').on('click', logout);
-	$('#org').on('show', showOrgList);
+	$('#org').on('show', loadOrgList);
 });
 
-function showOrgList() {
+
+function loadOrgList() {
 	
-    flash("Displaying organization list");
+	flash("Loading organization list");
+		var settings = {
+			data: "",
+			url: "/api/organization.json",
+			type: "GET",
+			contentType: "application/json",
+			success: function(data, textStatus, xhr) {
+				var ds = "";
+				var r = JSON.parse(data);
+				$('#orglisttable').children().remove();
+				for (var key in r) {
+					var org_link = "";
+					var table_row = "<tr><td>" + r[key].legal_name + "</td></tr>";
+					//ds += r[key].id + ":" + r[key].parent_id + ":" + r[key].legal_name + ":" + r[key].friendly_name + "\n";
+					$('#orglisttable').append(table_row);
+				}
+			},
+			error: function(xhr, textStatus, errorThrown) { flash("Unable to get organizations: " + errorThrown); },
+		};
+		$.ajax(settings);		
 }
 
 function login(auth) {
