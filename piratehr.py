@@ -143,10 +143,21 @@ def organization_put():
 	if not organization: return "Invalid organization data", 422
 	print "New organization: " + organization.legal_name + "/" + organization.friendly_name
 	ret = {
+		'id': organization.id,
 		'legal_name': organization.legal_name,
 		'friendly_name': organization.friendly_name
 	}
 	return json.dumps(ret), 201
+
+
+@api.route("/organization.json", methods=["GET"])
+def organization_get():
+	print "organization_get"
+	# FIXME: Proper error checking here?
+	organizations = appdb.Organization.get_all()
+	print repr(organizations)
+	return 200
+
 
 
 @api.route("/settings.json", methods=["PUT"])
