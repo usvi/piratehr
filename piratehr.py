@@ -112,15 +112,20 @@ def auth():
 	if req['type'] == "login_password":
 		if not req['login'] or not req['password']: return "Fields login or password missing", 422
 		user = appdb.User.find_by_email(login)
-		sleep_until(responsetime)
-		if len(user) != 1: return "Authorization failed", 403
-		user = user[0]
-		ret = {
-			'auth': {
-				'token': 12345,  # FIXME
-				'name': user.name
+		auth = None
+		ret = None
+		if (len(user) == 1):
+			user = user[0]
+			auth = appdb.Auth.create_session(user)
+			ret = {
+				'auth': {
+					'token': auth.token_content,
+					'uuid': user.uuid,
+					'name': user.name
+				}
 			}
-		}
+		sleep_until(responsetime)
+		if not auth: return "Authorization failed", 403
 		return json.dumps(ret), 200
 	elif req['type'] == "request_reset":
 		if auth_request['email'] != None: # Asking for password reset by email.
