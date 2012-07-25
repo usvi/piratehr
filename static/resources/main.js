@@ -52,7 +52,6 @@ $(document).ready(function() {
 				qr.make();
 				$('#user_uuid').prepend('<a href="' + r.user_url + '" onclick="return false">' + qr.createImgTag() + '</a><br>');
 			},
-			error: function(xhr, textStatus, errorThrown) { flash("Unable to get user: " + errorThrown); },
 		};
 		$.ajax(settings);		
 	});
@@ -104,7 +103,6 @@ function loadOrgList() {
 				$('#orglisttable').append(table_row);
 			}
 		},
-		error: function(xhr, textStatus, errorThrown) { flash("Unable to get organizations: " + errorThrown); },
 	};
 	$.ajax(settings);
 }
@@ -168,7 +166,6 @@ $('.ajaxform').submit(function(ev) {
 				if (d.status) flash(status);
 			}
 		},
-		error: function(xhr, textStatus, errorThrown) { flash(errorThrown + ": " + xhr.responseText); },
 		complete: function() { submit.removeAttr('disabled'); }
 	};
 	$.ajax(settings);
