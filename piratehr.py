@@ -120,7 +120,7 @@ def sleep_until(t):
 def auth():
 	req = g.req
 	if not req: return "Invalid auth request", 422
-	responsetime = datetime.datetime.utcnow() + datetime.timedelta(milliseconds = 1500)
+	responsetime = datetime.datetime.utcnow() + datetime.timedelta(milliseconds = 500)
 	login = req['login']
 	if req['type'] == "login_password":
 		if not req['login'] or not req['password']: return "Fields login or password missing", 422
