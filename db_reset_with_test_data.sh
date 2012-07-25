@@ -33,6 +33,15 @@ echo Test User 2
 curl -X POST http://localhost:5000/api/new_user.json --data "legal_name=Test%20User%202&residence=%C3%84k%C3%A4slompolo%2C%20Finland&phone=%2B358123456&email=user@nowhere.tld&dob=1980-12-31"
 echo
 
+echo Test Org: Caribian Pirates
+curl -X PUT http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Caribian%20Pirates&friendly_name=Caribian%20Pirates"
+echo
+
+echo Test Org: Hawaiin Pirates
+curl -X PUT http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Hawaiian%20Pirates&friendly_name=Hawaiian%20Pirates"
+echo
+
+
 echo Done.
 
 
