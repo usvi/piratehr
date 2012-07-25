@@ -7,14 +7,15 @@ mysql piratehr -upiratehr -ppiratehr <<EOF
 drop database piratehr;
 create database piratehr;
 EOF
+sleep 1
 
 echo Restart the application
 touch piratehr.py
 
-sleep 5
+sleep 6
 
 echo Settings 1
-curl -X PUT http://localhost:5000/api/settings.json --data "key=smtp_server&value=mail.inet.fi"
+curl -X PUT -H "Content-Type: application/json" http://localhost:5000/api/settings.json --data '{"key":"smtp_server","value":"mail.inet.fi"}'
 echo
 
 echo Settings 2
