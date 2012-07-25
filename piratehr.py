@@ -59,8 +59,9 @@ def create_user():
 
 @api.route("/user_<user_id>.json", methods=["PROPFIND"])
 def get_user(user_id):
+	if not g.user: abort(401)
 	user = appdb.User.find(user_id)
-	if user == None: abort(404)
+	if not user or user != g.user: abort(403)
 	# TODO: The following code should be
 	#   (a) eliminated if possible, or at least
 	#   (b) moved elsewhere (appdb.py?)
