@@ -58,6 +58,7 @@ $(document).ready(function() {
 	});
 	switchPage();
 	updateAuth();
+	loadOrgList();
 	$('#auth_logout').on('click', logout);
 	$('#org').on('show', loadOrgList);
 });
@@ -76,9 +77,8 @@ function loadOrgList() {
 				var r = JSON.parse(data);
 				$('#orglisttable').children().remove();
 				for (var key in r) {
-					var org_link = "";
-					var table_row = "<tr><td>" + r[key].legal_name + "</td></tr>";
-					//ds += r[key].id + ":" + r[key].parent_id + ":" + r[key].legal_name + ":" + r[key].friendly_name + "\n";
+					var org_link = "<a href=\"/org/" + r[key].id + "\">" +  r[key].legal_name + "</a>"
+					var table_row = "<tr><td>" + org_link + "</td></tr>";
 					$('#orglisttable').append(table_row);
 				}
 			},
