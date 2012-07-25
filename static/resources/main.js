@@ -59,7 +59,13 @@ $(document).ready(function() {
 	switchPage();
 	updateAuth();
 	$('#auth_logout').on('click', logout);
+	$('#org').on('show', showOrgList);
 });
+
+function showOrgList() {
+	
+    flash("Displaying organization list");
+}
 
 function login(auth) {
 	localStorage["auth"] = JSON.stringify(auth);
