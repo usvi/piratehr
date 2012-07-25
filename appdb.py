@@ -149,7 +149,7 @@ class Organization(Base):
 	id = Column(Integer, primary_key=True) # Id of this organization
 	parent_id = Column(Integer, ForeignKey('organization.id', onupdate="RESTRICT", ondelete="RESTRICT")) # Reference to the 
 	legal_name = Column(String(128), nullable=False, unique=True) # Full legal name of the organization
-	friendly_name = Column(String(128)) # Friendly short name of the organization
+	friendly_name = Column(String(128), nullable=False, unique=True) # Friendly short name of the organization
 	@staticmethod
 	def create(legal_name, friendly_name):
 		organization = Organization()
