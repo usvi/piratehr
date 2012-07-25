@@ -2,10 +2,9 @@ var path;
 
 function flash(msg) {
 	var elem = $('#flash');
-	var p = $('<p>', {
-		text: msg
-	});
-	setTimeout(function() { p.slideUp('slow', function() { p.remove() }); }, 2000);
+	var p = $('<p>');
+	p.text(msg);
+	setTimeout(function() { p.slideUp('slow', function() { p.remove() }); }, Math.min(2000 + 10 * msg.length, 10000));
 	p.appendTo(elem[0]);
 	elem.slideDown('slow');
 	elem.click(function () { $(this).slideUp('fast') });
@@ -58,7 +57,35 @@ $(document).ready(function() {
 		navigate(this.href);
 	});
 	switchPage();
+	updateAuth();
+	$('#auth_logout').on('click', logout);
 });
+
+function login(auth) {
+	localStorage["auth"] = JSON.stringify(auth);
+	flash("Login successful");
+	updateAuth();
+}
+
+function logout() {
+	localStorage.removeItem("auth");
+	flash("You have been logged out. Close this page and clear history to remove any remaining sensitive data.");
+	updateAuth();
+}
+
+function updateAuth() {
+	var storage = localStorage["auth"];
+	if (storage) {
+		auth = JSON.parse(storage);
+		$('#authform').hide();
+		$('#authinfo').show();
+		$('#auth_name').text(auth.name + " logged in");
+	} else {
+		$('#authform').show();
+		$('#authinfo').hide();
+		$('#auth_name').empty();
+	}
+}
 
 function navigate(url) {
 	// Allow for current events to finish before navigating
@@ -78,14 +105,18 @@ $('.ajaxform').submit(function(ev) {
 	var settings = {
 		data: JSON.stringify(form.formParams()),
 		url: form.attr('action'),
-		type: form.attr('method'),
+		type: 'POST', //form.attr('method'),
 		contentType: "application/json",
 		success: function(data, textStatus, xhr) {
 			form[0].reset();  // Clear the form
 			var d = JSON.parse(data);
-			if (d && d.user_url) navigate(d.user_url);
+			if (d) {
+				if (d.user_url) navigate(d.user_url);
+				if (d.auth) login(d.auth);
+				if (d.status) flash(status);
+			}
 		},
-		error: function(xhr, textStatus, errorThrown) { flash("Unable to submit form: " + errorThrown); },
+		error: function(xhr, textStatus, errorThrown) { flash(errorThrown + ": " + xhr.responseText); },
 		complete: function() { submit.removeAttr('disabled'); }
 	};
 	$.ajax(settings);
