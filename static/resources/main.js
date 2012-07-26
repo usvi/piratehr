@@ -139,6 +139,7 @@ function loadOrgDetails(inputOrgFriendly) {
 		var r = JSON.parse(data);
 		//$('#orgdetails_friendly_name').text(r.friendly_name);
 		//$('#orgdetails_legal_name').text(r.friendly_name);
+		alert(r.main_org.legal_name);
 	}, undefined);
 }
 

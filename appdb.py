@@ -179,11 +179,11 @@ class Organization(Base):
 		return g.db.query(Organization).all()
 	@staticmethod
 	def find_by_perma(perma_name):
-		return g.db.query(Organization).filter(perma_name==perma_name).first()
-	def get_parent():
-		return g.db.query(Organization).filter(id==self.parent_id).first()
-	def get_children():
-		return g.db.query(Organization).filter(parten_id==self.id).all()
+		return g.db.query(Organization).filter_by(perma_name=perma_name).first()
+	def get_parent(self):
+		return g.db.query(Organization).filter_by(id=self.parent_id).first()
+	def get_children(self):
+		return g.db.query(Organization).filter_by(parent_id=self.id).all()
 
 class Membership(Base):
 	__tablename__ = 'membership'

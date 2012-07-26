@@ -194,10 +194,8 @@ def organization_get(perma_name):
         if not perma_name: return "Invalid organization data", 422
         # FIXME: Proper error checking here?
         ret = {}
-        main_org = appdb.Organization.find_by_perma_name(perma_name)
+        main_org = appdb.Organization.find_by_perma(perma_name)
         if not main_org: return "No such organization", 404
-        print "As parameter: " + friendly_name
-        print "From req: " + req.get('friendly_name')
         ret['main_org'] = {
                         'id': main_org.id,
                         'parent_id': main_org.parent_id,
