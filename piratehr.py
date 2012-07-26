@@ -157,8 +157,8 @@ def auth():
 @api.route("/organization.json", methods=["PUT"])
 def organization_put():
 	req = g.req
-	if not req or req['legal_name'] == None: return "Invalid organization data", 422
-	organization = appdb.Organization.create(legal_name=req['legal_name'], friendly_name=req['friendly_name'])
+	if not req or req.get('legal_name') == None or req.get('friendly_name') == None: return "Invalid organization data", 422
+	organization = appdb.Organization.create(legal_name=req.get('legal_name'), friendly_name=req.get('friendly_name'), parent_id=req.get('parent_id'))
 	if not organization: return "Invalid organization data", 422
 	print "New organization: " + organization.legal_name + "/" + organization.friendly_name
 	ret = {

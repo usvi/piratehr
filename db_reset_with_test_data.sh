@@ -42,6 +42,9 @@ echo Test Org: Hawaiin Pirates
 curl -X PUT http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Hawaiian%20Pirates&friendly_name=Hawaiian%20Pirates"
 echo
 
+echo Test Org: Barbados Pirates under Caribian Pirates
+curl -X PUT http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Barbados%20Pirates&friendly_name=Barbados%20Pirates&parent_id=1"
+echo
 
 echo Done.
 

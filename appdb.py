@@ -39,7 +39,7 @@ class Settings(Base):
 class User(Base):
 	__tablename__ = 'user'
 	id = Column(Integer, nullable=False, primary_key=True) # Internal database ID
-	uuid = Column(String(128), nullable=False, unique=True) # Valid chars: ABCDEFGHJKLMNPQRSTUWXYZ23456789
+	uuid = Column(String(128), nullable=False, unique=True) # UUID4
 	login = Column(String(128), unique=True) # Login name, can be used in URLs
 	name = Column(String(128), nullable=False) # Name/nick the user wants to be called and displayed as
 	legal_name = Column(String(256), nullable=False) # Legal name as in governmental records
@@ -155,17 +155,24 @@ class Organization(Base):
 	legal_name = Column(String(128), nullable=False, unique=True) # Full legal name of the organization
 	friendly_name = Column(String(128), nullable=False, unique=True) # Friendly short name of the organization
 	@staticmethod
-	def create(legal_name, friendly_name):
+	def create(legal_name, friendly_name, parent_id=None):
 		organization = Organization()
 		organization.legal_name = legal_name
 		organization.friendly_name = friendly_name
+		organization.parent_id = parent_id
 		g.db.add(organization)
 		if g.db.commit() == None: return organization
 		return False
 	@staticmethod
 	def get_all():
 		return g.db.query(Organization).all()
-
+	@staticmethod
+	def find_by_friendly(friendly_name):
+		return g.db.query(Organization).filter(friendly_name==friendly_name).first()
+	def get_parent():
+		return g.db.query(Organization).filter(id==self.parent_id).first()
+	def get_children():
+		return g.db.query(Organization).filter(parten_id==self.id).all()
 
 class Membership(Base):
 	__tablename__ = 'membership'
