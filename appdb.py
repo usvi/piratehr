@@ -177,7 +177,7 @@ class Organization(Base):
 		import re
 		perma_name = friendly_name.lower()
 		perma_name = perma_name.replace(" ", "_")
-		perma_name = unicodedata.normalize('NFKD', perma_name).encode('ascii','ignore')
+		perma_name = unicodedata.normalize('NFKD', unicode(perma_name)).encode('ascii','ignore')
 		perma_name = "".join(re.findall('[a-z0-9_]+', perma_name))
 		return perma_name
 	@staticmethod
