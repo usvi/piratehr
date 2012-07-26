@@ -36,28 +36,27 @@ function redirects() {
 	}
 	// Non-existing page, redirect...
 	flash(path.join('/') + " not found, redirecting...");
-	if (localStorage['auth']) navigate("/user/", true);  // Note: user page re-redirects to specific uuid
+	if (g.auth) navigate("/user/", true);  // Note: user page re-redirects to specific uuid
 	else navigate("/register/", true);
 }
 
 $(document).ready(function() {
+	login(localStorage['auth']);
 	$(window).on("popstate", switchPage);
 	$('input[type=text],input[type=tel],input[type=email]').addClass('inputfield');
 	$('input[type=submit]').addClass('inputsubmit');
 	$('#user').on('show', function() {
-		auth = localStorage['auth'];
 		var uuid = path[2];
 		// Handling for /user/ without uuid
 		if (!uuid) {
-			if (!auth) { redirects(); return; }
-			a = JSON.parse(auth);
-			path[2] = a.uuid;
+			if (!g.auth) { redirects(); return; }
+			path[2] = g.auth.uuid;
 			navigate(path.join('/'), true);
 			return;
 		}
 		// Request user data
 		data = {};
-		if (auth) data.auth = auth;
+		if (g.authstr) data.auth = g.authstr;
 		form = $('#userform');
 		url = form.attr('action').replace('[uuid]', uuid);
 		var settings = {
@@ -90,17 +89,17 @@ $(document).ready(function() {
 		navigate(this.href);
 	});
 	switchPage();
-	updateAuth();
 	showOrgPages();
-	$('#auth_logout').on('click', logout);
+	$('#auth_logout').on('click', function(ev) {
+		logout("You have been logged out. Close this page and clear history to remove any remaining sensitive data.");
+	});
 	$('#org').on('show', showOrgPages);
 	$(document).ajaxError(ajaxError);
 });
 
 function ajaxError(e, xhr, textStatus, errorThrown) {
 	if (xhr.status == 401) {
-		storage = localStorage["auth"];
-		if (storage) logout("Your session has expired and you need to login again.");
+		if (g.auth) logout("Your session has expired and you need to login again.");
 		else flash("You need to be logged in to access this function.");
 		return;
 	}
@@ -163,32 +162,30 @@ function showOrgPages() {
 	}
 }
 
-
-function login(auth) {
-	localStorage["auth"] = JSON.stringify(auth);
-	flash("Login successful");
-	updateAuth();
+function login(authstr, msg) {
+	try {
+		g.auth = JSON.parse(authstr);
+	} catch (err) {
+		logout();
+		return;
+	}
+	g.authstr = authstr;
+	localStorage['auth'] = authstr;
+	if (msg) flash(msg);
+	$('#authform').hide();
+	$('#authinfo').show();
+	$('#auth_name').text(g.auth.name);
 }
 
 function logout(msg) {
-	localStorage.removeItem("auth");
-	flash(msg || "You have been logged out. Close this page and clear history to remove any remaining sensitive data.");
-	updateAuth();
+	localStorage.removeItem('auth');
+	delete g.auth;
+	delete g.authstr;
+	if (msg) flash(msg);
+	$('#authform').show();
+	$('#authinfo').hide();
+	$('#auth_name').empty();
 	$('#authform input[name=login]').focus();
-}
-
-function updateAuth() {
-	var storage = localStorage["auth"];
-	if (storage) {
-		auth = JSON.parse(storage);
-		$('#authform').hide();
-		$('#authinfo').show();
-		$('#auth_name').text(auth.name + " logged in");
-	} else {
-		$('#authform').show();
-		$('#authinfo').hide();
-		$('#auth_name').empty();
-	}
 }
 
 function navigate(url, redirect) {
@@ -209,8 +206,7 @@ $('.ajaxform').submit(function(ev) {
 	var submit = $('input[type=submit]', this);
 	submit.attr('disabled', 'disabled');  // Disable form while submission is in progress
 	data = form.formParams();
-	auth = localStorage['auth'];
-	if (auth) data.auth = auth;
+	if (g.authstr) data.auth = g.authstr;
 	var settings = {
 		data: JSON.stringify(data),
 		url: form.attr('action'),
@@ -221,7 +217,7 @@ $('.ajaxform').submit(function(ev) {
 			var d = JSON.parse(data);
 			if (d) {
 				if (d.user_url) navigate(d.user_url);
-				if (d.auth) login(d.auth);
+				if (d.auth) login(d.auth, "Login successful");
 				if (d.status) flash(status);
 			}
 		},

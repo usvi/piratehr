@@ -134,11 +134,11 @@ def auth():
 			user = user[0]
 			auth = appdb.Auth.create_session(user)
 			ret = {
-				'auth': {
+				'auth': json.dumps({
 					'token': auth.token_content,
 					'uuid': user.uuid,
 					'name': user.name
-				}
+				})
 			}
 		sleep_until(responsetime)
 		if not auth: return "Authorization failed", 403
