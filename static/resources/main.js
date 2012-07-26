@@ -126,7 +126,7 @@ function loadOrgList() {
 		var r = JSON.parse(data);
 		$('#orglisttable').children().remove();
 		for (var key in r) {
-			var org_link = "<a href=\"/org/" + r[key].friendly_name + "\">" +  r[key].friendly_name + "</a>"
+			var org_link = "<a href=\"/org/" + r[key].perma_name + "\">" +  r[key].perma_name + "</a>"
 			var table_row = "<tr><td>" + org_link + "</td></tr>";
 			$('#orglisttable').append(table_row);
 		}

@@ -182,19 +182,19 @@ def organization_get_all():
 			'id': organization.id,
 			'parent_id': organization.parent_id,
 			'legal_name': organization.legal_name,
-			'friendly_name': organization.friendly_name
+			'friendly_name': organization.friendly_name,
+			'perma_name': organization.perma_name
 			}
 		ret.append(tuple)
 	return json.dumps(ret), 200
 
 
-@api.route("/organization_<friendly_name>.json", methods=["PROPFIND"])
-def organization_get(friendly_name):
-        req = g.req
-        if not req.get('friendly_name'): return "Invalid organization data", 422
-        # FIXME: Proper error checking here?                                                                             
+@api.route("/organization_<perma_name>.json", methods=["PROPFIND"])
+def organization_get(perma_name):
+        if not perma_name: return "Invalid organization data", 422
+        # FIXME: Proper error checking here?
         ret = {}
-        main_org = appdb.Organization.find_by_friendly(req.get('friendly_name'))
+        main_org = appdb.Organization.find_by_perma_name(perma_name)
         if not main_org: return "No such organization", 404
         print "As parameter: " + friendly_name
         print "From req: " + req.get('friendly_name')
@@ -202,7 +202,8 @@ def organization_get(friendly_name):
                         'id': main_org.id,
                         'parent_id': main_org.parent_id,
                         'legal_name': main_org.legal_name,
-                        'friendly_name': main_org.friendly_name
+                        'friendly_name': main_org.friendly_name,
+                        'perma_name': main_org.perma_name
                         }
         parent_org = main_org.get_parent()
         if parent_org:
@@ -210,7 +211,8 @@ def organization_get(friendly_name):
                         'id': parent_org.id,
                         'parent_id': parent_org.parent_id,
                         'legal_name': parent_org.legal_name,
-                        'friendly_name': parent_org.friendly_name
+                        'friendly_name': parent_org.friendly_name,
+                        'perma_name': parent_org.perma_name
                         }
         all_child_orgs = main_org.get_children()
         if all_child_orgs:
@@ -220,7 +222,8 @@ def organization_get(friendly_name):
                                         'id': child_org.id,
                                         'parent_id': child_org.parent_id,
                                         'legal_name': child_org.legal_name,
-                                        'friendly_name': child_org.friendly_name
+                                        'friendly_name': child_org.friendly_name,
+					'perma_name': child_org.perma_name
                                         })
         return json.dumps(ret), 200
 

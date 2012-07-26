@@ -178,8 +178,8 @@ class Organization(Base):
 	def get_all():
 		return g.db.query(Organization).all()
 	@staticmethod
-	def find_by_friendly(friendly_name):
-		return g.db.query(Organization).filter(friendly_name==friendly_name).first()
+	def find_by_perma(perma_name):
+		return g.db.query(Organization).filter(perma_name==perma_name).first()
 	def get_parent():
 		return g.db.query(Organization).filter(id==self.parent_id).first()
 	def get_children():
