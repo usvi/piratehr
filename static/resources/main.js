@@ -232,6 +232,7 @@ $('.ajaxform').submit(function(ev) {
 	};
 	settings.success = function(data, textStatus, xhr) {
 		if (settings.type == 'POST') form[0].reset();  // Clear the form after successful POST
+		if (settings.type == 'PUT') form[0].reset();  // Clear the form after successful PUT
 		if (settings.url.split('/').pop() == 'auth.json') login(JSON.stringify(data), "Login successful");
 	}
 	$.ajax(settings);
