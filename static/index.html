@@ -54,18 +54,18 @@
 		
 		<form id=userform class=ajaxform action="/api/user_[uuid].json" method=PUT>
 		<table>
-		<tr><td>UUID</td><td><input name="uuid" readonly></td></tr>
-		<tr><td>Login</td><td><input name="login" pattern="[a-z0-9]{3,16}"></td></tr>
-		<tr><td>Name</td><td><input name="name"></td></tr>
-		<tr><td>Legal Name</td><td><input name="legal_name"></td></tr>
-		<tr><td>Residence</td><td><input name="residence"></td></tr>
-		<tr><td>Location</td><td><input name="location"></td></tr>
-		<tr><td>Phone</td><td><input name="phone" type=tel></td></tr>
-		<tr><td>Email</td><td><input name="email" type=email></td></tr>
-		<tr><td>Date of Birth</td><td><input name="dob"></td></tr>
-		<tr><td>SSN/Passport#</td><td><input name="ssn"></td></tr>
-		<tr><td>Account Created</td><td><input name="joined" type=datetime readonly></td></tr>
-		<tr><td>Last Seen</td><td><input name="last_seen" type=datetime readonly></td></tr>
+		<tr><td>UUID</td><td><input type=text name="uuid" readonly></td></tr>
+		<tr><td>Login</td><td><input type=text name="login"></td></tr>
+		<tr><td>Name</td><td><input type=text name="name" required></td></tr>
+		<tr><td>Legal Name</td><td><input type=text name="legal_name" required></td></tr>
+		<tr><td>Residence</td><td><input type=text name="residence" required></td></tr>
+		<tr><td>Location</td><td><input type=text name="location"></td></tr>
+		<tr><td>Phone</td><td><input type=tel name="phone"></td></tr>
+		<tr><td>Email</td><td><input type=email name="email"></td></tr>
+		<tr><td>Date of Birth</td><td><input type=text name="dob" required></td></tr>
+		<tr><td>SSN/Passport#</td><td><input type=text name="ssn"></td></tr>
+		<tr><td>Account Created</td><td><input type=datetime name="joined" readonly></td></tr>
+		<tr><td>Last Seen</td><td><input type=datetime name="last_seen" readonly></td></tr>
 		</table>
 		<input type=submit value="Save">
 		</form>
