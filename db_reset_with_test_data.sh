@@ -28,7 +28,7 @@ cat auth.json >> auth.json.tmp1
 base64 -w0 < auth.json.tmp1 > auth.json.tmp2
 AUTH="Authorization: basic $(cat auth.json.tmp2)"
 echo $AUTH
-rm auth.json.tmp{1,2}
+rm -f auth.json.tmp1 auth.json.tmp2
 echo
 
 echo Settings 1

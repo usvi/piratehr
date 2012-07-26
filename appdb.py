@@ -58,7 +58,7 @@ class User(Base):
 		user.uuid = str(uuid.uuid4())
 		user.residence = residence
 		user.legal_name = legal_name
-		user.name = legal_name   # TODO: Remove middle names
+		user.name = legal_name
 		user.joined = datetime.utcnow()
 		user.last_seen = user.joined
 		user.dob = dob
@@ -141,6 +141,7 @@ class Auth(Base):
 			  .filter(Auth.token_type == 'session') \
 			  .filter(Auth.token_content == auth_req['token']) \
 			  .first()
+			if not u: return None
 			u.last_seen = datetime.utcnow()
 			g.db.commit()
 			return u
