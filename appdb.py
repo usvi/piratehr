@@ -54,11 +54,16 @@ class User(Base):
 	last_seen = Column(DateTime, nullable=False) # Time when user was last seen active on system
 	@staticmethod
 	def create(legal_name, residence, phone, email, dob):
+		# Try to guess name out of legal_name
+		tmp = legal_name.split()
+		if len(tmp) > 2: name = tmp[0] + ' ' + tmp[-1]
+		else: name = legal_name
+		# Create new user
 		user = User()
 		user.uuid = str(uuid.uuid4())
 		user.residence = residence
 		user.legal_name = legal_name
-		user.name = legal_name
+		user.name = name
 		user.joined = datetime.utcnow()
 		user.last_seen = user.joined
 		user.dob = dob
