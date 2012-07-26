@@ -172,8 +172,8 @@ def organization_put():
 
 
 @api.route("/organization.json", methods=["PROPFIND"])
-def organization_get():
-	print "organization_get"
+def organization_get_all():
+	print "organization_get_all"
 	# FIXME: Proper error checking here?
 	organizations = appdb.Organization.get_all()
 	ret = []
@@ -187,6 +187,42 @@ def organization_get():
 		ret.append(tuple)
 	return json.dumps(ret), 200
 
+
+@api.route("/organization_<friendly_name>.json", methods=["PROPFIND"])
+def organization_get(friendly_name):
+        req = g.req
+        if not req.get('friendly_name'): return "Invalid organization data", 422
+        # FIXME: Proper error checking here?                                                                             
+        ret = {}
+        main_org = appdb.Organization.find_by_friendly(req.get('friendly_name'))
+        if not main_org: return "No such organization", 404
+        print "As parameter: " + friendly_name
+        print "From req: " + req.get('friendly_name')
+        ret['main_org'] = {
+                        'id': main_org.id,
+                        'parent_id': main_org.parent_id,
+                        'legal_name': main_org.legal_name,
+                        'friendly_name': main_org.friendly_name
+                        }
+        parent_org = main_org.get_parent()
+        if parent_org:
+                ret['parent_org'] = {
+                        'id': parent_org.id,
+                        'parent_id': parent_org.parent_id,
+                        'legal_name': parent_org.legal_name,
+                        'friendly_name': parent_org.friendly_name
+                        }
+        all_child_orgs = main_org.get_children()
+        if all_child_orgs:
+                ret['child_orgs'] = []
+                for child_org in all_child_orgs:
+                        ret['child_orgs'].append({
+                                        'id': child_org.id,
+                                        'parent_id': child_org.parent_id,
+                                        'legal_name': child_org.legal_name,
+                                        'friendly_name': child_org.friendly_name
+                                        })
+        return json.dumps(ret), 200
 
 
 @api.route("/settings.json", methods=["PUT"])
