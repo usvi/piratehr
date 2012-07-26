@@ -69,21 +69,21 @@ $(document).ready(function() {
 			url: form.attr('action'),
 			type: 'GET',
 			contentType: "application/json",
+			dataType: 'json',
 			success: function(data, textStatus, xhr) {
-				var r = JSON.parse(data);
-				if (g.page.uuid != r.uuid) { flash("Unexpected UUID returned by server"); return; }
-				for (var key in r) {
+				if (g.page.uuid != data.uuid) { flash("Unexpected UUID returned by server"); return; }
+				for (var key in data) {
 					var elem = $('input[name=' + key + ']', form)[0];
-					if (elem) $(elem).attr('value', r[key] || '');
-					//else flash("Warning: Value ignored: " + key + "=" + r[key]);
+					if (elem) $(elem).attr('value', data[key] || '');
+					//else flash("Warning: Value ignored: " + key + "=" + data[key]);
 				}
-				if (r.uuid_url) {
+				if (data.uuid_url) {
 					$('#qrcode', form).remove();
 					var qr = qrcode(4, 'L');
-					qr.addData(r.uuid_url);
+					qr.addData(data.uuid_url);
 					qr.make();
 					input = $('input[name=uuid]', form);
-					input.before('<a id=qrcode href="' + r.uuid_url + '">' + qr.createImgTag() + '<br></a>');
+					input.before('<a id=qrcode href="' + data.uuid_url + '">' + qr.createImgTag() + '<br></a>');
 				}
 			},
 		};
@@ -125,6 +125,7 @@ function ajaxError(e, xhr, textStatus, errorThrown) {
 function jsonQuery(inputData, inputUrl, inputType, successFunc, completeFunc) {
 	var settings = {
 		data: JSON.stringify(inputData),
+		dataType: 'json',
 		url: inputUrl,
 		type: inputType,
 		contentType: "application/json",
@@ -137,10 +138,9 @@ function jsonQuery(inputData, inputUrl, inputType, successFunc, completeFunc) {
 
 function loadOrgList() {
 	jsonQuery("", "/api/organization.json", "GET", function(data, textStatus, xhr) {
-		var r = JSON.parse(data);
 		$('#orglisttable').children().remove();
-		for (var key in r) {
-			var org_link = "<a href=\"/org/" + r[key].perma_name + "\">" +  r[key].friendly_name + "</a>"
+		for (var key in data) {
+			var org_link = "<a href=\"/org/" + data[key].perma_name + "\">" +  data[key].friendly_name + "</a>"
 			var table_row = "<tr><td>" + org_link + "</td></tr>";
 			$('#orglisttable').append(table_row);
 		}
@@ -150,14 +150,13 @@ function loadOrgList() {
 
 function loadOrgDetails(inputOrgFriendly) {
 	jsonQuery("", "/api/organization_" + inputOrgFriendly + ".json", "GET", function(data, textStatus, xhr) {
-		var r = JSON.parse(data);
 		var child_orgs = "Children: ";
-		$('#orgdetails_friendly_name').text(r.main_org.friendly_name); 
-		$('#orgdetails_legal_name td').eq(1).text(r.main_org.legal_name); // Pick 2nd column beginning from the row and change.
-		for (var key in r.child_orgs) {
-			child_orgs += r.child_orgs[key].friendly_name + ", ";
+		$('#orgdetails_friendly_name').text(data.main_org.friendly_name); 
+		$('#orgdetails_legal_name td').eq(1).text(data.main_org.legal_name); // Pick 2nd column beginning from the row and change.
+		for (var key in data.child_orgs) {
+			child_orgs += data.child_orgs[key].friendly_name + ", ";
 		}
-		if (r.parent_org) {
+		if (data.parent_org) {
 		}
 	}, undefined);
 }
