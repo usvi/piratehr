@@ -40,6 +40,18 @@ def index(*args, **kwargs):
 # Subclass a RestResource and configure it
 api = Blueprint("api", __name__, url_prefix="/api")
 
+# A decorator to verify that there is a valid user (g.user)
+# Just add @requires_auth between your route and function
+def requires_auth(f):
+	@wraps(f)
+	def decorated(*args, **kwargs):
+		auth = request.authorization
+		if not auth or auth.username != 'json': return authenticate()
+		g.user = appdb.Auth.authenticate(json.loads(auth.password))
+		if not g.user: return authenticate()
+		return f(*args, **kwargs)
+	return decorated
+    
 @api.route("/new_user.json", methods=["POST"])
 def create_user():
 	req = g.req
@@ -61,6 +73,7 @@ def create_user():
 	return json.dumps(ret), 201, {'Location': ret['api_url'] }
 
 @api.route("/user_<user_id>.json", methods=["PROPFIND"])
+@requires_auth
 def get_user(user_id):
 	if not g.user: abort(401)
 	user = appdb.User.find(user_id)
@@ -90,14 +103,21 @@ def get_user(user_id):
 	return json.dumps(ret, default=jsonconvert), 200
 
 @api.route("/user_<user_id>.json", methods=["PUT"])
+@requires_auth
 def update_user(user_id):
 	# do your stuff here
 	return "PUT" + user_id, 200
 
 @api.route("/I_accidentally_the_whole_database", methods=["DELETE"])
+#@requires_auth
 def clear_database():
 	appdb.clear_database()
 	return "DELETED", 200
+
+def authenticate():
+	"""Sends a 401 response that enables basic auth"""
+	return json.dumps({'description':'You need to login username=json, JSON auth in password'}), 401,
+	{'WWW-Authenticate': 'Basic realm="JSON auth required"', 'Content-Type': 'application/json'}
 
 @api.before_request
 def before_request():
@@ -107,11 +127,6 @@ def before_request():
 	try: g.req = request.json
 	except: pass  # Ignore anything raised by request.json
 	g.req = g.req or request.values
-	if g.req:
-		auth = g.req.get('auth', None)
-		if auth:
-			g.user = appdb.Auth.authenticate(json.loads(auth))
-			if not g.user: return "Invalid authentication", 401
 
 def sleep_until(t):
 	timedelta = t - datetime.datetime.utcnow()
@@ -127,19 +142,18 @@ def auth():
 	login = req['login']
 	if req['type'] == "login_password":
 		if not req['login'] or not req['password']: return "Fields login or password missing", 422
-		user = appdb.User.find_by_email(login)
+		user = appdb.User.find_by_email(login) # FIXME: Actually verify the password
 		auth = None
 		ret = None
 		if (len(user) == 1):
 			user = user[0]
 			auth = appdb.Auth.create_session(user)
 			ret = {
-				'auth': json.dumps({
-					'token': auth.token_content,
-					'uuid': user.uuid,
-					'name': user.name
-				})
+				'token': auth.token_content,
+				'uuid': user.uuid,
+				'name': user.name
 			}
+		# TODO: if len(user) > 1 reset all their passwords
 		sleep_until(responsetime)
 		if not auth: return "Authorization failed", 403
 		return json.dumps(ret), 200
@@ -156,6 +170,7 @@ def auth():
 
 
 @api.route("/organization.json", methods=["PUT"])
+@requires_auth
 def organization_put():
 	req = g.req
 	if not req or req.get('legal_name') == None or req.get('friendly_name') == None: return "Invalid organization data", 422
@@ -227,6 +242,7 @@ def organization_get(perma_name):
 
 
 @api.route("/settings.json", methods=["PUT"])
+@requires_auth
 def settings_put():
 	print "settings_put"
 	req = g.req
@@ -236,6 +252,7 @@ def settings_put():
 	return "PUT", 200 # FIXME: Stricter error checks?, JSON response
 
 @api.route("/settings.json", methods=["PROPFIND"])
+@requires_auth
 def settings_get():
 	print "settings_get()" #
 	return "GET", 200 # FIXME: JSON response

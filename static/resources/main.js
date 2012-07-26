@@ -41,10 +41,20 @@ function redirects() {
 }
 
 $(document).ready(function() {
+	// AJAX handlers
+	$(document).ajaxSend(ajaxSend);
+	$(document).ajaxError(ajaxError);
+	// Restore session from Local Storage
 	login(localStorage['auth']);
+	$('#auth_logout').on('click', function(ev) {
+		logout("You have been logged out. Close this page and clear history to remove any remaining sensitive data.");
+	});
+	// Make back/forward call switchPage
 	$(window).on("popstate", switchPage);
+	// Set some classes (avoid tedious repeat in HTML)
 	$('input[type=text],input[type=tel],input[type=email]').addClass('inputfield');
 	$('input[type=submit]').addClass('inputsubmit');
+	// When user page is shown, load data...
 	$('#user').on('show', function() {
 		var uuid = path[2];
 		// Handling for /user/ without uuid
@@ -55,12 +65,9 @@ $(document).ready(function() {
 			return;
 		}
 		// Request user data
-		data = {};
-		if (g.authstr) data.auth = g.authstr;
 		form = $('#userform');
 		url = form.attr('action').replace('[uuid]', uuid);
 		var settings = {
-			data: JSON.stringify(data),
 			url: url,
 			type: "PROPFIND",
 			contentType: "application/json",
@@ -84,19 +91,23 @@ $(document).ready(function() {
 		};
 		$.ajax(settings);		
 	});
+	$('#org').on('show', showOrgPages);
+	// Do not actually load pagenav links, only switch URL
 	$('#pagenav a').on('click', function(ev) {
 		ev.preventDefault();
 		navigate(this.href);
 	});
+	// Load proper page
 	switchPage();
 	showOrgPages();
-	$('#auth_logout').on('click', function(ev) {
-		logout("You have been logged out. Close this page and clear history to remove any remaining sensitive data.");
-	});
-	$('#org').on('show', showOrgPages);
-	$(document).ajaxError(ajaxError);
 });
 
+// Insert authentication data to requests
+function ajaxSend(ev, xhr){
+	if (g.authstr) xhr.setRequestHeader("Authorization", "Basic " + $.base64.encode("json:" + g.authstr));
+}
+
+// Handle common errors
 function ajaxError(e, xhr, textStatus, errorThrown) {
 	if (xhr.status == 401) {
 		if (g.auth) logout("Your session has expired and you need to login again.");
@@ -206,23 +217,18 @@ $('.ajaxform').submit(function(ev) {
 	var submit = $('input[type=submit]', this);
 	submit.attr('disabled', 'disabled');  // Disable form while submission is in progress
 	data = form.formParams();
-	if (g.authstr) data.auth = g.authstr;
 	var settings = {
 		data: JSON.stringify(data),
+		dataType: 'json',
 		url: form.attr('action'),
 		type: form.attr('method'),
 		contentType: "application/json",
-		success: function(data, textStatus, xhr) {
-			if (xhr.type == 'POST') form[0].reset();  // Clear the form after successful POST
-			var d = JSON.parse(data);
-			if (d) {
-				if (d.user_url) navigate(d.user_url);
-				if (d.auth) login(d.auth, "Login successful");
-				if (d.status) flash(status);
-			}
-		},
 		complete: function() { submit.removeAttr('disabled'); }
 	};
+	settings.success = function(data, textStatus, xhr) {
+		if (settings.type == 'POST') form[0].reset();  // Clear the form after successful POST
+		if (settings.url.split('/').pop() == 'auth.json') login(JSON.stringify(data), "Login successful");
+	}
 	$.ajax(settings);
 })
 
