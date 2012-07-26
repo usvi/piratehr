@@ -116,8 +116,8 @@ function loadOrgList() {
 function loadOrgDetails(inputOrgFriendly) {
 	jsonQuery("", "/api/organization_" + inputOrgFriendly + ".json", "PROPFIND", function(data, textStatus, xhr) {
 		var r = JSON.parse(data);
-		$('#orgdetails_friendly_name').text(r.friendly_name);
-		$('#orgdetails_legal_name').text(r.friendly_name);
+		//$('#orgdetails_friendly_name').text(r.friendly_name);
+		//$('#orgdetails_legal_name').text(r.friendly_name);
 	}, undefined);
 }
 
@@ -126,7 +126,7 @@ function showOrgPages() {
 	$('.org').hide();
 	loadOrgList();
 	//$('#orgdetails').on('show', loadOrgDetails())
-	if(path[2]) { // We have org friendly_name
+	if(path[1] == "org" && path[2]) { // We have org friendly_name
 		loadOrgDetails(path[2]); // Load, and..
 		$('#orgdetails').show(); // show them all in place
 	} else {
