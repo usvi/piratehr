@@ -126,7 +126,7 @@ function loadOrgList() {
 		var r = JSON.parse(data);
 		$('#orglisttable').children().remove();
 		for (var key in r) {
-			var org_link = "<a href=\"/org/" + r[key].perma_name + "\">" +  r[key].perma_name + "</a>"
+			var org_link = "<a href=\"/org/" + r[key].perma_name + "\">" +  r[key].friendly_name + "</a>"
 			var table_row = "<tr><td>" + org_link + "</td></tr>";
 			$('#orglisttable').append(table_row);
 		}
@@ -137,9 +137,17 @@ function loadOrgList() {
 function loadOrgDetails(inputOrgFriendly) {
 	jsonQuery("", "/api/organization_" + inputOrgFriendly + ".json", "PROPFIND", function(data, textStatus, xhr) {
 		var r = JSON.parse(data);
+		var child_orgs = "Children: ";
 		//$('#orgdetails_friendly_name').text(r.friendly_name);
 		//$('#orgdetails_legal_name').text(r.friendly_name);
-		alert(r.main_org.legal_name);
+		for (var key in r.child_orgs) {
+			child_orgs += r.child_orgs[key].friendly_name + ", ";
+		}
+		if (r.parent_org) {
+			flash("Parent: " + r.parent_org.friendly_name)
+		}
+		flash("Self: " + r.main_org.friendly_name);
+		flash(child_orgs);
 	}, undefined);
 }
 

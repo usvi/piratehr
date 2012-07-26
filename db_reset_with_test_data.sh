@@ -46,6 +46,30 @@ echo Test Org: Barbados Pirates under Caribian Pirates
 curl -X PUT http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Barbados%20Pirates&friendly_name=Barbados%20Pirates&parent_id=1"
 echo
 
+echo Test Org: St Kitts and Nevis Pirates under Caribian Pirates
+curl -X PUT http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20St%20Kitts%20and%20Nevis%20Pirates&friendly_name=St%20Kitts%20and%20Nevis%20Pirates&parent_id=1"
+echo
+
+echo Test Org: Montserrat Pirates under Caribian Pirates
+curl -X PUT http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Montserrat%20Pirates&friendly_name=Montserrat%20Pirates&parent_id=1"
+echo
+
+echo Test Org: Grenada Pirates under Caribian Pirates
+curl -X PUT http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Grenada%20Pirates&friendly_name=Grenada%20Pirates&parent_id=1"
+echo
+
+echo Test Org: Caracas Pirates under Caribian Pirates
+curl -X PUT http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Caracas%20Pirates&friendly_name=Caracas%20Pirates&parent_id=1"
+echo
+
+echo Test Org: Puerto Cabello Pirates under Caribian Pirates
+curl -X PUT http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Puerto%20Cabello%20Pirates&friendly_name=Puerto%20Cabello%20Pirates&parent_id=1"
+echo
+
+echo Test Org: Curacao Pirates under Caribian Pirates
+curl -X PUT http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Curacao%20Pirates&friendly_name=Curacao%20Pirates&parent_id=1"
+echo
+
 echo Done.
 
 
