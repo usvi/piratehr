@@ -154,15 +154,26 @@ class Organization(Base):
 	parent_id = Column(Integer, ForeignKey('organization.id', onupdate="RESTRICT", ondelete="RESTRICT")) # Reference to the 
 	legal_name = Column(String(128), nullable=False, unique=True) # Full legal name of the organization
 	friendly_name = Column(String(128), nullable=False, unique=True) # Friendly short name of the organization
+	perma_name = Column(String(128), nullable=False, unique=True) # Permanent name identifier of the organization. Admin-mutable (in the future).
 	@staticmethod
 	def create(legal_name, friendly_name, parent_id=None):
 		organization = Organization()
 		organization.legal_name = legal_name
 		organization.friendly_name = friendly_name
+		organization.perma_name = Organization.generate_perma_name(friendly_name)
 		organization.parent_id = parent_id
 		g.db.add(organization)
 		if g.db.commit() == None: return organization
 		return False
+	@staticmethod
+	def generate_perma_name(friendly_name):
+		import unicodedata
+		import re
+		perma_name = friendly_name.lower()
+		perma_name = perma_name.replace(" ", "_")
+		perma_name = unicodedata.normalize('NFKD', perma_name).encode('ascii','ignore')
+		perma_name = "".join(re.findall('[a-z0-9_]+', perma_name))
+		return perma_name
 	@staticmethod
 	def get_all():
 		return g.db.query(Organization).all()
