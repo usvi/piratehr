@@ -10,6 +10,8 @@ function flash(msg) {
 	elem.click(function () { $(this).slideUp('fast') });
 }
 
+var g = {};  // Global variables go in here
+
 var oldPage;
 
 function switchPage() {
@@ -17,29 +19,46 @@ function switchPage() {
 	oldPage = window.location.href;
 	$('.page').hide();
 	path = window.location.pathname.split('/');
+	var page = $('#' + path[1]);
+	// Test if the URL mapped to a page, otherwise redirect
+	if (page.length != 1) { redirects(path); return; }
+	// Activate the page specified by URL
+	page.show();
+	$(page).trigger("show");
+}
+
+function redirects() {
 	// Smart(?) redirect from UUID URL to some actual page
 	if (path[1] == 'uuid') {
 		path[1] = 'user';
 		navigate(path.join('/'), true);
 		return;
 	}
-	var page = $('#' + path[1]);
-	if (page.length != 1) navigate("/register/");
-	else page.show();
-	$(page).trigger("show");
+	// Non-existing page, redirect...
+	flash(path.join('/') + " not found, redirecting...");
+	if (localStorage['auth']) navigate("/user/", true);  // Note: user page re-redirects to specific uuid
+	else navigate("/register/", true);
 }
 
 $(document).ready(function() {
 	$(window).on("popstate", switchPage);
-	$('input[type=text],input[type=phone],input[type=email]').addClass('inputfield');
+	$('input[type=text],input[type=tel],input[type=email]').addClass('inputfield');
 	$('input[type=submit]').addClass('inputsubmit');
 	$('#user').on('show', function() {
-		var uuid = path[2];
-		if (uuid == null) return;
-		data = {};
 		auth = localStorage['auth'];
+		var uuid = path[2];
+		// Handling for /user/ without uuid
+		if (!uuid) {
+			if (!auth) { redirects(); return; }
+			a = JSON.parse(auth);
+			path[2] = a.uuid;
+			navigate(path.join('/'), true);
+			return;
+		}
+		// Request user data
+		data = {};
 		if (auth) data.auth = auth;
-		form = $('.ajaxform[action*="/api/user_"]');
+		form = $('#userform');
 		url = form.attr('action').replace('[uuid]', uuid);
 		var settings = {
 			data: JSON.stringify(data),
@@ -55,10 +74,12 @@ $(document).ready(function() {
 					//else flash("Warning: Value ignored: " + key + "=" + r[key]);
 				}
 				if (r.uuid_url) {
+					$('#qrcode', form).remove();
 					var qr = qrcode(4, 'L');
 					qr.addData(r.uuid_url);
 					qr.make();
-					$('input[name=uuid]').before('<a href="' + r.uuid_url + '">' + qr.createImgTag() + '</a><br>');
+					input = $('input[name=uuid]', form);
+					input.before('<a id=qrcode href="' + r.uuid_url + '">' + qr.createImgTag() + '<br></a>');
 				}
 			},
 		};
