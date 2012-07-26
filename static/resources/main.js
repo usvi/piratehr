@@ -69,7 +69,7 @@ $(document).ready(function() {
 		url = form.attr('action').replace('[uuid]', uuid);
 		var settings = {
 			url: url,
-			type: "PROPFIND",
+			type: "GET",
 			contentType: "application/json",
 			success: function(data, textStatus, xhr) {
 				var r = JSON.parse(data);
@@ -132,7 +132,7 @@ function jsonQuery(inputData, inputUrl, inputType, successFunc, completeFunc) {
 
 
 function loadOrgList() {
-	jsonQuery("", "/api/organization.json", "PROPFIND", function(data, textStatus, xhr) {
+	jsonQuery("", "/api/organization.json", "GET", function(data, textStatus, xhr) {
 		var r = JSON.parse(data);
 		$('#orglisttable').children().remove();
 		for (var key in r) {
@@ -145,7 +145,7 @@ function loadOrgList() {
 
 
 function loadOrgDetails(inputOrgFriendly) {
-	jsonQuery("", "/api/organization_" + inputOrgFriendly + ".json", "PROPFIND", function(data, textStatus, xhr) {
+	jsonQuery("", "/api/organization_" + inputOrgFriendly + ".json", "GET", function(data, textStatus, xhr) {
 		var r = JSON.parse(data);
 		var child_orgs = "Children: ";
 		$('#orgdetails_friendly_name').text(r.main_org.friendly_name); 

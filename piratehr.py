@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import Flask, Blueprint, request, session, g, redirect, url_for, abort, send_file
+from functools import wraps
 import json
 import appdb
 import datetime
@@ -72,10 +73,9 @@ def create_user():
 	}
 	return json.dumps(ret), 201, {'Location': ret['api_url'] }
 
-@api.route("/user_<user_id>.json", methods=["PROPFIND"])
+@api.route("/user_<user_id>.json", methods=["GET"])
 @requires_auth
 def get_user(user_id):
-	if not g.user: abort(401)
 	user = appdb.User.find(user_id)
 	if not user or user != g.user: abort(403)
 	# TODO: The following code should be
@@ -185,8 +185,7 @@ def organization_put():
 	}
 	return json.dumps(ret), 201
 
-
-@api.route("/organization.json", methods=["PROPFIND"])
+@api.route("/organization.json", methods=["GET"])
 def organization_get_all():
 	print "organization_get_all"
 	# FIXME: Proper error checking here?
@@ -203,8 +202,7 @@ def organization_get_all():
 		ret.append(tuple)
 	return json.dumps(ret), 200
 
-
-@api.route("/organization_<perma_name>.json", methods=["PROPFIND"])
+@api.route("/organization_<perma_name>.json", methods=["GET"])
 def organization_get(perma_name):
         if not perma_name: return "Invalid organization data", 422
         # FIXME: Proper error checking here?
@@ -251,26 +249,11 @@ def settings_put():
 	appdb.Settings.make_setting(req['key'], req['value'])
 	return "PUT", 200 # FIXME: Stricter error checks?, JSON response
 
-@api.route("/settings.json", methods=["PROPFIND"])
+@api.route("/settings.json", methods=["GET"])
 @requires_auth
 def settings_get():
 	print "settings_get()" #
 	return "GET", 200 # FIXME: JSON response
-
-@api.route("/debug_<debug_param>", methods=["DEBUG"])
-def do_debug(debug_param):
-	print "Entering debug with param " + debug_param
-	#appdb.Auth.find_by_email(debug_param, "pw_reset")
-	#reset_list = appdb.Auth.reset_token_email(debug_param)
-	#messenger.send_password_reset_emails(reset_list)
-	print "Exiting debug"
-	return "DEBUG", 200
-
-# you can use the "need_auth" decorator to do things for you
-#@need_auth(authentifier_callable, "project") # injects the "project" argument if authorised
-def delete(self, user_id):
-	# do your stuff
-	return "DELETED", 200
 
 
 if __name__ == '__main__':
