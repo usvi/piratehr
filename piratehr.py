@@ -105,11 +105,13 @@ def get_user(user_id):
 @api.route("/user_<user_id>.json", methods=["PUT"])
 @requires_auth
 def update_user(user_id):
-	# do your stuff here
-	return "PUT" + user_id, 200
+	user = appdb.User.find(user_id)
+	if not user or user != g.user: abort(403)
+	if user.update(g.req): return json.dumps({'description':'User information updated'}), 200
+	else: return json.dumps({'description':'User data invalid'}), 422
 
 @api.route("/I_accidentally_the_whole_database", methods=["DELETE"])
-#@requires_auth
+@requires_auth
 def clear_database():
 	appdb.clear_database()
 	return "DELETED", 200

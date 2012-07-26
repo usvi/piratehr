@@ -12,11 +12,10 @@ function flash(msg) {
 
 var g = {};  // Global variables go in here
 
-var oldPage;
-
 function switchPage() {
-	if (oldPage == window.location.href) return;  // Nothing to do
-	oldPage = window.location.href;
+	if (g.page_location == window.location.href) return;  // Nothing to do
+	g.page_location = window.location.href;
+	g.page = {};  // Page-specific settings go here
 	$('.page').hide();
 	path = window.location.pathname.split('/');
 	var page = $('#' + path[1]);
@@ -56,24 +55,23 @@ $(document).ready(function() {
 	$('input[type=submit]').addClass('inputsubmit');
 	// When user page is shown, load data...
 	$('#user').on('show', function() {
-		var uuid = path[2];
 		// Handling for /user/ without uuid
-		if (!uuid) {
+		if (!path[2]) {
 			if (!g.auth) { redirects(); return; }
 			path[2] = g.auth.uuid;
 			navigate(path.join('/'), true);
 			return;
 		}
+		g.page.uuid = path[2];
 		// Request user data
 		form = $('#userform');
-		url = form.attr('action').replace('[uuid]', uuid);
 		var settings = {
-			url: url,
-			type: "GET",
+			url: form.attr('action'),
+			type: 'GET',
 			contentType: "application/json",
 			success: function(data, textStatus, xhr) {
 				var r = JSON.parse(data);
-				if (uuid != r.uuid) { flash("Unexpected UUID returned by server"); return; }
+				if (g.page.uuid != r.uuid) { flash("Unexpected UUID returned by server"); return; }
 				for (var key in r) {
 					var elem = $('input[name=' + key + ']', form)[0];
 					if (elem) $(elem).attr('value', r[key] || '');
@@ -89,6 +87,7 @@ $(document).ready(function() {
 				}
 			},
 		};
+		settings.url = settings.url.replace('[uuid]', g.page.uuid);
 		$.ajax(settings);		
 	});
 	$('#org').on('show', showOrgPages);
@@ -230,6 +229,7 @@ $('.ajaxform').submit(function(ev) {
 		contentType: "application/json",
 		complete: function() { submit.removeAttr('disabled'); }
 	};
+	if (g.page.uuid) settings.url = settings.url.replace('[uuid]', g.page.uuid);
 	settings.success = function(data, textStatus, xhr) {
 		if (settings.type == 'POST') form[0].reset();  // Clear the form after successful POST
 		if (settings.url.split('/').pop() == 'auth.json') login(JSON.stringify(data), "Login successful");

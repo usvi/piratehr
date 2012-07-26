@@ -73,6 +73,24 @@ class User(Base):
 		g.db.add(user)
 		if g.db.commit() == None: return user
 		return False
+	def update(self, data):
+		if data.has_key('uuid') and data['uuid'] != self.uuid: return False
+		if data.has_key('login'): self.login = data['login']
+		if data.has_key('residence'): self.residence = data['residence']
+		if data.has_key('legal_name'): self.legal_name = data['legal_name']
+		if data.has_key('name'): self.name = data['name']
+		if data.has_key('location'): self.location = data['location']
+		if data.has_key('phone'): self.phone = data['phone']
+		if data.has_key('email'): self.email = data['email']
+		if data.has_key('dob'): self.dob = data['dob']
+		if data.has_key('ssn'): self.ssn = data['ssn']
+		if not self.validate():
+			g.db.rollback()
+			return False
+		g.db.commit()
+		return True
+	def validate(self):
+		return True  # FIXME
 	@staticmethod
 	def find(user_id):
 		return g.db.query(User).filter_by(uuid=user_id).first()
