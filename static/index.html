@@ -53,7 +53,7 @@
 	<div class=page id=user>
 		<h2>User</h2>
 		
-		<form class=ajaxform action="/api/user_[uuid].json" method=PUT>
+		<form id=userform class=ajaxform action="/api/user_[uuid].json" method=PUT>
 		<table>
 		<tr><td>UUID</td><td><input name="uuid" readonly></td></tr>
 		<tr><td>Login</td><td><input name="login" pattern="[a-z0-9]{3,16}"></td></tr>
