@@ -4,7 +4,7 @@ function flash(msg) {
 	var elem = $('#flash');
 	var p = $('<p>');
 	p.text(msg);
-	setTimeout(function() { p.slideUp('slow', function() { p.remove() }); }, Math.min(2000 + 10 * msg.length, 10000));
+	setTimeout(function() { p.slideUp('slow', function() { p.remove() }); }, Math.min(2000 + 10 * (msg || '').length, 10000));
 	p.appendTo(elem[0]);
 	elem.slideDown('slow');
 	elem.click(function () { $(this).slideUp('fast') });
@@ -17,6 +17,12 @@ function switchPage() {
 	oldPage = window.location.href;
 	$('.page').hide();
 	path = window.location.pathname.split('/');
+	// Smart(?) redirect from UUID URL to some actual page
+	if (path[1] == 'uuid') {
+		path[1] = 'user';
+		navigate(path.join('/'), true);
+		return;
+	}
 	var page = $('#' + path[1]);
 	if (page.length != 1) navigate("/register/");
 	else page.show();
@@ -33,23 +39,27 @@ $(document).ready(function() {
 		data = {};
 		auth = localStorage['auth'];
 		if (auth) data.auth = auth;
+		form = $('.ajaxform[action*="/api/user_"]');
+		url = form.attr('action').replace('[uuid]', uuid);
 		var settings = {
 			data: JSON.stringify(data),
-			url: "/api/user_" + uuid + ".json",
+			url: url,
 			type: "PROPFIND",
 			contentType: "application/json",
 			success: function(data, textStatus, xhr) {
 				var r = JSON.parse(data);
 				if (uuid != r.uuid) { flash("Unexpected UUID returned by server"); return; }
 				for (var key in r) {
-					var elem = $('#user_' + key)[0];
-					if (elem) $(elem).text(r[key] || '');
+					var elem = $('input[name=' + key + ']', form)[0];
+					if (elem) $(elem).attr('value', r[key] || '');
 					//else flash("Warning: Value ignored: " + key + "=" + r[key]);
 				}
-				var qr = qrcode(4, 'L');
-				qr.addData(r.user_url);
-				qr.make();
-				$('#user_uuid').prepend('<a href="' + r.user_url + '" onclick="return false">' + qr.createImgTag() + '</a><br>');
+				if (r.uuid_url) {
+					var qr = qrcode(4, 'L');
+					qr.addData(r.uuid_url);
+					qr.make();
+					$('input[name=uuid]').before('<a href="' + r.uuid_url + '">' + qr.createImgTag() + '</a><br>');
+				}
 			},
 		};
 		$.ajax(settings);		
@@ -152,12 +162,14 @@ function updateAuth() {
 	}
 }
 
-function navigate(url) {
+function navigate(url, redirect) {
 	// Allow for current events to finish before navigating
 	window.setTimeout(function() {
 		// Navigate without reloading if the browser supports it
-		if (history.pushState) history.pushState(null, null, url);
-		else window.location(url);
+		if (history.pushState) {
+			if (redirect) history.replaceState(null, null, url);
+			else history.pushState(null, null, url);
+		} else window.location(url);
 		$(window).trigger("popstate");  // Not fired automatically, it seems
 	}, 0);
 }

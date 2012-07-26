@@ -8,18 +8,18 @@
 
 <div id=flash></div>
 
-<div id="login">
-	<div id="authform">
-		<form class="ajaxform" action="/api/auth.json" method="POST">
-		<input type="hidden" name="type" value="login_password">
-		<input type="text" name="login" placeholder="Email" required autofocus>
-		<input type="password" name="password" placeholder="Password" required>
-		<input type="submit" value="Login">
+<div id=login>
+	<div id=authform>
+		<form class=ajaxform action="/api/auth.json" method=POST>
+		<input type=hidden name="type" value="login_password">
+		<input type=text name="login" placeholder="Email" required autofocus>
+		<input type=password" name="password" placeholder="Password" required>
+		<input type=submit value="Login">
 		</form>
 	</div>
-	<div id="authinfo">
-		<span id="auth_name"></span>
-		<input id="auth_logout" type="button" value="Logout">
+	<div id=authinfo>
+		<span id=auth_name></span>
+		<input id=auth_logout type=button value="Logout">
 	</div>
 </div>
 
@@ -28,55 +28,58 @@
 
 	<noscript>The web no longer works without Javascript.</noscript>
 
-	<div id="pagenav">
+	<div id=pagenav>
 		<a href="/register/">Register</a>
 		<a href="/user/">User</a>
 		<a href="/memberships/">Memberships</a>
 		<a href="/org/">Organization</a>
 	</div>
 
-	<div class="page" id="register">
+	<div class=page id=register>
 		<h2>Register</h2>
 
 		<p>
-		<form class="ajaxform" action="/api/new_user.json" method="POST">
-		<input type="text" name="legal_name" placeholder="Full name" required><br>
-		<input type="text" name="residence" placeholder="City, Country" required><br>
-		<input type="phone" name="phone" placeholder="Phone number"><br>
-		<input type="email" name="email" placeholder="Email address"><br>
-		<input type="text" name="dob" placeholder="Date of birth" required>
+		<form class=ajaxform action="/api/new_user.json" method=POST>
+		<input type=tex" name="legal_name" placeholder="Full name" required><br>
+		<input type=text name="residence" placeholder="City, Country" required><br>
+		<input type=tel name="phone" placeholder="Phone number"><br>
+		<input type=email name="email" placeholder="Email address"><br>
+		<input type=text name="dob" placeholder="Date of birth" required>
 		</p>
-		<input type="submit" value="Send">
+		<input type=submit value="Send">
 		</form>
 	</div>
 
-	<div class="page" id="user">
+	<div class=page id=user>
 		<h2>User</h2>
 		
+		<form class=ajaxform action="/api/user_[uuid].json" method=PUT>
 		<table>
-		<tr><td>UUID</td><td class="ajaxfield" id="user_uuid"></td></tr>
-		<tr><td>Login</td><td class="ajaxfield" id="user_login"></td></tr>
-		<tr><td>Name</td><td class="ajaxfield ajaxedit" id="user_name"></td></tr>
-		<tr><td>Legal Name</td><td class="ajaxfield ajaxedit" id="user_legal_name"></td></tr>
-		<tr><td>Residence</td><td class="ajaxfield ajaxedit" id="user_residence"></td></tr>
-		<tr><td>Location</td><td class="ajaxfield ajaxedit" id="user_location"></td></tr>
-		<tr><td>Phone</td><td class="ajaxfield ajaxedit" id="user_phone"></td></tr>
-		<tr><td>Email</td><td class="ajaxfield ajaxedit" id="user_email"></td></tr>
-		<tr><td>Date of Birth</td><td class="ajaxfield ajaxedit" id="user_dob"></td></tr>
-		<tr><td>SSN/Passport#</td><td class="ajaxfield ajaxedit" id="user_ssn"></td></tr>
-		<tr><td>Account Created</td><td class="ajaxfield" id="user_joined"></td></tr>
-		<tr><td>Last Seen</td><td class="ajaxfield" id="user_last_seen"></td></tr>
+		<tr><td>UUID</td><td><input name="uuid" readonly></td></tr>
+		<tr><td>Login</td><td><input name="login" pattern="[a-z0-9]{3,16}"></td></tr>
+		<tr><td>Name</td><td><input name="name"></td></tr>
+		<tr><td>Legal Name</td><td><input name="legal_name"></td></tr>
+		<tr><td>Residence</td><td><input name="residence"></td></tr>
+		<tr><td>Location</td><td><input name="location"></td></tr>
+		<tr><td>Phone</td><td><input name="phone" type=tel></td></tr>
+		<tr><td>Email</td><td><input name="email" type=email></td></tr>
+		<tr><td>Date of Birth</td><td><input name="dob"></td></tr>
+		<tr><td>SSN/Passport#</td><td><input name="ssn"></td></tr>
+		<tr><td>Account Created</td><td><input name="joined" type=datetime readonly></td></tr>
+		<tr><td>Last Seen</td><td><input name="last_seen" type=datetime readonly></td></tr>
 		</table>
+		<input type=submit value="Save">
+		</form>
 	
 	</div>
 
-	<div class="page" id="memberships">
+	<div class=page id=memberships>
 		<h2>Memberships</h2>
 		
 		
 	</div>
 
-	<div class="page" id="org">
+	<div class=page id=org>
 		<h2>Organization</h2>
 
 		<div class="org" id="orgcreateform">

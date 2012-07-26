@@ -26,6 +26,7 @@ if app.config['DEBUG']:
 
 # Static routing for index.html
 @app.route("/")
+@app.route("/uuid/<string:uuid>")
 @app.route("/register/")
 @app.route("/user/")
 @app.route("/user/<path:path>")
@@ -55,7 +56,7 @@ def create_user():
 	ret = {
 		'uuid': user.uuid,
 		'api_url': url_for('.get_user', user_id = user.uuid, _external = True),
-		'user_url': url_for('static', filename = "user/" + user.uuid, _external = True)
+		'uuid_url': url_for('static', filename = "uuid/" + user.uuid, _external = True)  # UUID URIs (handled by UI in a user-friendly way)
 	}
 	return json.dumps(ret), 201, {'Location': ret['api_url'] }
 
@@ -70,7 +71,7 @@ def get_user(user_id):
 	ret = {
 		'uuid': user.uuid,
 		'api_url': url_for('.get_user', user_id = user.uuid, _external = True),
-		'user_url': url_for('static', filename = "user/" + user.uuid, _external = True),
+		'uuid_url': url_for('static', filename = "uuid/" + user.uuid, _external = True),
 		'login': user.login,
 		'name': user.name,
 		'legal_name': user.legal_name,
