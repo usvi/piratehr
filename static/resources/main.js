@@ -97,6 +97,11 @@ $(document).ready(function() {
 		ev.preventDefault();
 		navigate(this.href);
 	});
+	// Display rganization create form when button clicked
+	$('#orgcreatebutton').on('click', function(ev) {
+		$('#orglist').hide();
+		$('#orgcreateform').show();
+	});
 	// Load proper page
 	switchPage();
 	showOrgPages();
