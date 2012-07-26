@@ -99,7 +99,7 @@ def get_user(user_id):
 		'last_seen': user.last_seen
 	}
 	# Conversion function is needed for datetime objects :/
-	jsonconvert = lambda obj: obj.isoformat() if isinstance(obj, datetime.datetime) else None
+	jsonconvert = lambda obj: obj.isoformat() if isinstance(obj, datetime.datetime) or isinstance(obj, datetime.date) else None
 	return json.dumps(ret, default=jsonconvert), 200
 
 @api.route("/user_<user_id>.json", methods=["PUT"])
