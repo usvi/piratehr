@@ -24,7 +24,7 @@
 </div>
 
 <div id=outerlayout><div id=innerlayout>
-	<img src="/resources/logo.png" id="logo">
+	<img src="/resources/logo.png" id=logo alt="Logo">
 
 	<noscript>The web no longer works without Javascript.</noscript>
 
@@ -38,16 +38,15 @@
 	<div class=page id=register>
 		<h2>Register</h2>
 
-		<p>
 		<form class=ajaxform action="/api/new_user.json" method=POST>
 		<input type=text name="legal_name" placeholder="Full name" required><br>
 		<input type=text name="residence" placeholder="City, Country" required><br>
 		<input type=tel name="phone" placeholder="Phone number"><br>
 		<input type=email name="email" placeholder="Email address"><br>
 		<input type=text name="dob" placeholder="Date of birth" required>
-		</p>
 		<input type=submit value="Send">
 		</form>
+
 	</div>
 
 	<div class=page id=user>
