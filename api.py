@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import Blueprint, request, Response, g, url_for, abort
-from flaskutil import *
+from util import *
 import appdb
 import messenger
 
