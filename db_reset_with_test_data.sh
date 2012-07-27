@@ -51,6 +51,14 @@ echo Test User 2
 curl -f -X POST -H "$AUTH" http://localhost:5000/api/new_user.json --data "legal_name=Test%20User%202&residence=%C3%84k%C3%A4slompolo%2C%20Finland&phone=%2B358123456&email=user@nowhere.tld&dob=1980-12-31"
 echo
 
+echo Test User: Dolan Duck
+curl -f -X POST -H "$AUTH" http://localhost:5000/api/new_user.json --data "legal_name=Uncle%20Dolan&residence=Ylilauta%2C%20Internet&phone=&email=uncle@dolan&dob=2008-02-01"
+echo
+
+echo Test User: Gooby
+curl -f -X POST -H "$AUTH" http://localhost:5000/api/new_user.json --data "legal_name=Gooby&residence=Ylilauta%2C%20Internet&phone=&email=gooby@pls&dob=2008-04-01"
+echo
+
 echo Test Org: Caribian Pirates
 curl -f -X PUT -H "$AUTH" http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Caribian%20Pirates&friendly_name=Caribian%20Pirates"
 echo
