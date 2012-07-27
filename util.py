@@ -4,6 +4,7 @@
 from flask import request, Response, g
 from functools import wraps
 from datetime import datetime, date
+from time import sleep
 import appdb
 import json
 
@@ -24,7 +25,7 @@ def sleep_until(t):
 	"""Sleep until datetime t (utc)"""
 	timedelta = t - datetime.utcnow()
 	duration = timedelta.seconds + timedelta.microseconds / 1E6 + timedelta.days * 86400
-	if duration > 0: time.sleep(duration)
+	if duration > 0: sleep(duration)
 	else: g.logger.warn('sleep_until called ' + duration + ' s after the deadline')
 
 def json_response(data, status = 200, **kwargs):

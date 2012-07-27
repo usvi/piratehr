@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import Blueprint, request, Response, g, url_for, abort
+from datetime import *
 from util import *
 import appdb
 import messenger
@@ -14,7 +15,8 @@ def before_request():
 	g.req = None
 	g.user = None
 	try: g.req = request.json
-	except: g.req = request.values  # No JSON? Try HTTP form data
+	except: pass
+	if not g.req: g.req = request.values  # No JSON? Try HTTP form data
 	if g.config['DEBUG']:
 		g.logger.debug('  | API before_request processing:\n  |   ' + str(request) + '\n  |   ' +
 			(json.dumps(g.req)[0:300] if g.req else 'No request data'))
@@ -45,7 +47,7 @@ def create_user():
 		'api_url': url_for('.get_user', user_id = user.uuid, _external = True),
 		'uuid_url': url_for('static', filename = "uuid/" + user.uuid, _external = True)  # UUID URIs (handled by UI in a user-friendly way)
 	}
-	return json_response(ret, 201, headers={'Location': ret['api_url']})
+	return json_response(ret, 201, headers=dict(Location=ret['api_url']))
 
 @api.route("/user_<user_id>.json", methods=["GET"])
 @requires_auth
@@ -86,11 +88,13 @@ def update_user(user_id):
 @request_fields('type')
 def auth():
 	# For security reasons we delay all responses 500 ms from this point
-	responsetime = datetime.datetime.utcnow() + datetime.timedelta(milliseconds = 500)
+	responsetime = datetime.utcnow() + timedelta(milliseconds = 500)
 	reqtype = g.req['type']
 	if reqtype == 'login_password':
-		if not g.req.has_field('login') or not g.req.has_field('password'): abort(422)
-		user = appdb.User.find_by_email(g.req['login']) # FIXME: Actually verify the password
+		login = g.req.get('login')
+		password = g.req.get('password')
+		if not login or not password: abort(422)
+		user = appdb.User.find_by_email(login) # FIXME: Actually verify the password
 		auth = None
 		ret = None
 		if (len(user) == 1):
