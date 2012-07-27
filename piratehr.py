@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from flask import Flask, Blueprint, request, session, g, redirect, url_for, abort, send_file
+from flask import Flask, Blueprint, request, Response, session, g, redirect, url_for, abort, send_file
 from functools import wraps
 import json
 import appdb
@@ -41,6 +41,12 @@ def index(*args, **kwargs):
 # Subclass a RestResource and configure it
 api = Blueprint("api", __name__, url_prefix="/api")
 
+def json_response(data, status, headers):
+	resp = Response(json.dumps(data), status=status, mimetype='application/json')
+	if headers:
+		for k, v in headers.items(): resp.headers[k] = v
+	return resp
+
 # A decorator to verify that there is a valid user (g.user)
 # Just add @requires_auth between your route and function
 def requires_auth(f):
@@ -52,7 +58,7 @@ def requires_auth(f):
 		if not g.user: return authenticate()
 		return f(*args, **kwargs)
 	return decorated
-    
+
 @api.route("/new_user.json", methods=["POST"])
 def create_user():
 	req = g.req
@@ -118,8 +124,8 @@ def clear_database():
 
 def authenticate():
 	"""Sends a 401 response that enables basic auth"""
-	return json.dumps({'description':'You need to login username=json, JSON auth in password'}), 401,
-	{'WWW-Authenticate': 'Basic realm="JSON auth required"', 'Content-Type': 'application/json'}
+	return json_response({'description':'You need to login username=json, JSON auth in password'}, 401,
+	{'WWW-Authenticate': 'Basic realm="JSON auth required"'})
 
 @api.before_request
 def before_request():
@@ -169,7 +175,6 @@ def auth():
 		return json.dumps({"status":"Password reset requested"}), 202
 	else:
 		return "Auth type not specified or not supported", 422
-
 
 @api.route("/organization.json", methods=["PUT"])
 @requires_auth

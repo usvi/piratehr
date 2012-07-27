@@ -107,8 +107,8 @@ $(document).ready(function() {
 });
 
 // Insert authentication data to requests
-function ajaxSend(ev, xhr){
-	if (g.authstr) xhr.setRequestHeader("Authorization", "Basic " + $.base64.encode("json:" + g.authstr));
+function ajaxSend(ev, xhr) {
+	if (g.authstr) xhr.setRequestHeader("Authorization", "Basic " + utf8_to_b64("json:" + g.authstr));
 }
 
 // Handle common errors
