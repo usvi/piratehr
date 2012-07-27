@@ -51,7 +51,7 @@ $(document).ready(function() {
 	// Make back/forward call switchPage
 	$(window).on("popstate", switchPage);
 	// Set some classes (avoid tedious repeat in HTML)
-	$('input[type=text],input[type=tel],input[type=email]').addClass('inputfield');
+	$('input[type=text],input[type=tel],input[type=email],input[type=datetime]').addClass('inputfield');
 	$('input[type=submit]').addClass('inputsubmit');
 	// When user page is shown, load data...
 	$('#user').on('show', function() {
