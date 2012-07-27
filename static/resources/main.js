@@ -177,13 +177,9 @@ function showOrgPages() {
 }
 
 function login(authstr, msg) {
-	try {
-		g.auth = JSON.parse(authstr);
-	} catch (err) {
-		logout();
-		return;
-	}
 	g.authstr = authstr;
+	try { g.auth = JSON.parse(authstr); } catch (err) {}
+	if (!g.authstr || !g.auth) { logout(); return; }  // Login info missing or invalid, just logout...
 	localStorage['auth'] = authstr;
 	if (msg) flash(msg);
 	$('#authform').hide();
