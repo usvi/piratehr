@@ -34,7 +34,7 @@ function redirects() {
 		return;
 	}
 	// Non-existing page, redirect...
-	flash(path.join('/') + " not found, redirecting...");
+	if (path.length > 2 /* not root */) flash(path.join('/') + " not found, redirecting...");
 	if (g.auth) navigate("/user/", true);  // Note: user page re-redirects to specific uuid
 	else navigate("/register/", true);
 }
