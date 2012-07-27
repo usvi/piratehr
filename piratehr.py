@@ -15,32 +15,33 @@ app.register_blueprint(api)
 init_error_responses(app);
 appdb.init(app);
 
+# Share per-request global variables here
 @app.before_request
 def before_request():
 	g.logger = app.logger
 	g.config = app.config
 
-# Display static files at root
+# Some helpers to simplify deploying in debug mode
+# For performance reasons routing static content must be done externally when installed
 if app.config['DEBUG']:
+	# Display static files at root
 	from werkzeug import SharedDataMiddleware
 	import os
 	app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {
 		'/': os.path.join(os.path.dirname(__file__), 'static')
 	})
-
-
-# Static routing for index.html
-@app.route("/")
-@app.route("/uuid/<string:uuid>")
-@app.route("/register/")
-@app.route("/user/")
-@app.route("/user/<path:path>")
-@app.route("/memberships/")
-@app.route("/memberships/<path:path>")
-@app.route("/org/")
-@app.route("/org/<path:path>")
-def index(*args, **kwargs):
-	return send_file("static/index.html")
+	# Static routing for index.html
+	@app.route("/")
+	@app.route("/uuid/<string:uuid>")
+	@app.route("/register/")
+	@app.route("/user/")
+	@app.route("/user/<path:path>")
+	@app.route("/memberships/")
+	@app.route("/memberships/<path:path>")
+	@app.route("/org/")
+	@app.route("/org/<path:path>")
+	def index(*args, **kwargs):
+		return send_file("static/index.html")
 
 if __name__ == '__main__':
 	app.run()
