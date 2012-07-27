@@ -96,7 +96,7 @@ $(document).ready(function() {
 		ev.preventDefault();
 		navigate(this.href);
 	});
-	// Display rganization create form when button clicked
+	// Display organization create form when button clicked
 	$('#orgcreatebutton').on('click', function(ev) {
 		$('#orglist').hide();
 		$('#orgcreateform').show();
@@ -140,17 +140,24 @@ function loadOrgList() {
 	jsonQuery("", "/api/organization.json", "GET", function(data, textStatus, xhr) {
 		$('#orglisttable').children().remove();
 		for (var key in data) {
-			var org_link = "<a href=\"/org/" + data[key].perma_name + "\">" +  data[key].friendly_name + "</a>"
-			var table_row = "<tr><td>" + org_link + "</td></tr>";
+			var org_link = "<a href=/org/" + data[key].perma_name + ">" +  data[key].friendly_name + "</a>"
+			var table_row = "<tr><td>" + org_link + "</td><td>temp</td></tr>";
 			$('#orglisttable').append(table_row);
-			// Fetch the reference and append function for navigation
+			// Fetch the reference and append function for navigation manipulation
+			$('#orglisttable').find('tr:last').eq(0).find('a').on('click', function(ev) {
+				ev.preventDefault();
+				navigate(this.href, true);
+				//showOrgDetails(data[key].perma_name);
+			});
 		}
 	}, undefined);
 }
 
 
 function showOrgDetails(inputOrgPerma) {
+	alert("howOrgDetails called widh " + inputOrgPerma);
 	jsonQuery("", "/api/organization_" + inputOrgPerma + ".json", "GET", function(data, textStatus, xhr) {
+		$('#orgdetails').hide();
 		var child_orgs = "Children: ";
 		$('#orgdetails_friendly_name').text(data.main_org.friendly_name); 
 		$('#orgdetails_legal_name td').eq(1).text(data.main_org.legal_name); // Pick 2nd column beginning from the row and change.
@@ -159,6 +166,7 @@ function showOrgDetails(inputOrgPerma) {
 		}
 		if (data.parent_org) {
 		}
+		$('#orgdetails').show();
 	}, undefined);
 }
 
