@@ -22,7 +22,7 @@ def before_request():
 @api.after_request
 def after_request(resp):
 	if g.config['DEBUG'] or resp.status >= 400: 
-		datalen = resp.headers['Content-Length']
+		datalen = int(resp.headers['Content-Length'])
 		text = '  |>>> ' + resp.status + '  '
 		for k, v in resp.headers: text += k + ': ' + v + '  '
 		text += '\n' + (resp.data if datalen < 600 else resp.data[0:200] + '(…)' + resp.data[-50:])
@@ -30,24 +30,22 @@ def after_request(resp):
 	return resp
 
 @api.route("/new_user.json", methods=["POST"])
+@request_fields('legal_name', 'residence', 'dob')
 def create_user():
-	req = g.req
-	if not req: abort(422)
 	user = appdb.User.create(
-		legal_name = req['legal_name'],
-		residence = req['residence'],
-		phone = req['phone'],
-		email = req['email'],
-		dob = req['dob']
+		legal_name = g.req['legal_name'],
+		residence = g.req['residence'],
+		phone = g.req.get('phone'),
+		email = g.req.get('email'),
+		dob = g.req['dob']
 	)
 	if not user: abort(422)
-	g.logger.debug("piratehr.py: new user legal_name:" + user.legal_name + "\n" + "piratehr.py: new user uuid:" + user.uuid)
 	ret = {
 		'uuid': user.uuid,
 		'api_url': url_for('.get_user', user_id = user.uuid, _external = True),
 		'uuid_url': url_for('static', filename = "uuid/" + user.uuid, _external = True)  # UUID URIs (handled by UI in a user-friendly way)
 	}
-	return json_response(ret, 201, {'Location': ret['api_url']})
+	return json_response(ret, 201, headers={'Location': ret['api_url']})
 
 @api.route("/user_<user_id>.json", methods=["GET"])
 @requires_auth
