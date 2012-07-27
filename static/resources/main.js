@@ -147,7 +147,6 @@ function loadOrgList() {
 			$('#orglisttable').find('tr:last').eq(0).find('a').on('click', function(ev) {
 				ev.preventDefault();
 				navigate(this.href, true);
-				//showOrgDetails(data[key].perma_name);
 			});
 		}
 	}, undefined);
@@ -155,7 +154,8 @@ function loadOrgList() {
 
 
 function showOrgDetails(inputOrgPerma) {
-	alert("howOrgDetails called widh " + inputOrgPerma);
+	$('#orgdetails').hide();
+	$('#orgdetails_child_organizations').hide();
 	jsonQuery("", "/api/organization_" + inputOrgPerma + ".json", "GET", function(data, textStatus, xhr) {
 		$('#orgdetails').hide();
 		var child_orgs = "Children: ";
@@ -163,6 +163,7 @@ function showOrgDetails(inputOrgPerma) {
 		$('#orgdetails_legal_name td').eq(1).text(data.main_org.legal_name); // Pick 2nd column beginning from the row and change.
 		for (var key in data.child_orgs) {
 			child_orgs += data.child_orgs[key].friendly_name + ", ";
+			$('#orgdetails_child_organizations').show();
 		}
 		if (data.parent_org) {
 		}
@@ -175,10 +176,7 @@ function showOrgPages() {
 	$('.org').hide();
 	loadOrgList();
 	if(path[1] == "org" && path[2]) { // We have org friendly_name
-		$('#orgdetails_parent_organization').hide() // Hide everything first
-		$('#orgdetails_child_organizations').hide()
-		showOrgDetails(path[2]); // Load, and..
-		$('#orgdetails').show(); // show them all in place
+		showOrgDetails(path[2]);
 	} else {
 		$('#orglist').show();
 	}
