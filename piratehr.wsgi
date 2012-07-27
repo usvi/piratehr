@@ -1,3 +1,4 @@
 import sys
-sys.path.append("/wwwhome/piratehr")
+path="/wwwhome/piratehr/"
+if not path in sys.path: sys.path.append(path)
 from piratehr import app as application

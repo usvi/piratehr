@@ -11,7 +11,7 @@ sleep 1
 
 echo Restart the application
 touch piratehr.py
-
+touch piratehr.wsgi
 sleep 6
 
 echo Admin User
