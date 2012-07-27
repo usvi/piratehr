@@ -143,13 +143,14 @@ function loadOrgList() {
 			var org_link = "<a href=\"/org/" + data[key].perma_name + "\">" +  data[key].friendly_name + "</a>"
 			var table_row = "<tr><td>" + org_link + "</td></tr>";
 			$('#orglisttable').append(table_row);
+			// Fetch the reference and append function for navigation
 		}
 	}, undefined);
 }
 
 
-function loadOrgDetails(inputOrgFriendly) {
-	jsonQuery("", "/api/organization_" + inputOrgFriendly + ".json", "GET", function(data, textStatus, xhr) {
+function showOrgDetails(inputOrgPerma) {
+	jsonQuery("", "/api/organization_" + inputOrgPerma + ".json", "GET", function(data, textStatus, xhr) {
 		var child_orgs = "Children: ";
 		$('#orgdetails_friendly_name').text(data.main_org.friendly_name); 
 		$('#orgdetails_legal_name td').eq(1).text(data.main_org.legal_name); // Pick 2nd column beginning from the row and change.
@@ -165,11 +166,10 @@ function loadOrgDetails(inputOrgFriendly) {
 function showOrgPages() {
 	$('.org').hide();
 	loadOrgList();
-	//$('#orgdetails').on('show', loadOrgDetails())
 	if(path[1] == "org" && path[2]) { // We have org friendly_name
 		$('#orgdetails_parent_organization').hide() // Hide everything first
 		$('#orgdetails_child_organizations').hide()
-		loadOrgDetails(path[2]); // Load, and..
+		showOrgDetails(path[2]); // Load, and..
 		$('#orgdetails').show(); // show them all in place
 	} else {
 		$('#orglist').show();
