@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from flask import request, Response, g
+from flask import request, Response, g, abort
 from functools import wraps
 from datetime import datetime, date
 from time import sleep
@@ -17,8 +17,8 @@ def init_error_responses(app):
 		if code != 500: app.errorhandler(code)(make_json_error)
 	# Use HTTP Basic auth (json object in password field)
 	app.errorhandler(401)(lambda ex: json_response(
-	  dict(description='Authenticate with HTTP Basic json:{auth object}'), 401,
-	  {'WWW-Authenticate': 'Basic realm="JSON auth required"'}
+		dict(description='Authenticate with HTTP Basic json:{auth object}'), 401,
+		#headers={'WWW-Authenticate': 'Basic realm="JSON auth required"'}
 	))
 
 def sleep_until(t):
@@ -49,9 +49,9 @@ def requires_auth(f):
 	@wraps(f)
 	def decorated(*args, **kwargs):
 		auth = request.authorization
-		if not auth or auth.username != 'json': return authenticate()
+		if not auth or auth.username != 'json': return abort(401)
 		g.user = appdb.Auth.authenticate(json.loads(auth.password))
-		if not g.user: return authenticate()
+		if not g.user: return abort(401)
 		return f(*args, **kwargs)
 	return decorated
 
