@@ -3,8 +3,6 @@
 
 from flask import request, Response, g, abort
 from functools import wraps
-from datetime import datetime, date
-from time import sleep
 import appdb
 import json
 
@@ -24,13 +22,6 @@ def init_error_responses(app):
 		dict(description='Authenticate with HTTP Basic json:{auth object}'), 401,
 		#headers={'WWW-Authenticate': 'Basic realm="JSON auth required"'}
 	))
-
-def sleep_until(t):
-	"""Sleep until datetime t (utc)"""
-	timedelta = t - datetime.utcnow()
-	duration = timedelta.seconds + timedelta.microseconds / 1E6 + timedelta.days * 86400
-	if duration > 0: sleep(duration)
-	else: g.logger.warn('sleep_until called ' + duration + ' s after the deadline')
 
 def json_response(data, status = 200, **kwargs):
 	"""All responses sent by the API should be formatted with this, e.g.

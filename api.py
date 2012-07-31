@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from flask import Blueprint, request, Response, g, url_for, abort
-from datetime import *
 from util import *
+import authentication
 import appdb
 import messenger
 
@@ -42,6 +42,7 @@ def create_user():
 		dob = g.req['dob']
 	)
 	if not user: abort(422)
+	authentication.set_password(user, 'FIXME')  # FIXME: Do not set password by default
 	ret = {
 		'uuid': user.uuid,
 		'api_url': url_for('.get_user', user_id = user.uuid, _external = True),
@@ -86,29 +87,15 @@ def update_user(user_id):
 
 @api.route("/auth.json", methods=["POST"])
 @request_fields('type')
-def auth():
-	# For security reasons we delay all responses 500 ms from this point
-	responsetime = datetime.utcnow() + timedelta(milliseconds = 500)
+def auth_post():
 	reqtype = g.req['type']
 	if reqtype == 'login_password':
 		login = g.req.get('login')
 		password = g.req.get('password')
 		if not login or not password: abort(422)
-		user = appdb.User.find_by_email(login) # FIXME: Actually verify the password
-		auth = None
-		ret = None
-		if (len(user) == 1):
-			user = user[0]
-			auth = appdb.Auth.create_session(user)
-			ret = {
-				'token': auth.token_content,
-				'uuid': user.uuid,
-				'name': user.name
-			}
-		# TODO: if len(user) > 1 reset all their passwords
-		sleep_until(responsetime)
-		if not auth: abort(403)
-		return json_response(ret)
+		auth_obj = authentication.login_password(login, password)
+		if not auth_obj: abort(403)
+		return json_response(auth_obj)
 	elif reqtype == 'request_reset':
 		email = g.req.get('email')
 		if email:  # Reset by email
@@ -116,7 +103,6 @@ def auth():
 			reset_list = appdb.Auth.reset_token_email(auth_request['email'])
 			messenger.send_password_reset_emails(reset_list, request.url_root + "reset/")
 		else: abort(422)  # No other reset modes supported at this time
-		sleep_until(responsetime)
 		# Always return ok here: Attacker must not get knowledge about whether we have the email or not
 		return json_response(dict(description='Password reset requested'), 202)
 	else:
