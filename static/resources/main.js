@@ -98,12 +98,12 @@ $(document).ready(function() {
 	});
 	// Display organization create form when button clicked
 	$('#orgcreatebutton').on('click', function(ev) {
-		$('#orglist').hide();
-		$('#orgcreateform').show();
+		ev.preventDefault();
+		navigate("/orgcreate/");
 	});
 	// Load proper page
 	switchPage();
-	showOrgPages();
+	//showOrgPages(); Why did we need this? Do we?
 });
 
 // Insert authentication data to requests
