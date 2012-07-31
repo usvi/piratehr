@@ -166,6 +166,8 @@ function showOrgDetails(inputOrgPerma) {
 			$('#orgdetails_child_organizations').show();
 		}
 		if (data.parent_org) {
+			$('#org_parent_link').html("<small><small>Parent: <a href=/org/" + data.parent_org.perma_name + ">" +
+				data.parent_org.friendly_name + "</a></small></small>");
 		}
 		$('#orgdetails').show();
 	}, undefined);
