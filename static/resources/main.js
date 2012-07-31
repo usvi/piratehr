@@ -118,7 +118,14 @@ function ajaxError(e, xhr, textStatus, errorThrown) {
 		else flash("You need to be logged in to access this function.");
 		return;
 	}
-	flash(errorThrown + ": " + xhr.responseText);
+	type = xhr.getResponseHeader('Content-type');
+	if (type == "application/json") {
+		json = JSON.parse(xhr.responseText);
+		flash(json.description);
+	} else {
+		flash(errorThrown + ": ");
+		$('#debug').html(xhr.responseText);
+	}
 }
 
 
