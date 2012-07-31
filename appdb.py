@@ -120,6 +120,10 @@ class Auth(Base):
 	token_content = Column(String(512)) # Auth token content
 	expiration_time = Column(DateTime) # Expiration of the token
 	
+	def store(self):
+		g.db.add(self)
+		g.db.commit()
+
 	@staticmethod
 	def find_by_email(email, token_type): #return g.db.query(Auth).filter_by(user_id=user_id, token_type=token_type).first()
 		return g.db.query(User, Auth).filter(User.id==Auth.user_id).filter(User.email==email).filter(Auth.token_type==token_type).all()
@@ -146,6 +150,12 @@ class Auth(Base):
 		return existing_token_tuples
 	
 	@staticmethod
+	def find_token_by_user(user, token_type):
+		auth = g.db.query(Auth).filter_by(user_id=user.id).filter_by(token_type=token_type).first()
+		if not auth: return None
+		return auth.token_content
+		
+	@staticmethod
 	def create_session(user):
 		auth = Auth()
 		auth.user_id = user.id
@@ -154,7 +164,7 @@ class Auth(Base):
 		auth.expiration_time = datetime.utcnow() + timedelta(days=1)
 		g.db.add(auth)
 		g.db.commit()
-		return auth
+		return auth.token_content
 	
 	@staticmethod
 	def authenticate(auth_req):
