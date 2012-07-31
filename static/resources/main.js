@@ -147,8 +147,9 @@ function loadOrgList() {
 	jsonQuery("", "/api/organization.json", "GET", function(data, textStatus, xhr) {
 		$('#orglisttable').children().remove();
 		for (var key in data) {
-			var org_link = "<a href=/org/" + data[key].perma_name + ">" +  data[key].friendly_name + "</a>"
-			var table_row = "<tr><td>" + org_link + "</td></tr>";
+			var table_row = "<tr><td>";
+			table_row += "<a href=/org/" + data[key].perma_name + ">" +  data[key].friendly_name + "</a>"
+			table_row += "</td></tr>";
 			$('#orglisttable').append(table_row);
 			// Fetch the reference and append function for navigation manipulation
 			$('#orglisttable').find('tr:last').eq(0).find('a').on('click', function(ev) {
@@ -173,7 +174,6 @@ function showOrgDetails(inputOrgPerma) {
 			var table_row = "<tr><td>";
 			table_row += "<a href=/org/" + data.child_orgs[key].perma_name + ">" + data.child_orgs[key].friendly_name + "</a>";
 			table_row += "</td></tr>";
-
 			$('#childlisttable').append(table_row);
 			// Fetch the reference and append function for navigation manipulation
 			$('#childlisttable').find('tr:last').eq(0).find('a').on('click', function(ev) {
