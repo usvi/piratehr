@@ -158,16 +158,34 @@ function showOrgDetails(inputOrgPerma) {
 	$('#orgdetails_child_organizations').hide();
 	jsonQuery("", "/api/organization_" + inputOrgPerma + ".json", "GET", function(data, textStatus, xhr) {
 		$('#orgdetails').hide();
-		var child_orgs = "Children: ";
 		$('#orgdetails_friendly_name').text(data.main_org.friendly_name); 
-		$('#orgdetails_legal_name td').eq(1).text(data.main_org.legal_name); // Pick 2nd column beginning from the row and change.
+		$('#orgdetails_legal_name td').eq(1).text(data.main_org.legal_name); // Pick 2nd column beginning from the row and change legal name to actual.
+		$('#childlisttable').empty();
+		$('#org_parent_link').html("");
 		for (var key in data.child_orgs) {
-			child_orgs += data.child_orgs[key].friendly_name + ", ";
-			$('#orgdetails_child_organizations').show();
+			var table_row = "<tr><td>";
+			table_row += "<a href=/org/" + data.child_orgs[key].perma_name + ">" + data.child_orgs[key].friendly_name + "</a>";
+			table_row += "</td></tr>";
+
+			$('#childlisttable').append(table_row);
+			// Fetch the reference and append function for navigation manipulation
+			$('#childlisttable').find('tr:last').eq(0).find('a').on('click', function(ev) {
+				ev.preventDefault();
+				navigate(this.href, true);
+			});
+
+		}
+		if(data.child_orgs) {
+			$('#orgdetails_child_organizations').show(); // Show children if they exist.
 		}
 		if (data.parent_org) {
 			$('#org_parent_link').html("<small><small>Parent: <a href=/org/" + data.parent_org.perma_name + ">" +
 				data.parent_org.friendly_name + "</a></small></small>");
+			// Add navigation manipulation for parent also if parent exists
+			$('#org_parent_link').find('a').on('click', function(ev) {
+				ev.preventDefault();
+				navigate(this.href, true);
+			});
 		}
 		$('#orgdetails').show();
 	}, undefined);
