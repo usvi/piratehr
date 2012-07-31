@@ -148,7 +148,7 @@ function loadOrgList() {
 		$('#orglisttable').children().remove();
 		for (var key in data) {
 			var org_link = "<a href=/org/" + data[key].perma_name + ">" +  data[key].friendly_name + "</a>"
-			var table_row = "<tr><td>" + org_link + "</td><td>temp</td></tr>";
+			var table_row = "<tr><td>" + org_link + "</td></tr>";
 			$('#orglisttable').append(table_row);
 			// Fetch the reference and append function for navigation manipulation
 			$('#orglisttable').find('tr:last').eq(0).find('a').on('click', function(ev) {

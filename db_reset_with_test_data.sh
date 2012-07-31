@@ -19,7 +19,7 @@ curl -f -X POST -H "Content-Type: application/json" http://localhost:5000/api/ne
 echo
 
 echo Authenticate him...
-curl -f -X POST -H "Content-Type: application/json" http://localhost:5000/api/auth.json --data '{"type":"login_password","login":"root@localhost","password":"password"}' > auth.json
+curl -f -X POST -H "Content-Type: application/json" http://localhost:5000/api/auth.json --data '{"type":"login_password","login":"root@localhost","password":"FIXME"}' > auth.json
 cat auth.json
 echo
 
@@ -59,40 +59,44 @@ echo Test User: Gooby
 curl -f -X POST -H "$AUTH" http://localhost:5000/api/new_user.json --data "legal_name=Gooby&residence=Ylilauta%2C%20Internet&phone=&email=gooby@pls&dob=2008-04-01"
 echo
 
-echo Test Org: Caribian Pirates
-curl -f -X PUT -H "$AUTH" http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Caribian%20Pirates&friendly_name=Caribian%20Pirates"
+echo Test Org: International Pirates
+curl -f -X PUT -H "$AUTH" http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20International%20Pirates&friendly_name=International%20Pirates"
 echo
 
-echo Test Org: Hawaiin Pirates
-curl -f -X PUT -H "$AUTH" http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Hawaiian%20Pirates&friendly_name=Hawaiian%20Pirates"
+echo Test Org: Caribian Pirates under International Pirates
+curl -f -X PUT -H "$AUTH" http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Caribian%20Pirates&friendly_name=Caribian%20Pirates&parent_id=1"
+echo
+
+echo Test Org: Hawaiin Pirates under International Pirates
+curl -f -X PUT -H "$AUTH" http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Hawaiian%20Pirates&friendly_name=Hawaiian%20Pirates&parent_id=1"
 echo
 
 echo Test Org: Barbados Pirates under Caribian Pirates
-curl -f -X PUT -H "$AUTH" http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Barbados%20Pirates&friendly_name=Barbados%20Pirates&parent_id=1"
+curl -f -X PUT -H "$AUTH" http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Barbados%20Pirates&friendly_name=Barbados%20Pirates&parent_id=2"
 echo
 
 echo Test Org: St Kitts and Nevis Pirates under Caribian Pirates
-curl -f -X PUT -H "$AUTH" http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20St%20Kitts%20and%20Nevis%20Pirates&friendly_name=St%20Kitts%20and%20Nevis%20Pirates&parent_id=1"
+curl -f -X PUT -H "$AUTH" http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20St%20Kitts%20and%20Nevis%20Pirates&friendly_name=St%20Kitts%20and%20Nevis%20Pirates&parent_id=2"
 echo
 
 echo Test Org: Montserrat Pirates under Caribian Pirates
-curl -f -X PUT -H "$AUTH" http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Montserrat%20Pirates&friendly_name=Montserrat%20Pirates&parent_id=1"
+curl -f -X PUT -H "$AUTH" http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Montserrat%20Pirates&friendly_name=Montserrat%20Pirates&parent_id=2"
 echo
 
 echo Test Org: Grenada Pirates under Caribian Pirates
-curl -f -X PUT -H "$AUTH" http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Grenada%20Pirates&friendly_name=Grenada%20Pirates&parent_id=1"
+curl -f -X PUT -H "$AUTH" http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Grenada%20Pirates&friendly_name=Grenada%20Pirates&parent_id=2"
 echo
 
 echo Test Org: Caracas Pirates under Caribian Pirates
-curl -f -X PUT -H "$AUTH" http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Caracas%20Pirates&friendly_name=Caracas%20Pirates&parent_id=1"
+curl -f -X PUT -H "$AUTH" http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Caracas%20Pirates&friendly_name=Caracas%20Pirates&parent_id=2"
 echo
 
 echo Test Org: Puerto Cabello Pirates under Caribian Pirates
-curl -f -X PUT -H "$AUTH" http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Puerto%20Cabello%20Pirates&friendly_name=Puerto%20Cabello%20Pirates&parent_id=1"
+curl -f -X PUT -H "$AUTH" http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Puerto%20Cabello%20Pirates&friendly_name=Puerto%20Cabello%20Pirates&parent_id=2"
 echo
 
 echo Test Org: Curacao Pirates under Caribian Pirates
-curl -f -X PUT -H "$AUTH" http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Curacao%20Pirates&friendly_name=Curacao%20Pirates&parent_id=1"
+curl -f -X PUT -H "$AUTH" http://localhost:5000/api/organization.json --data "legal_name=Organization%20Of%20Curacao%20Pirates&friendly_name=Curacao%20Pirates&parent_id=2"
 echo
 
 echo Done.
