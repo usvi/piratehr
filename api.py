@@ -112,17 +112,21 @@ def auth_post():
 @requires_auth
 @request_fields('legal_name', 'friendly_name')
 def organization_put():
+	parent_id = g.req['parent_id']
+	if type(parent_id) != int:
+		parent_id = None
 	organization = appdb.Organization.create(
 		legal_name=g.req['legal_name'],
 		friendly_name=g.req['friendly_name'],
-		parent_id=g.req.get('parent_id')
+		parent_id=parent_id
 	)
 	if not organization: abort(422)
 	ret = {
 		'id': organization.id,
 		'parent_id': organization.parent_id,
 		'legal_name': organization.legal_name,
-		'friendly_name': organization.friendly_name
+		'friendly_name': organization.friendly_name,
+		'perma_name': organization.perma_name
 	}
 	return json_response(ret, 201)
 

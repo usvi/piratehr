@@ -203,6 +203,8 @@ class Organization(Base):
 	def generate_perma_name(friendly_name):
 		import unicodedata
 		import re
+		if type(friendly_name) == int:
+			friendly_name = str(friendly_name)
 		perma_name = friendly_name.lower()
 		perma_name = perma_name.replace(" ", "_")
 		perma_name = unicodedata.normalize('NFKD', unicode(perma_name)).encode('ascii','ignore')
