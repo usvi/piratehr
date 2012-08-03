@@ -25,9 +25,10 @@ class Settings(Base):
 		return '<%s=%s>' % (self.key, self.value)
 	@staticmethod
 	def put(settings_dict):
-		for k,v in settings_dict:
+		for k in settings_dict:
+			v = settings_dict[k]
 			# FIXME: key/value sanity checks
-			g.db.merge(Setting(k, v))
+			g.db.merge(Settings(k, v))
 		g.db.commit()
 		return True
 	@staticmethod
@@ -192,12 +193,15 @@ class Organization(Base):
 	friendly_name = Column(String(128), nullable=False, unique=True) # Friendly short name of the organization
 	perma_name = Column(String(128), nullable=False, unique=True) # Permanent name identifier of the organization. Admin-mutable (in the future).
 	@staticmethod
-	def create(legal_name, friendly_name, parent_id=None):
+	def create(perma_name, legal_name, friendly_name, parent_name=None):
 		organization = Organization()
 		organization.legal_name = legal_name
 		organization.friendly_name = friendly_name
-		organization.perma_name = Organization.generate_perma_name(friendly_name)
-		organization.parent_id = parent_id
+		organization.perma_name = perma_name
+		if parent_name:
+			parent = Organization.find_by_perma(parent_name)
+			if not parent: return False
+			organization.parent_id = parent.id
 		g.db.add(organization)
 		if g.db.commit() == None: return organization
 		return False

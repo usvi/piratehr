@@ -108,33 +108,11 @@ def auth_post():
 	else:
 		abort(422)
 
-@api.route("/organization.json", methods=["PUT"])
-@requires_auth
-@request_fields('legal_name', 'friendly_name')
-def organization_put():
-	parent_id = g.req['parent_id']
-	if type(parent_id) != int:
-		parent_id = None
-	organization = appdb.Organization.create(
-		legal_name=g.req['legal_name'],
-		friendly_name=g.req['friendly_name'],
-		parent_id=parent_id
-	)
-	if not organization: abort(422)
-	ret = {
-		'id': organization.id,
-		'parent_id': organization.parent_id,
-		'legal_name': organization.legal_name,
-		'friendly_name': organization.friendly_name,
-		'perma_name': organization.perma_name
-	}
-	return json_response(ret, 201)
-
-@api.route("/organization.json", methods=["GET"])
+@api.route("/organizations.json", methods=["GET"])
 def organization_get_all():
-	# FIXME: Proper error checking here?
+	# FIXME: Proper permissions checking here?
 	organizations = appdb.Organization.get_all()
-	ret = []   # FIXME: Always wrap JSON in {} (security reasons)
+	ret = []
 	for organization in organizations:
 		tuple = {
 			'id': organization.id,
@@ -142,9 +120,25 @@ def organization_get_all():
 			'legal_name': organization.legal_name,
 			'friendly_name': organization.friendly_name,
 			'perma_name': organization.perma_name
-			}
+		}
 		ret.append(tuple)
-	return json_response(ret)
+	return json_response({'organizations':ret})
+
+@api.route("/organization_<perma_name>.json", methods=["PUT"])
+@requires_auth
+@request_fields('legal_name', 'friendly_name')
+def organization_put(perma_name):
+	# FIXME: Proper permissions checking required
+	if g.req.has_key('perma_name'):
+		if g.req['perma_name'] != perma_name: abort(422)
+	organization = appdb.Organization.create(
+		perma_name=perma_name,
+		legal_name=g.req['legal_name'],
+		friendly_name=g.req['friendly_name'],
+		parent_name=g.req.get('parent_name')
+	)
+	if not organization: abort(422)
+	return json_response({}, 201)
 
 @api.route("/organization_<perma_name>.json", methods=["GET"])
 def organization_get(perma_name):
@@ -200,6 +194,7 @@ def settings_get():
 	
 @api.route("/I_accidentally_the_whole_database.json", methods=['DELETE'])
 def clear_database():
+	# FIXME: Security-wise this is obviously flawed
 	appdb.clear_database();
 	return json_response({})
 

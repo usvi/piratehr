@@ -11,20 +11,22 @@
 $(document).ready(function() {
 	// All tests are defined here
 	ajax_test('/api/I_accidentally_the_whole_database.json', 'DELETE');
-	ajax_test('/api/new_user.json', 'POST', {'legal_name':'Bastard Operator From Hell','residence':'Internet','phone':'','email':'root@localhost','dob':'1970-01-01'});
+	for (var i in users) {
+		ajax_test('/api/new_user.json', 'POST', users[i]);
+		custom_test(function() { g.users[i] = g.data.uuid; });  // Store UUID of the newly created user
+	}
 	ajax_test('/api/auth.json', 'POST', {'type':'login_password','login':'root@localhost','password':'FIXME'});
 	custom_test(function() { g.authstr = JSON.stringify(g.data); });
 	ajax_test('/api/settings.json', 'PUT', {'smtp_server':'mail.inet.fi', 'email_reset_from':'no-reply@nowhere.tld'});
-	g.users = [];
-	for (var i in users) {
-		ajax_test('/api/new_user.json', 'POST', users[i]);
-		custom_test(function() { g.users[i] = g.data.uuid; });
+	for (var i in organizations) {
+		ajax_test('/api/organization_' + organizations[i].perma_name + '.json', 'PUT', organizations[i]);
 	}
 	// Start testing...
 	run_tests();
 });
 
 var users = [
+	{'legal_name':'Bastard Operator From Hell','residence':'Internet','phone':'','email':'root@localhost','dob':'1970-01-01'},
 	{'legal_name':'Donald Duck', 'residence':'Duckburg, Florida', 'phone':'', 'email':'donald@duck', 'dob':'1950-01-01'},
 	{'legal_name':'Öky Äkkipika', 'residence':'Äkäslompolo, Finland', 'phone':'+358123456', 'email':'user@nowhere.tld', 'dob':'1980-12-31'},
 	{'legal_name':'Äky Ökkipika', 'residence':'Äkäslompolo, Finland', 'phone':'+358123456', 'email':'user@nowhere.tld', 'dob':'1980-12-31'},
@@ -32,52 +34,26 @@ var users = [
 	{'legal_name':'Gooby', 'residence':'Ylilauta, Internet', 'phone':'555-313-313', 'email':'', 'dob':'2008-04-01'},
 ];
 
-/*
-echo Test Org: International Pirates
-curl -f -X PUT -H '$AUTH' http://localhost:5000/api/organization.json --data 'legal_name=Organization%20Of%20International%20Pirates&friendly_name=International%20Pirates'
-echo
-
-echo Test Org: Caribian Pirates under International Pirates
-curl -f -X PUT -H '$AUTH' http://localhost:5000/api/organization.json --data 'legal_name=Organization%20Of%20Caribian%20Pirates&friendly_name=Caribian%20Pirates&parent_id=1'
-echo
-
-echo Test Org: Hawaiin Pirates under International Pirates
-curl -f -X PUT -H '$AUTH' http://localhost:5000/api/organization.json --data 'legal_name=Organization%20Of%20Hawaiian%20Pirates&friendly_name=Hawaiian%20Pirates&parent_id=1'
-echo
-
-echo Test Org: Barbados Pirates under Caribian Pirates
-curl -f -X PUT -H '$AUTH' http://localhost:5000/api/organization.json --data 'legal_name=Organization%20Of%20Barbados%20Pirates&friendly_name=Barbados%20Pirates&parent_id=2'
-echo
-
-echo Test Org: St Kitts and Nevis Pirates under Caribian Pirates
-curl -f -X PUT -H '$AUTH' http://localhost:5000/api/organization.json --data 'legal_name=Organization%20Of%20St%20Kitts%20and%20Nevis%20Pirates&friendly_name=St%20Kitts%20and%20Nevis%20Pirates&parent_id=2'
-echo
-
-echo Test Org: Montserrat Pirates under Caribian Pirates
-curl -f -X PUT -H '$AUTH' http://localhost:5000/api/organization.json --data 'legal_name=Organization%20Of%20Montserrat%20Pirates&friendly_name=Montserrat%20Pirates&parent_id=2'
-echo
-
-echo Test Org: Grenada Pirates under Caribian Pirates
-curl -f -X PUT -H '$AUTH' http://localhost:5000/api/organization.json --data 'legal_name=Organization%20Of%20Grenada%20Pirates&friendly_name=Grenada%20Pirates&parent_id=2'
-echo
-
-echo Test Org: Caracas Pirates under Caribian Pirates
-curl -f -X PUT -H '$AUTH' http://localhost:5000/api/organization.json --data 'legal_name=Organization%20Of%20Caracas%20Pirates&friendly_name=Caracas%20Pirates&parent_id=2'
-echo
-
-echo Test Org: Puerto Cabello Pirates under Caribian Pirates
-curl -f -X PUT -H '$AUTH' http://localhost:5000/api/organization.json --data 'legal_name=Organization%20Of%20Puerto%20Cabello%20Pirates&friendly_name=Puerto%20Cabello%20Pirates&parent_id=2'
-echo
-
-echo Test Org: Curacao Pirates under Caribian Pirates
-curl -f -X PUT -H '$AUTH' http://localhost:5000/api/organization.json --data 'legal_name=Organization%20Of%20Curacao%20Pirates&friendly_name=Curacao%20Pirates&parent_id=2'
-echo
-
-*/
+var organizations = [
+	{'perma_name':'international', 'legal_name':'Organization of International Pirates', 'friendly_name':'International Pirates'},
+	{'perma_name':'caribian', 'legal_name':'Organization of Caribian Pirates', 'friendly_name':'Caribian Pirates', 'parent_name':'international'},
+	{'perma_name':'hawaii', 'legal_name':'Organization of Hawaiian Pirates', 'friendly_name':'Hawaii Pirates', 'parent_name':'international'},
+	{'perma_name':'barbados', 'legal_name':'Organization of Barbados Pirates', 'friendly_name':'Barbados Pirates', 'parent_name':'caribian'},
+	{'perma_name':'stkitts', 'legal_name':'Organization of St Kitts and Nevis Pirates', 'friendly_name':'St Kitts and Nevis Pirates', 'parent_name':'caribian'},
+	{'perma_name':'montserrat', 'legal_name':'Organization of Montserrat Pirates', 'friendly_name':'Montserrat Pirates', 'parent_name':'caribian'},
+	{'perma_name':'grenada', 'legal_name':'Organization of Grenada Pirates', 'friendly_name':'Grenada Pirates', 'parent_name':'caribian'},
+	{'perma_name':'caracas', 'legal_name':'Organization of Caracas Pirates Pirates', 'friendly_name':'Caracas Pirates', 'parent_name':'caribian'},
+	{'perma_name':'puerto-cabello', 'legal_name':'Organization of Puerto Cabello Pirates', 'friendly_name':'Puerto Cabello Pirates', 'parent_name':'caribian'},
+	{'perma_name':'curacao', 'legal_name':'Organization of Curacao Pirates', 'friendly_name':'Curacao Pirates', 'parent_name':'caribian'},	
+]
 
 var testnum = 0;
 var tests = [];
-var g = {};
+
+// Global variables passed between tests
+var g = {
+	users: [],
+};
 
 function query(url, method) {
 	$('body').append('<p><span>' + g.url + ' (' + g.method + ')</span> → </p>');
