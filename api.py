@@ -133,14 +133,10 @@ def organization_put(perma_name):
 	if g.req.has_key('perma_name'):
 		if g.req['perma_name'] != perma_name:
 			return json_response(dict(description='Supplied (optional) perma_name does not match URL'), 422)
-	organization = appdb.Organization.create(
-		perma_name=perma_name,
-		legal_name=g.req['legal_name'],
-		friendly_name=g.req['friendly_name'],
-		parent_name=g.req.get('parent_name')
-	)
-	if not organization: return json_response(dict(description='Failed to create/update organization. Check input data.'), 422)
-	return json_response({}, 201)
+	organization = appdb.Organization.find_by_perma(perma_name);
+	if not organization: abort(404)
+	if organization.update(g.req): return json_response(dict(description='Organization information stored'))
+	return json_response(dict(description='Failed to create/update organization. Check input data.'), 422)
 
 @api.route("/organization_<perma_name>.json", methods=["GET"])
 def organization_get(perma_name):

@@ -54,7 +54,7 @@
 	<div class=page id=user>
 		<h2>User</h2>
 		
-		<form id=userform class=ajaxform action="/api/user_[uuid].json" method=PUT>
+		<form id=userform class=ajaxform action="/api/user_[arg1].json" method=PUT>
 		<table>
 		<tr><td>UUID</td><td><input type=text name="uuid" readonly></td></tr>
 		<tr><td>Login</td><td><input type=text name="login"></td></tr>
@@ -94,17 +94,8 @@
 			<br><br><br>
 		</div>
 
-		<div class=org id=orgdetails>
-			<div id=org_parent_link></div>
-			<h3 id=orgdetails_friendly_name></h3>
-			<table>
-			<tr id=orgdetails_legal_name><td>Legal name</td><td></td></tr>
-			<tr id=orgdetails_child_organizations><td valign=top>Child organizations</td><td><table id=childlisttable></table></td></tr>
-			</table>
-		</div>
-
 		<div class=org id=orgedit>
-			<form class=ajaxform id=orgform action="/api/organization_[name].json" method="PUT">
+			<form class=ajaxform id=orgform action="/api/organization_[arg1].json" method="PUT">
 			<table>
 			<tr><td>Legal name of the organization</td><td><input type="text" name="legal_name" placeholder="The Pirate Organization of X" required></td></tr>
 			<tr><td>Friendly name of the organization</td><td><input type="text" name="friendly_name" placeholder="Pirates of X" required></td></tr>

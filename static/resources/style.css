@@ -5,6 +5,7 @@ body { margin: 0; }
 #authform, #authinfo, #orglist, #orgcreateform, #orgdetails, #orgdetails_parent_organization, #orgdetails_child_organizations { display: none; }
 #outerlayout { background: #fff; border-radius: 10px; width: 90%; margin: auto; }
 #innerlayout { margin: 10px; }
-.inputfield { width: 300px; }
+.inputfield { width: 300px; border: 0; }
 /*.inputsubmit { margin-left: 150px; width: 50px; }*/
 #qrcode img { width: 150px; height: 150px; }
+

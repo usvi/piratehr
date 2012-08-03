@@ -202,9 +202,24 @@ class Organization(Base):
 			parent = Organization.find_by_perma(parent_name)
 			if not parent: return False
 			organization.parent_id = parent.id
-		g.db.merge(organization)
+		g.db.add(organization)
 		if g.db.commit() == None: return organization
 		return False
+	def update(self, data):
+		if data.has_key('perma_name') and data['perma_name'] != self.perma_name: return False
+		if data.has_key('friendly_name'): self.friendly_name = data['friendly_name']
+		if data.has_key('legal_name'): self.legal_name = data['legal_name']
+		if data.get('parent_name'):
+			p = Organization.find_by_perma(data['parent_name'])
+			if not p: return False
+			self.parent_id = p.id
+		if not self.validate():
+			g.db.rollback()
+			return False
+		g.db.commit()
+		return True
+	def validate(self):
+		return True  # FIXME
 	@staticmethod
 	def generate_perma_name(friendly_name):
 		import unicodedata

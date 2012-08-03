@@ -19,6 +19,8 @@ function switchPage() {
 	$('.page').hide();
 	path = window.location.pathname.split('/');
 	var page = $('#' + path[1]);
+	g.page.arg1 = path[2];
+	g.page.arg2 = path[3];
 	// Test if the URL mapped to a page, otherwise redirect
 	if (page.length != 1) { redirects(path); return; }
 	// Activate the page specified by URL
@@ -149,7 +151,7 @@ function loadOrgList() {
 		g.orgs = data.organizations;
 		// Clear any old data
 		$('#parent_select').children().remove();
-		$('#parent_select').append($('<option>').text('(No parent)'));
+		$('#parent_select').append($('<option>').attr('value', '').text('(No parent)'));
 		$('#orglisttable').children().remove();
 		for (var key in g.orgs) {
 			var org = g.orgs[key];
@@ -273,10 +275,14 @@ $('.ajaxform').submit(function(ev) {
 		contentType: "application/json",
 		complete: function() { submit.removeAttr('disabled'); }
 	};
-	if (g.page.uuid) settings.url = settings.url.replace('[uuid]', g.page.uuid);
+	if (settings.url.indexOf("[arg1]") != -1) {
+		if (!g.page.arg1) flash("Internal error: arg1 is not set");
+		settings.url = settings.url.replace('[arg1]', g.page.arg1);
+	}		
 	settings.success = function(data, textStatus, xhr) {
 		if (settings.type == 'POST') form[0].reset();  // Clear the form after successful POST
 		if (settings.url.split('/').pop() == 'auth.json') login(JSON.stringify(data), "Login successful");
+		else flash(data.description);
 	}
 	$.ajax(settings);
 })
