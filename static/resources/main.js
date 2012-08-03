@@ -144,11 +144,12 @@ function jsonQuery(inputData, inputUrl, inputType, successFunc, completeFunc) {
 }
 
 function showOrgCreateForm() {
-	$('#parent_id_select').children().remove();
-	$('#parent_id_select').append("<option value=''>(No parent)</option>");
+	$('#parent_select').children().remove();
+	$('#parent_select').append("<option value=''>(No parent)</option>");
 	jsonQuery("", "/api/organizations.json", "GET", function(data, textStatus, xhr) {
+		data = data.organizations;
 		for (var key in data) {
-			$('#parent_id_select').append("<option value=" + data[key].id + ">" + data[key].friendly_name + "</option>");
+			$('#parent_select').append("<option value=" + data[key].perma_name + ">" + data[key].friendly_name + "</option>");
 		};
 
 	}, undefined);
@@ -255,23 +256,6 @@ function navigate(url, redirect) {
 	}, 0);
 }
 
-function handleOrgFormSubmit(returndata, xhr, settings, form) {
-	if(xhr.status == 200) // OK, we use this for data modification form
-	{
-
-	}
-	if(xhr.status == 201) // Created, use on create form
-	{
-		var parts = window.location.pathname.split('/');
-		parts.pop();
-		parts.pop();
-		var url = parts.join('/');
-		url += "/org/" + returndata['perma_name'];
-		navigate(url, true);
-	}
-}
-
-
 $('.ajaxform').submit(function(ev) {
 	ev.preventDefault();
 	var form = $(this);
@@ -291,7 +275,6 @@ $('.ajaxform').submit(function(ev) {
 		if (settings.type == 'POST') form[0].reset();  // Clear the form after successful POST
 		if (settings.type == 'PUT') form[0].reset();  // Clear the form after successful PUT
 		if (settings.url.split('/').pop() == 'auth.json') login(JSON.stringify(data), "Login successful");
-		if (settings.url.split('/').pop() == 'organizations.json') handleOrgFormSubmit(data, xhr, settings, form);
 	}
 	$.ajax(settings);
 })
