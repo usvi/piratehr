@@ -146,7 +146,7 @@ function jsonQuery(inputData, inputUrl, inputType, successFunc, completeFunc) {
 function showOrgCreateForm() {
 	$('#parent_id_select').children().remove();
 	$('#parent_id_select').append("<option value=''>(No parent)</option>");
-	jsonQuery("", "/api/organization.json", "GET", function(data, textStatus, xhr) {
+	jsonQuery("", "/api/organizations.json", "GET", function(data, textStatus, xhr) {
 		for (var key in data) {
 			$('#parent_id_select').append("<option value=" + data[key].id + ">" + data[key].friendly_name + "</option>");
 		};
@@ -155,7 +155,8 @@ function showOrgCreateForm() {
 }
 
 function loadOrgList() {
-	jsonQuery("", "/api/organization.json", "GET", function(data, textStatus, xhr) {
+	jsonQuery("", "/api/organizations.json", "GET", function(data, textStatus, xhr) {
+		data = data.organizations;
 		$('#orglisttable').children().remove();
 		for (var key in data) {
 			var table_row = "<tr><td>";
@@ -290,7 +291,7 @@ $('.ajaxform').submit(function(ev) {
 		if (settings.type == 'POST') form[0].reset();  // Clear the form after successful POST
 		if (settings.type == 'PUT') form[0].reset();  // Clear the form after successful PUT
 		if (settings.url.split('/').pop() == 'auth.json') login(JSON.stringify(data), "Login successful");
-		if (settings.url.split('/').pop() == 'organization.json') handleOrgFormSubmit(data, xhr, settings, form);
+		if (settings.url.split('/').pop() == 'organizations.json') handleOrgFormSubmit(data, xhr, settings, form);
 	}
 	$.ajax(settings);
 })
