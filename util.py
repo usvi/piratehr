@@ -62,7 +62,7 @@ def request_fields(*req_args):
 			if not g.req: return json_response(dict(description='JSON object must be passed as HTTP body with this request'), 422)
 			missing = []
 			for arg in req_args:
-				if not g.req.has_key(arg): missing.add(arg)
+				if not g.req.has_key(arg): missing.append(arg)
 			if missing: return json_response(dict(description='Mandatory request fields missing', missing_fields=missing), 422)
 			return f(*args, **kwargs)
 		return decorated
