@@ -14,10 +14,6 @@ def init_error_responses(app):
 	make_json_error = lambda ex: json_response(dict(description=str(ex)), ex.code)
 	for code in default_exceptions.iterkeys():
 		if code != 500: app.errorhandler(code)(make_json_error)
-	# Bad request handling (Werkzeug lacks any handler)
-	app.errorhandler(422)(lambda ex: json_response(
-		dict(description='Bad request. Verify that fields are filled properly.'), 422
-	))
 	# Use HTTP Basic auth (json object in password field)
 	app.errorhandler(401)(lambda ex: json_response(
 		dict(description='Authenticate with HTTP Basic json:{auth object}'), 401,
