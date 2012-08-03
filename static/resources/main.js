@@ -99,12 +99,13 @@ $(document).ready(function() {
 	// Display organization create form when button clicked
 	$('#orgcreatebutton').on('click', function(ev) {
 		ev.preventDefault();
-		navigate("/orgcreate/");
+		var field = $('#orgcreatefield');
+		var url = '/org/' + field.attr('value');
+		field.attr('value', '');
+		navigate(url);
 	});
-	$('#orgcreate').on('show', loadOrgList);
 	// Load proper page
 	switchPage();
-	//showOrgPages(); Why did we need this? Do we?
 });
 
 // Insert authentication data to requests
@@ -148,38 +149,42 @@ function loadOrgList() {
 		g.orgs = data.organizations;
 		// Clear any old data
 		$('#parent_select').children().remove();
-		$('#parent_select').append("<option value=''>(No parent)</option>");
+		$('#parent_select').append($('<option>').text('(No parent)'));
 		$('#orglisttable').children().remove();
 		for (var key in g.orgs) {
 			var org = g.orgs[key];
 			// Update organization create form parent options
-			$('#parent_select').append("<option value=" + org.perma_name + ">" + org.friendly_name + "</option>");
+			$('#parent_select').append($('<option>').attr('value', org.perma_name).text(org.friendly_name));
 			// Add a row to organization table
 			var anchor = $('<a>');
 			anchor.attr('href', '/org/' + org.perma_name);
 			anchor.attr('id', 'organization_' + org.perma_name);
-			anchor.text(org.friendly_name);
+			anchor.text(org.perma_name);
 			// AJAX navigation
 			anchor.on('click', function(ev) {
 				ev.preventDefault();
 				navigate(this.href, true);
 			});
 			// Add table row
-			$('#orglisttable').append($('<tr>').append($('<td>').append(anchor)));
+			$('#orglisttable').append($('<tr>').append($('<td>').append(anchor)).append($('<td>').text(org.friendly_name)));
 		}
 	}, undefined);
 }
 
 
-function showOrgDetails(inputOrgPerma) {
-	$('#orgdetails').hide();
-	$('#orgdetails_child_organizations').hide();
-	jsonQuery("", "/api/organization_" + inputOrgPerma + ".json", "GET", function(data, textStatus, xhr) {
-		$('#orgdetails').hide();
-		$('#orgdetails_friendly_name').text(data.main_org.friendly_name); 
-		$('#orgdetails_legal_name td').eq(1).text(data.main_org.legal_name); // Pick 2nd column beginning from the row and change legal name to actual.
+function loadOrgData(orgname) {
+	jsonQuery("", "/api/organization_" + orgname + ".json", "GET", function(data, textStatus, xhr) {
+
 		$('#childlisttable').empty();
 		$('#org_parent_link').html("");
+		form = $('#orgform');
+		for (var key in data) {
+			value = data[key]
+			var elem = $('input[name=' + key + ']', form)[0];
+			if (!elem) elem = $('select[name=' + key + ']', form)[0];
+			if (elem) $(elem).attr('value', value || '');
+			//else flash("Warning: Value ignored: " + key + "=" + value);
+		}
 		for (var key in data.child_orgs) {
 			var table_row = "<tr><td>";
 			table_row += "<a href=/org/" + data.child_orgs[key].perma_name + ">" + data.child_orgs[key].friendly_name + "</a>";
@@ -213,7 +218,8 @@ function showOrgPages() {
 	$('.org').hide();
 	loadOrgList();
 	if(path[1] == "org" && path[2]) { // We have org friendly_name
-		showOrgDetails(path[2]);
+		$('#orgedit').show();
+		loadOrgData(path[2]);
 	} else {
 		$('#orglist').show();
 	}
@@ -270,7 +276,6 @@ $('.ajaxform').submit(function(ev) {
 	if (g.page.uuid) settings.url = settings.url.replace('[uuid]', g.page.uuid);
 	settings.success = function(data, textStatus, xhr) {
 		if (settings.type == 'POST') form[0].reset();  // Clear the form after successful POST
-		if (settings.type == 'PUT') form[0].reset();  // Clear the form after successful PUT
 		if (settings.url.split('/').pop() == 'auth.json') login(JSON.stringify(data), "Login successful");
 	}
 	$.ajax(settings);

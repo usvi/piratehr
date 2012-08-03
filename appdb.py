@@ -202,7 +202,7 @@ class Organization(Base):
 			parent = Organization.find_by_perma(parent_name)
 			if not parent: return False
 			organization.parent_id = parent.id
-		g.db.add(organization)
+		g.db.merge(organization)
 		if g.db.commit() == None: return organization
 		return False
 	@staticmethod

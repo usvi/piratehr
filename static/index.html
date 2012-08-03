@@ -87,9 +87,13 @@
 			<h3>List of organizations</h3>
 			<table id=orglisttable>
 			</table>
-			<input id=orgcreatebutton type=button value="Create new">
+			<form>
+			<input id=orgcreatefield type=text placeholder='shortname' pattern='[a-z0-9_-]{2,50}' required>
+			<input id=orgcreatebutton type=submit value="Create new">
+			</form>
 			<br><br><br>
 		</div>
+
 		<div class=org id=orgdetails>
 			<div id=org_parent_link></div>
 			<h3 id=orgdetails_friendly_name></h3>
@@ -98,21 +102,17 @@
 			<tr id=orgdetails_child_organizations><td valign=top>Child organizations</td><td><table id=childlisttable></table></td></tr>
 			</table>
 		</div>
-	</div>
 
-
-	<div class=page id=orgcreate>
-		<h2>Create new organization</h2>
-
-		<form class="ajaxform" action="/api/organization_[name].json" method="PUT">
-		<table>
-		<tr><td>Legal name of the organization</td><td><input type="text" name="legal_name" placeholder="The Pirate Organization of X" required></td></tr>
-		<tr><td>Friendly name of the organization</td><td><input type="text" name="friendly_name" placeholder="Pirates of X" required></td></tr>
-		<tr><td>Permanent technical name of the organization</td><td><input type="text" name="perma_name" placeholder="pirates_of_x" required></td></tr>
-		<tr><td>Parent organization</td><td><select name="parent_name" id="parent_select"></select></td></tr>
-		</table>
-		<input type="submit" value="Create">
-		</form>
+		<div class=org id=orgedit>
+			<form class=ajaxform id=orgform action="/api/organization_[name].json" method="PUT">
+			<table>
+			<tr><td>Legal name of the organization</td><td><input type="text" name="legal_name" placeholder="The Pirate Organization of X" required></td></tr>
+			<tr><td>Friendly name of the organization</td><td><input type="text" name="friendly_name" placeholder="Pirates of X" required></td></tr>
+			<tr><td>Parent organization</td><td><select name="parent_name" id="parent_select"></select></td></tr>
+			</table>
+			<input type="submit" value="Create">
+			</form>
+		</div>
 	</div>
 
 

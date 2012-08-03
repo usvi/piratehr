@@ -142,41 +142,16 @@ def organization_put(perma_name):
 
 @api.route("/organization_<perma_name>.json", methods=["GET"])
 def organization_get(perma_name):
-	if not perma_name: return "Invalid organization data", 422
 	# FIXME: Proper error checking here?
-	ret = {}
-	# Main organization (from URL)
-	main_org = appdb.Organization.find_by_perma(perma_name)
-	if not main_org: abort(404)
-	ret['main_org'] = {
-		'id': main_org.id,
-		'parent_id': main_org.parent_id,
-		'legal_name': main_org.legal_name,
-		'friendly_name': main_org.friendly_name,
-		'perma_name': main_org.perma_name
+	org = appdb.Organization.find_by_perma(perma_name)
+	if not org: abort(404)
+	ret = {
+		'legal_name': org.legal_name,
+		'friendly_name': org.friendly_name,
+		'perma_name': org.perma_name
 	}
-	# Parent organization
-	parent_org = main_org.get_parent()
-	if parent_org:
-		ret['parent_org'] = {
-			'id': parent_org.id,
-			'parent_id': parent_org.parent_id,
-			'legal_name': parent_org.legal_name,
-			'friendly_name': parent_org.friendly_name,
-			'perma_name': parent_org.perma_name
-		}
-	# Child organizations
-	all_child_orgs = main_org.get_children()
-	if all_child_orgs:
-		ret['child_orgs'] = []
-		for child_org in all_child_orgs:
-			ret['child_orgs'].append({
-				'id': child_org.id,
-				'parent_id': child_org.parent_id,
-				'legal_name': child_org.legal_name,
-				'friendly_name': child_org.friendly_name,
-				'perma_name': child_org.perma_name
-			})
+	parent_org = org.get_parent()
+	if parent_org: ret['parent_name'] = parent_org.perma_name
 	return json_response(ret)
 
 
