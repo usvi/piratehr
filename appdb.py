@@ -157,6 +157,15 @@ class Auth(Base):
 		auth = g.db.query(Auth).filter_by(user_id=user.id).filter_by(token_type=token_type).first()
 		if not auth: return None
 		return auth.token_content
+	
+	@staticmethod
+	def use_token(token_type, token_value):
+		auth = g.db.query(Auth).filter_by(token_type=token_type).filter_by(token_value=token_value).first()
+		if not auth: return None
+		user = auth.user
+		g.db.delete(auth)
+		g.db.commit()
+		return user
 		
 	@staticmethod
 	def create_session(user):

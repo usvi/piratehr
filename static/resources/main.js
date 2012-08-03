@@ -35,6 +35,12 @@ function redirects() {
 		navigate(path.join('/'), true);
 		return;
 	}
+	if (path[1] == 'reset') {
+		jsonQuery({'type':'login_token','token':g.page.arg1}, '/api/auth.json', 'POST', function(data, textStatus, xhr) {
+			flash('Change your password now');
+			navigate('/', true);
+		});
+	}
 	// Non-existing page, redirect...
 	if (path.length > 2 /* not root */) flash(path.join('/') + " not found, redirecting...");
 	if (g.auth) navigate("/user/", true);  // Note: user page re-redirects to specific uuid
@@ -170,7 +176,7 @@ function loadOrgList() {
 			// Add table row
 			$('#orglisttable').append($('<tr>').append($('<td>').append(anchor)).append($('<td>').text(org.friendly_name)));
 		}
-	}, undefined);
+	});
 }
 
 
@@ -212,7 +218,7 @@ function loadOrgData(orgname) {
 			});
 		}
 		$('#orgdetails').show();
-	}, undefined);
+	});
 }
 
 

@@ -43,6 +43,12 @@ def login_password(login, password):
 	sleep_until(timer)
 	return auth_obj
 
+def login_token(token):
+	timer = delay_timer()
+	user = appdb.Auth.use_token('pw_reset', token)
+	sleep_until(timer)
+	return user
+
 def set_password(user, password):
 	auth = appdb.Auth()
 	auth.user_id = user.id

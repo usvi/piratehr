@@ -97,12 +97,17 @@ def auth_post():
 		auth_obj = authentication.login_password(login, password)
 		if not auth_obj: abort(403)
 		return json_response(auth_obj)
+	elif reqtype == 'login_token':
+		token = g.req.get('token')
+		auth_obj = authentication.login_token(token)
+		if not auth_obj: abort(403)
+		return json_response(auth_obj)
 	elif reqtype == 'request_reset':
 		email = g.req.get('email')
 		if email:  # Reset by email
 			# TODO/SECURITY: Add request to queue instead of sending it to avoid information leakage by measuring request time
 			reset_list = appdb.Auth.reset_token_email(auth_request['email'])
-			messenger.send_password_reset_emails(reset_list, request.url_root + "reset/")
+			messenger.send_password_reset_emails(reset_list, url_for('static', filename = 'reset', _external = True))
 		else: return json_response(dict(description='Field email must be specified.'), 422)
 		# Always return ok here: Attacker must not get knowledge about whether we have the email or not
 		return json_response(dict(description='Password reset requested'), 202)
