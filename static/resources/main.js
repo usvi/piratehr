@@ -101,7 +101,7 @@ $(document).ready(function() {
 		ev.preventDefault();
 		navigate("/orgcreate/");
 	});
-	$('#orgcreate').on('show', showOrgCreateForm);
+	$('#orgcreate').on('show', loadOrgList);
 	// Load proper page
 	switchPage();
 	//showOrgPages(); Why did we need this? Do we?
@@ -143,32 +143,29 @@ function jsonQuery(inputData, inputUrl, inputType, successFunc, completeFunc) {
 	$.ajax(settings);
 }
 
-function showOrgCreateForm() {
-	$('#parent_select').children().remove();
-	$('#parent_select').append("<option value=''>(No parent)</option>");
-	jsonQuery("", "/api/organizations.json", "GET", function(data, textStatus, xhr) {
-		data = data.organizations;
-		for (var key in data) {
-			$('#parent_select').append("<option value=" + data[key].perma_name + ">" + data[key].friendly_name + "</option>");
-		};
-
-	}, undefined);
-}
-
 function loadOrgList() {
 	jsonQuery("", "/api/organizations.json", "GET", function(data, textStatus, xhr) {
-		data = data.organizations;
+		g.orgs = data.organizations;
+		// Clear any old data
+		$('#parent_select').children().remove();
+		$('#parent_select').append("<option value=''>(No parent)</option>");
 		$('#orglisttable').children().remove();
-		for (var key in data) {
-			var table_row = "<tr><td>";
-			table_row += "<a href=/org/" + data[key].perma_name + ">" +  data[key].friendly_name + "</a>"
-			table_row += "</td></tr>";
-			$('#orglisttable').append(table_row);
-			// Fetch the reference and append function for navigation manipulation
-			$('#orglisttable').find('tr:last').eq(0).find('a').on('click', function(ev) {
+		for (var key in g.orgs) {
+			var org = g.orgs[key];
+			// Update organization create form parent options
+			$('#parent_select').append("<option value=" + org.perma_name + ">" + org.friendly_name + "</option>");
+			// Add a row to organization table
+			var anchor = $('<a>');
+			anchor.attr('href', '/org/' + org.perma_name);
+			anchor.attr('id', 'organization_' + org.perma_name);
+			anchor.text(org.friendly_name);
+			// AJAX navigation
+			anchor.on('click', function(ev) {
 				ev.preventDefault();
 				navigate(this.href, true);
 			});
+			// Add table row
+			$('#orglisttable').append($('<tr>').append($('<td>').append(anchor)));
 		}
 	}, undefined);
 }
