@@ -24,10 +24,12 @@ class Settings(Base):
 	def __repr__(self):
 		return '<%s=%s>' % (self.key, self.value)
 	@staticmethod
-	def make_setting(key, value):
-		setting = Settings(key, value)
-		g.db.merge(setting)
+	def put(settings_dict):
+		for k,v in settings_dict:
+			# FIXME: key/value sanity checks
+			g.db.merge(Setting(k, v))
 		g.db.commit()
+		return True
 	@staticmethod
 	def get_all():
 		result_dict = {}

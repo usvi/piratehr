@@ -14,7 +14,7 @@ $(document).ready(function() {
 	ajax_test('/api/new_user.json', 'POST', {'legal_name':'Bastard Operator From Hell','residence':'Internet','phone':'','email':'root@localhost','dob':'1970-01-01'});
 	ajax_test('/api/auth.json', 'POST', {'type':'login_password','login':'root@localhost','password':'FIXME'});
 	custom_test(function() { g.authstr = JSON.stringify(g.data); });
-	//ajax_test('/api/settings.json', 'PUT', {'smtp_server':'mail.inet.fi', 'email_reset_from':'no-reply@nowhere.tld'});
+	ajax_test('/api/settings.json', 'PUT', {'smtp_server':'mail.inet.fi', 'email_reset_from':'no-reply@nowhere.tld'});
 	g.users = [];
 	for (var i in users) {
 		ajax_test('/api/new_user.json', 'POST', users[i]);
@@ -80,8 +80,9 @@ var tests = [];
 var g = {};
 
 function query(url, method) {
-	$('body').append('<p>' + g.url + ' (' + g.method + ') → </p>');
+	$('body').append('<p><span>' + g.url + ' (' + g.method + ')</span> → </p>');
 	var data = JSON.stringify(g.data);
+	$('span').last().attr('title', data);  // Add request as tooltip
 	var settings = {
 		data: data,
 		dataType: 'json',
@@ -98,6 +99,7 @@ function query(url, method) {
 		},
 		success: function (data, textStatus, xhr) {
 			$('p').last().append('<strong>OK</strong>');
+			$('strong').last().attr('title', JSON.stringify(data));
 			g.data = data;
 			continue_tests();
 		},

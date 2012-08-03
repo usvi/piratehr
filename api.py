@@ -187,18 +187,16 @@ def organization_get(perma_name):
 
 
 @api.route("/settings.json", methods=["PUT"])
-@requires_auth
-@request_fields('key', 'value')
+@requires_auth  # FIXME: Require admin user/password
+@request_fields()
 def settings_put():
-	appdb.Settings.make_setting(g.req['key'], g.req['value'])
-	return json_response(dict(description="Setting updated"))
+	if not appdb.Settings.put(g.req): abort(422)
+	return json_response(dict(description="Settings updated"))
 
 @api.route("/settings.json", methods=["GET"])
-@requires_auth
+@requires_auth  # FIXME: Require admin user/password
 def settings_get():
-	ret = {}
-	# TODO: Read settings from database
-	return json_response(ret)
+	return json_response(appdb.Settings.get_all())
 	
 @api.route("/I_accidentally_the_whole_database.json", methods=['DELETE'])
 def clear_database():
