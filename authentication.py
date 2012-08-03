@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import *
+from flask import g
 from time import sleep
 import appdb
 import bcrypt
@@ -15,7 +16,7 @@ def sleep_until(t):
 	timedelta = t - datetime.utcnow()
 	duration = timedelta.seconds + timedelta.microseconds / 1E6 + timedelta.days * 86400
 	if duration > 0: sleep(duration)
-	else: g.logger.warn('sleep_until called ' + duration + ' s after the deadline')
+	else: g.logger.warn('sleep_until called ' + str(-duration) + ' s after the deadline')
 
 
 def login_password(login, password):
