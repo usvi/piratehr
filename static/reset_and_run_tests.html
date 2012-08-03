@@ -1,0 +1,138 @@
+<!doctype html>
+<meta charset=utf-8>
+<script src='/resources/libs/all.js'></script>
+<body>
+
+<h1>Automated database reset and testing</h1>
+<progress>Testing in progress</progress>
+
+<script>
+
+$(document).ready(function() {
+	// All tests are defined here
+	ajax_test('/api/I_accidentally_the_whole_database.json', 'DELETE');
+	ajax_test('/api/new_user.json', 'POST', {'legal_name':'Bastard Operator From Hell','residence':'Internet','phone':'','email':'root@localhost','dob':'1970-01-01'});
+	ajax_test('/api/auth.json', 'POST', {'type':'login_password','login':'root@localhost','password':'FIXME'});
+	custom_test(function() { g.authstr = JSON.stringify(g.data); });
+	//ajax_test('/api/settings.json', 'PUT', {'smtp_server':'mail.inet.fi', 'email_reset_from':'no-reply@nowhere.tld'});
+	g.users = [];
+	for (var i in users) {
+		ajax_test('/api/new_user.json', 'POST', users[i]);
+		custom_test(function() { g.users[i] = g.data.uuid; });
+	}
+	// Start testing...
+	run_tests();
+});
+
+var users = [
+	{'legal_name':'Donald Duck', 'residence':'Duckburg, Florida', 'phone':'', 'email':'donald@duck', 'dob':'1950-01-01'},
+	{'legal_name':'Öky Äkkipika', 'residence':'Äkäslompolo, Finland', 'phone':'+358123456', 'email':'user@nowhere.tld', 'dob':'1980-12-31'},
+	{'legal_name':'Äky Ökkipika', 'residence':'Äkäslompolo, Finland', 'phone':'+358123456', 'email':'user@nowhere.tld', 'dob':'1980-12-31'},
+	{'legal_name':'Uncle Dolan', 'residence':'Ylilauta, Internet', 'phone':'', 'email':'uncle@dolan', 'dob':'2008-02-01'},
+	{'legal_name':'Gooby', 'residence':'Ylilauta, Internet', 'phone':'555-313-313', 'email':'', 'dob':'2008-04-01'},
+];
+
+/*
+echo Test Org: International Pirates
+curl -f -X PUT -H '$AUTH' http://localhost:5000/api/organization.json --data 'legal_name=Organization%20Of%20International%20Pirates&friendly_name=International%20Pirates'
+echo
+
+echo Test Org: Caribian Pirates under International Pirates
+curl -f -X PUT -H '$AUTH' http://localhost:5000/api/organization.json --data 'legal_name=Organization%20Of%20Caribian%20Pirates&friendly_name=Caribian%20Pirates&parent_id=1'
+echo
+
+echo Test Org: Hawaiin Pirates under International Pirates
+curl -f -X PUT -H '$AUTH' http://localhost:5000/api/organization.json --data 'legal_name=Organization%20Of%20Hawaiian%20Pirates&friendly_name=Hawaiian%20Pirates&parent_id=1'
+echo
+
+echo Test Org: Barbados Pirates under Caribian Pirates
+curl -f -X PUT -H '$AUTH' http://localhost:5000/api/organization.json --data 'legal_name=Organization%20Of%20Barbados%20Pirates&friendly_name=Barbados%20Pirates&parent_id=2'
+echo
+
+echo Test Org: St Kitts and Nevis Pirates under Caribian Pirates
+curl -f -X PUT -H '$AUTH' http://localhost:5000/api/organization.json --data 'legal_name=Organization%20Of%20St%20Kitts%20and%20Nevis%20Pirates&friendly_name=St%20Kitts%20and%20Nevis%20Pirates&parent_id=2'
+echo
+
+echo Test Org: Montserrat Pirates under Caribian Pirates
+curl -f -X PUT -H '$AUTH' http://localhost:5000/api/organization.json --data 'legal_name=Organization%20Of%20Montserrat%20Pirates&friendly_name=Montserrat%20Pirates&parent_id=2'
+echo
+
+echo Test Org: Grenada Pirates under Caribian Pirates
+curl -f -X PUT -H '$AUTH' http://localhost:5000/api/organization.json --data 'legal_name=Organization%20Of%20Grenada%20Pirates&friendly_name=Grenada%20Pirates&parent_id=2'
+echo
+
+echo Test Org: Caracas Pirates under Caribian Pirates
+curl -f -X PUT -H '$AUTH' http://localhost:5000/api/organization.json --data 'legal_name=Organization%20Of%20Caracas%20Pirates&friendly_name=Caracas%20Pirates&parent_id=2'
+echo
+
+echo Test Org: Puerto Cabello Pirates under Caribian Pirates
+curl -f -X PUT -H '$AUTH' http://localhost:5000/api/organization.json --data 'legal_name=Organization%20Of%20Puerto%20Cabello%20Pirates&friendly_name=Puerto%20Cabello%20Pirates&parent_id=2'
+echo
+
+echo Test Org: Curacao Pirates under Caribian Pirates
+curl -f -X PUT -H '$AUTH' http://localhost:5000/api/organization.json --data 'legal_name=Organization%20Of%20Curacao%20Pirates&friendly_name=Curacao%20Pirates&parent_id=2'
+echo
+
+*/
+
+var testnum = 0;
+var tests = [];
+var g = {};
+
+function query(url, method) {
+	$('body').append('<p>' + g.url + ' (' + g.method + ') → </p>');
+	var data = JSON.stringify(g.data);
+	var settings = {
+		data: data,
+		dataType: 'json',
+		url: g.url,
+		type: g.method,
+		contentType: 'application/json',
+		headers: {},
+		error: function (xhr, textStatus, errorThrown) {
+			$('p').last().append('<strong>FAIL: ' + errorThrown + '</strong>');
+			$('body').append('<h2>Request</h2>');
+			$('body').append(data);
+			$('body').append('<h2>Response</h2>');
+			$('body').append(xhr.responseText);
+		},
+		success: function (data, textStatus, xhr) {
+			$('p').last().append('<strong>OK</strong>');
+			g.data = data;
+			continue_tests();
+		},
+	};
+	if (g.authstr) settings.headers['Authorization'] = 'Basic ' + utf8_to_b64('json:' + g.authstr);
+	$.ajax(settings);
+}
+
+function continue_tests() {
+	setTimeout(run_tests, 0);  // Run the next test soon
+}
+
+function run_tests() {
+	test = tests[testnum++];
+	if (!test) {
+		$('body').append('<p><strong>All done!</strong></p>');
+		return;
+	}
+	$('progress').attr('max', tests.length);
+	$('progress').attr('value', testnum);
+	test();
+}
+
+function custom_test(func) {
+	tests.push(function() { func(); continue_tests(); });
+}
+
+function ajax_test(url, method, data) {
+	tests.push(function() {
+		g.url = url;
+		g.method = method;
+		g.data = data;
+		query();
+	});
+}
+
+</script>
+

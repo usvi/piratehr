@@ -199,4 +199,9 @@ def settings_get():
 	ret = {}
 	# TODO: Read settings from database
 	return json_response(ret)
+	
+@api.route("/I_accidentally_the_whole_database.json", methods=['DELETE'])
+def clear_database():
+	appdb.clear_database();
+	return json_response({})
 
