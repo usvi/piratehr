@@ -139,7 +139,9 @@ def organization_put(perma_name):
 		if g.req['perma_name'] != perma_name:
 			return json_response(dict(description='Supplied (optional) perma_name does not match URL'), 422)
 	organization = appdb.Organization.find_by_perma(perma_name);
-	if not organization: abort(404)
+	if not organization:
+		organization = appdb.Organization()
+		organization.perma_name = perma_name
 	if organization.update(g.req): return json_response(dict(description='Organization information stored'))
 	return json_response(dict(description='Failed to create/update organization. Check input data.'), 422)
 
