@@ -202,18 +202,11 @@ class Organization(Base):
 	friendly_name = Column(String(128), nullable=False, unique=True) # Friendly short name of the organization
 	perma_name = Column(String(128), nullable=False, unique=True) # Permanent name identifier of the organization. Admin-mutable (in the future).
 	@staticmethod
-	def create(perma_name, legal_name, friendly_name, parent_name=None):
-		organization = Organization()
-		organization.legal_name = legal_name
-		organization.friendly_name = friendly_name
-		organization.perma_name = perma_name
-		if parent_name:
-			parent = Organization.find_by_perma(parent_name)
-			if not parent: return False
-			organization.parent_id = parent.id
-		g.db.add(organization)
-		if g.db.commit() == None: return organization
-		return False
+	def create(perma_name, data):
+		org = Organization()
+		org.perma_name = perma_name
+		g.db.add(org)
+		return org.update(data)
 	def update(self, data):
 		if data.has_key('perma_name') and data['perma_name'] != self.perma_name: return False
 		if data.has_key('friendly_name'): self.friendly_name = data['friendly_name']
