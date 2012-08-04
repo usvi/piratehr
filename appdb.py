@@ -297,7 +297,7 @@ def fix_mysql_connect(dbapi_con, connection_record):
 
 def init(app):
 	global engine;
-	engine = create_engine(app.config['DATABASE'], echo=app.config['DATABASE_DEBUG'])
+	engine = create_engine(app.config['DATABASE'], echo=app.config['DATABASE_DEBUG'], pool_recycle=60)
 	if app.config['DATABASE'][0:5] == 'mysql': event.listen(engine, 'connect', fix_mysql_connect)
 	Session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
 	Base.metadata.create_all(bind=engine)  # Create tables etc.
