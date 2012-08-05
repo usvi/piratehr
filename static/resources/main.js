@@ -54,12 +54,20 @@ function form_url(form) {
 	return url;
 }
 
-function form_load(form, data) {
-	for (var key in data) {
-		var elem = $('input[name=' + key + ']', form)[0];
-		if (elem) $(elem).attr('value', data[key] || '');
-		//else flash("Warning: Value ignored: " + key + "=" + data[key]);
-	}
+// Load data into a form specified by selector string.
+// If func is passed, func(form, data) gets called for additional processing.
+function loadForm(selector, func) {
+	form = $(selector);
+	jsonQuery("", form_url(form), "GET", function(data, textStatus, xhr) {
+		for (var key in data) {
+			value = data[key]
+			var elem = $('input[name=' + key + ']', form)[0];
+			if (!elem) elem = $('select[name=' + key + ']', form)[0];
+			if (elem) $(elem).attr('value', value || '');
+			//else flash("Warning: Value ignored: " + key + "=" + value);
+		}
+		if (func) func(form, data);
+	});
 }
 
 $(document).ready(function() {
@@ -87,10 +95,8 @@ $(document).ready(function() {
 		}
 		g.page.uuid = path[2];
 		// Request user data
-		form = $('#userform');
-		jsonQuery("", form_url(form), 'GET', function(data, textStatus, xhr) {
-			if (g.page.arg1 != data.uuid) { flash("Unexpected UUID returned by server"); return; }
-			form_load(form, data);
+		loadForm('#userform', function(form, data) {
+			if (g.page.arg1 != data.uuid) { flash("Internal error: Unexpected UUID returned by server"); }
 			// Render QRCode
 			if (data.uuid_url) {
 				$('#qrcode', form).remove();
@@ -189,10 +195,7 @@ function showOrgPages() {
 	loadOrgList();
 	if (g.page.arg1) {  // We are viewing some specific org
 		$('#orgedit').show();
-		jsonQuery("", "/api/organization_" + g.page.arg1 + ".json", "GET", function(data, textStatus, xhr) {
-			form = $('#orgform');
-			form_load(form, data);
-		});
+		loadForm('#orgform');
 	} else {  // List of all orgs
 		$('#orglist').show();
 	}
