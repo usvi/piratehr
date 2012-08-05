@@ -175,7 +175,7 @@ function loadOrgList() {
 			// AJAX navigation
 			anchor.on('click', function(ev) {
 				ev.preventDefault();
-				navigate(this.href, true);
+				navigate(this.href);
 			});
 			// Add table row
 			$('#orglisttable').append($('<tr>').append($('<td>').append(anchor)).append($('<td>').text(org.friendly_name)));
