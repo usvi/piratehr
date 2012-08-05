@@ -116,13 +116,11 @@ def auth_post():
 
 @api.route("/organizations.json", methods=["GET"])
 def organization_get_all():
-	# FIXME: Proper permissions checking here?
+	# TODO: Organization parent/child relations as JSON tree
 	organizations = appdb.Organization.get_all()
 	ret = []
 	for organization in organizations:
 		tuple = {
-			'id': organization.id,
-			'parent_id': organization.parent_id,
 			'legal_name': organization.legal_name,
 			'friendly_name': organization.friendly_name,
 			'perma_name': organization.perma_name
