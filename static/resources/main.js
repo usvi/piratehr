@@ -47,6 +47,21 @@ function redirects() {
 	else navigate("/register/", true);
 }
 
+function form_url(form) {
+	var url = form.attr('action');
+	if (g.page.arg1) url = url.replace('[arg1]', g.page.arg1);
+	if (g.page.arg2) url = url.replace('[arg2]', g.page.arg2);
+	return url;
+}
+
+function form_load(form, data) {
+	for (var key in data) {
+		var elem = $('input[name=' + key + ']', form)[0];
+		if (elem) $(elem).attr('value', data[key] || '');
+		//else flash("Warning: Value ignored: " + key + "=" + data[key]);
+	}
+}
+
 $(document).ready(function() {
 	// AJAX handlers
 	$(document).ajaxSend(ajaxSend);
@@ -73,30 +88,19 @@ $(document).ready(function() {
 		g.page.uuid = path[2];
 		// Request user data
 		form = $('#userform');
-		var settings = {
-			url: form.attr('action'),
-			type: 'GET',
-			contentType: "application/json",
-			dataType: 'json',
-			success: function(data, textStatus, xhr) {
-				if (g.page.uuid != data.uuid) { flash("Unexpected UUID returned by server"); return; }
-				for (var key in data) {
-					var elem = $('input[name=' + key + ']', form)[0];
-					if (elem) $(elem).attr('value', data[key] || '');
-					//else flash("Warning: Value ignored: " + key + "=" + data[key]);
-				}
-				if (data.uuid_url) {
-					$('#qrcode', form).remove();
-					var qr = qrcode(4, 'L');
-					qr.addData(data.uuid_url);
-					qr.make();
-					input = $('input[name=uuid]', form);
-					input.before('<a id=qrcode href="' + data.uuid_url + '">' + qr.createImgTag() + '<br></a>');
-				}
-			},
-		};
-		settings.url = settings.url.replace('[uuid]', g.page.uuid);
-		$.ajax(settings);		
+		jsonQuery("", form_url(form), 'GET', function(data, textStatus, xhr) {
+			if (g.page.arg1 != data.uuid) { flash("Unexpected UUID returned by server"); return; }
+			form_load(form, data);
+			// Render QRCode
+			if (data.uuid_url) {
+				$('#qrcode', form).remove();
+				var qr = qrcode(4, 'L');
+				qr.addData(data.uuid_url);
+				qr.make();
+				input = $('input[name=uuid]', form);
+				input.before('<a id=qrcode href="' + data.uuid_url + '">' + qr.createImgTag() + '<br></a>');
+			}
+		});
 	});
 	$('#org').on('show', showOrgPages);
 	// Do not actually load pagenav links, only switch URL
@@ -186,13 +190,7 @@ function loadOrgData(orgname) {
 		$('#childlisttable').empty();
 		$('#org_parent_link').html("");
 		form = $('#orgform');
-		for (var key in data) {
-			value = data[key]
-			var elem = $('input[name=' + key + ']', form)[0];
-			if (!elem) elem = $('select[name=' + key + ']', form)[0];
-			if (elem) $(elem).attr('value', value || '');
-			//else flash("Warning: Value ignored: " + key + "=" + value);
-		}
+		form_load(form, data);
 		for (var key in data.child_orgs) {
 			var table_row = "<tr><td>";
 			table_row += "<a href=/org/" + data.child_orgs[key].perma_name + ">" + data.child_orgs[key].friendly_name + "</a>";
