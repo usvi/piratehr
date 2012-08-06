@@ -8,15 +8,24 @@
 
 <script>
 
+function make_user_lambda(num) {
+	return function() {
+		g.users[num] = g.data; // Store details of the newly created user
+		$('p').last().append($('<a>').attr('href', g.data.uuid_url).text(' ' + users[num].name));
+	};
+}
+
 $(document).ready(function() {
 	// All tests are defined here
 	ajax_test('/api/I_accidentally_the_whole_database.json', 'DELETE');
 	for (var i in users) {
 		ajax_test('/api/new_user.json', 'POST', users[i]);
-		custom_test(function() { g.users[i] = g.data.uuid; });  // Store UUID of the newly created user
+		custom_test(make_user_lambda(i));  
 	}
-	ajax_test('/api/auth.json', 'POST', {'type':'login_password','login':'root@localhost','password':'FIXME'});
-	custom_test(function() { g.authstr = JSON.stringify(g.data); });
+	custom_test(function() { g.authstr = JSON.stringify(g.users[0].auth); });
+	ajax_test('/api/auth_change_password.json', 'POST', function() { return {'uuid':g.users[0].uuid,'new_password':'rootme!!'}; })
+	ajax_test('/api/auth.json', 'POST', {'type':'login_password','login':'root@localhost','password':'rootme!!'});
+	custom_test(function() { g.users[0].auth = g.data; g.authstr = JSON.stringify(g.users[0].auth); });
 	ajax_test('/api/settings.json', 'PUT', {'smtp_server':'mail.inet.fi', 'email_reset_from':'no-reply@nowhere.tld'});
 	for (var i in organizations) {
 		ajax_test('/api/organization_' + organizations[i].perma_name + '.json', 'PUT', organizations[i]);
@@ -26,12 +35,12 @@ $(document).ready(function() {
 });
 
 var users = [
-	{'legal_name':'Bastard Operator From Hell','residence':'Internet','phone':'','email':'root@localhost','dob':'1970-01-01'},
-	{'legal_name':'Donald Duck', 'residence':'Duckburg, Florida', 'phone':'', 'email':'donald@duck', 'dob':'1950-01-01'},
-	{'legal_name':'Öky Äkkipika', 'residence':'Äkäslompolo, Finland', 'phone':'+358123456', 'email':'user@nowhere.tld', 'dob':'1980-12-31'},
-	{'legal_name':'Äky Ökkipika', 'residence':'Äkäslompolo, Finland', 'phone':'+358123456', 'email':'user@nowhere.tld', 'dob':'1980-12-31'},
-	{'legal_name':'Uncle Dolan', 'residence':'Ylilauta, Internet', 'phone':'', 'email':'uncle@dolan', 'dob':'2008-02-01'},
-	{'legal_name':'Gooby', 'residence':'Ylilauta, Internet', 'phone':'555-313-313', 'email':'', 'dob':'2008-04-01'},
+	{'name':'Bastard Operator From Hell','residence':'Internet','phone':'','email':'root@localhost','dob':'1970-01-01'},
+	{'name':'Donald Duck', 'residence':'Duckburg, Florida', 'phone':'', 'email':'donald@duck', 'dob':'1950-01-01'},
+	{'name':'Öky Äkkipika', 'residence':'Äkäslompolo, Finland', 'phone':'+358123456', 'email':'user@nowhere.tld', 'dob':'1980-12-31'},
+	{'name':'Äky Ökkipika', 'residence':'Äkäslompolo, Finland', 'phone':'+358123456', 'email':'user@nowhere.tld', 'dob':'1980-12-31'},
+	{'name':'Uncle Dolan', 'residence':'Ylilauta, Internet', 'phone':'', 'email':'uncle@dolan', 'dob':'2008-02-01'},
+	{'name':'Gooby', 'residence':'Ylilauta, Internet', 'phone':'555-313-313', 'email':'', 'dob':'2008-04-01'},
 ];
 
 var organizations = [
@@ -76,6 +85,7 @@ function query(url, method) {
 		success: function (data, textStatus, xhr) {
 			$('p').last().append('<strong>OK</strong>');
 			$('strong').last().attr('title', JSON.stringify(data));
+			if (data.description) $('p').last().append($('<span>').text(' ' + data.description));
 			g.data = data;
 			continue_tests();
 		},
@@ -107,7 +117,7 @@ function ajax_test(url, method, data) {
 	tests.push(function() {
 		g.url = url;
 		g.method = method;
-		g.data = data;
+		g.data = (data instanceof Function ? data() : data);
 		query();
 	});
 }
