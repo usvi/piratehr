@@ -12,7 +12,7 @@
 
 <div id=login>
 	<div id=authform>
-		<form class=ajaxform action="/api/auth.json" method=POST>
+		<form class=ajaxform action="/api/auth.json" method=POST autocomplete=on>
 		<input type=hidden name="type" value="login_password">
 		<input type=text name="login" placeholder="Email" required>
 		<input type=password name="password" placeholder="Password" required>
@@ -40,9 +40,9 @@
 	<div class=page id=register>
 		<h2>Register</h2>
 
-		<form class=ajaxform action="/api/new_user.json" method=POST>
+		<form class=ajaxform action="/api/new_user.json" method=POST autocomplete=on>
 		<table>
-		<tr><td>Full Name</td><td><input type=text name="legal_name" placeholder="First Middle Lastname" required></td></tr>
+		<tr><td>Full Name</td><td><input type=text name="name" placeholder="First Middle Lastname" required></td></tr>
 		<tr><td>Residence</td><td><input type=text name="residence" placeholder="City, Country" required></td></tr>
 		<tr><td>Phone</td><td><input type=tel name="phone" placeholder="+XXX XXXXXXXX"></td></tr>
 		<tr><td>Email</td><td><input type=email name="email" placeholder="your@email"></td></tr>
@@ -55,8 +55,10 @@
 
 	<div class=page id=user>
 		<h2>User</h2>
-		
-		<form id=userform class=ajaxform action="/api/user_[arg1].json" method=PUT>
+	
+		<h3>User info</h3>
+			
+		<form id=userform class=ajaxform action="/api/user_[arg1].json" method=PUT autocomplete=off>
 		<table>
 		<tr><td>UUID</td><td><input type=text name="uuid" readonly></td></tr>
 		<tr><td>Login</td><td><input type=text name="login"></td></tr>
@@ -73,7 +75,18 @@
 		<tr><td>&nbsp;</td><td><input type=submit value="Save"></td></tr>
 		</table>
 		</form>
-	
+
+		<h3>Change password</h3>
+
+		<form id=passwordform class=ajaxform action="/api/auth_change_password.json" method=POST autocomplete=off>
+		<input type=hidden name="uuid">
+		<table>
+		<tr><td>New password</td><td><input type=password name="new_password" required></td></tr>
+		<tr><td>New password again</td><td><input type=password name="new_password_again" required></td></tr>
+		<tr><td>&nbsp;</td><td><input type=submit value="Save"></td></tr>
+		</table>
+		</form>
+		
 	</div>
 
 	<div class=page id=memberships>
@@ -89,7 +102,7 @@
 			<h3>List of organizations</h3>
 			<table id=orglisttable>
 			</table>
-			<form>
+			<form autocomplete=off>
 			<input id=orgcreatefield type=text placeholder='shortname (example: international_pirates)' pattern='[a-z0-9_-]{2,50}' required>
 			<input id=orgcreatebutton type=submit value="Create new">
 			</form>
@@ -97,7 +110,7 @@
 		</div>
 
 		<div class=org id=orgedit>
-			<form class=ajaxform id=orgform action="/api/organization_[arg1].json" method="PUT">
+			<form class=ajaxform id=orgform action="/api/organization_[arg1].json" method="PUT" autocomplete=off>
 			<table>
 			<tr><td>Legal name of the organization</td><td><input type="text" name="legal_name" placeholder="The Pirate Organization of X" required></td></tr>
 			<tr><td>Friendly name of the organization</td><td><input type="text" name="friendly_name" placeholder="Pirates of X" required></td></tr>

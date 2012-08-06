@@ -124,7 +124,7 @@ class Auth(Base):
 	expiration_time = Column(DateTime) # Expiration of the token
 	
 	def store(self):
-		g.db.add(self)
+		g.db.merge(self)
 		g.db.commit()
 
 	@staticmethod

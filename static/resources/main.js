@@ -27,6 +27,8 @@ function showUserPage() {
 	// Load user data
 	loadForm('#userform', function(form, data) {
 		if (g.page.arg1 != data.uuid) { flash("Internal error: Unexpected UUID returned by server"); }
+		// Add UUID to password change form
+		if (data.uuid) $('#passwordform input[name=uuid]').attr('value', data.uuid);
 		// Render QRCode
 		if (data.uuid_url) {
 			$('#qrcode', form).remove();
@@ -135,7 +137,7 @@ function redirects() {
 	if (base == 'reset') {
 		jsonQuery({'type':'login_token','token':g.page.arg1}, '/api/auth.json', 'POST', function(data, textStatus, xhr) {
 			flash('Change your password now');
-			navigate('/', true);
+			navigate('/user/' + g.auth.uuid, true);
 		});
 		return;
 	}
@@ -161,7 +163,7 @@ $(document).ready(function() {
 		navigate(this.href);
 	});
 	// Set some classes (avoid tedious repeat in HTML)
-	$('input[type=text],input[type=tel],input[type=email],input[type=datetime]').addClass('inputfield');
+	$('input[type=text],input[type=tel],input[type=email],input[type=datetime],input[type=password]').addClass('inputfield');
 	$('input[type=submit]').addClass('inputsubmit');
 	// Load proper page
 	switchPage();
