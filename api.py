@@ -114,8 +114,24 @@ def auth_post():
 	else:
 		return json_response(dict(description='Invalid type requested.'), 422)
 
-@api.route("/memberships.json", methods=["GET"])
+@api.route("/auth_change_password.json", methods=["POST"])
 @requires_auth
+@request_fields('uuid', 'new_password')
+def auth_change_password():
+	uuid = g.req.get('uuid')
+	new_password = g.req.get('new_password')
+	new_password_again = g.req.get('new_password_again');
+	if not uuid: return json_response(dict(description='Field uuid must be specified'), 422);
+	user = appdb.User.find(uuid)
+	if not user or user.id != g.user.id: abort(403)  # TODO: Access control to allow admins to change other users' passwords?
+	if not new_password: return json_response(dict(description='Field new_password must be specified'), 422);
+	if g.req.has_key('new_password_again') and new_password_again != new_password:
+		return json_response(dict(description='Passwords do not match'), 422)
+	if len(new_password) < 8: return json_response(dict(description='Passwords must be at least 8 characters long'), 422)
+	authentication.set_password(user, new_password)
+	return json_response(dict(description='Password set'))
+
+
 def membership_get_all():
 	#(memberships,morgs) = appdb.Membership.find_by_uuid(g.user.uuid)
 	memberships = {}

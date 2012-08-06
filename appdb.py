@@ -122,9 +122,12 @@ class Auth(Base):
 	token_type = Column(Enum('session', 'pw_hash', 'pw_reset', 'facebook', 'openid', name='token_types'), nullable=False, primary_key=True) # Auth type
 	token_content = Column(String(512)) # Auth token content
 	expiration_time = Column(DateTime) # Expiration of the token
-	
+	__table_args__ = (UniqueConstraint('user_id', 'token_type'),)
+
 	def store(self):
-		g.db.add(self)
+		# Remove duplicates
+		g.db.query(Auth).filter_by(user_id=self.user_id).filter_by(token_type=self.token_type).delete()
+		g.db.merge(self)
 		g.db.commit()
 
 	@staticmethod
@@ -174,8 +177,7 @@ class Auth(Base):
 		auth.token_type = 'session'
 		auth.token_content = urlsafe_b64encode(bytes(uuid.uuid4()))
 		auth.expiration_time = datetime.utcnow() + timedelta(days=1)
-		g.db.add(auth)
-		g.db.commit()
+		auth.store()
 		return auth.token_content
 	
 	@staticmethod
