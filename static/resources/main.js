@@ -152,7 +152,7 @@ function redirects() {
 	// Password reset URL
 	if (base == 'reset') {
 		jsonQuery({'type':'login_token','token':g.page.arg1}, '/api/auth.json', 'POST', function(data, textStatus, xhr) {
-			flash('Change your password now');
+			login(JSON.stringify(data), 'Logged in. Change your password now');
 			navigate('/user/' + g.auth.uuid, true);
 		});
 		return;

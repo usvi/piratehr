@@ -26,7 +26,7 @@ $(document).ready(function() {
 	ajax_test('/api/auth_change_password.json', 'POST', function() { return {'uuid':g.users[0].uuid,'new_password':'rootme!!'}; })
 	ajax_test('/api/auth.json', 'POST', {'type':'login_password','login':'root@localhost','password':'rootme!!'});
 	custom_test(function() { g.users[0].auth = g.data; g.authstr = JSON.stringify(g.users[0].auth); });
-	ajax_test('/api/settings.json', 'PUT', {'smtp_server':'mail.inet.fi', 'email_reset_from':'no-reply@nowhere.tld'});
+	ajax_test('/api/settings.json', 'PUT', {'smtp_server':'mail.inet.fi', 'email_reset_from':'PirateHR <no-reply@piraattipuolue.fi>'});
 	for (var i in organizations) {
 		ajax_test('/api/organization_' + organizations[i].perma_name + '.json', 'PUT', organizations[i]);
 	}

@@ -42,7 +42,9 @@ def requires_auth(f):
 	def decorated(*args, **kwargs):
 		auth = request.authorization
 		if not auth or auth.username != 'json': return abort(401)
-		g.user = appdb.Auth.authenticate(json.loads(auth.password))
+		auth_obj = json.loads(auth.password)
+		if not isinstance(auth_obj, dict): abort(401)
+		g.user = appdb.Auth.authenticate(auth_obj)
 		if not g.user: return abort(401)
 		return f(*args, **kwargs)
 	return decorated
