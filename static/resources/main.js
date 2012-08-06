@@ -46,7 +46,16 @@ function showMembershipsPage() {
 	jsonQuery(undefined, "/api/memberships.json", "GET", function(data, textStatus, xhr) {
 		$('#membershiplisttable').children().remove();
 		for (var key in data) {
-			$('#membershiplisttable').append($('<tr>').append($('<td>').append(data[key].friendly_name)));
+
+			var button = $('<button>Apply for membership</button>');
+			var status = "Not a member";
+			if (data[key].status != 'null') {
+				button = $('<button>Resign</button>');
+			}
+			$('#membershiplisttable').append($('<tr>'));
+			$('#membershiplisttable').find('tr:last').append($('<td>').append(data[key].friendly_name));
+			$('#membershiplisttable').find('tr:last').append($('<td>').append(status));
+			$('#membershiplisttable').find('tr:last').append($('<td>').append(button));
 		}
 		//alert(data);
 	});
