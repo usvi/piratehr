@@ -114,6 +114,29 @@ def auth_post():
 	else:
 		return json_response(dict(description='Invalid type requested.'), 422)
 
+@api.route("/memberships.json", methods=["GET"])
+@requires_auth
+def membership_get_all():
+	#(memberships,morgs) = appdb.Membership.find_by_uuid(g.user.uuid)
+	memberships = {}
+	for org in appdb.Organization.get_all():
+		tuple = {
+			'legal_name': org.legal_name,
+			'friendly_name': org.friendly_name,
+			'perma_name': org.perma_name,
+			'status': 'null'
+		}
+		memberships[org.perma_name] = tuple
+	for membership,memorg in appdb.Membership.find_by_uuid(g.user.uuid):
+		tuple = {
+			'legal_name': memorg.legal_name,
+			'friendly_name': memorg.friendly_name,
+			'perma_name': memorg.perma_name,
+			'status': membership.status
+		}
+		memberships[memorg.perma_name] = tuple
+	return json_response(memberships, 200)
+
 @api.route("/organizations.json", methods=["GET"])
 def organization_get_all():
 	# TODO: Organization parent/child relations as JSON tree

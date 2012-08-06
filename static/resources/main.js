@@ -41,6 +41,13 @@ function showUserPage() {
 
 
 function showMembershipsPage() {
+	jsonQuery(undefined, "/api/memberships.json", "GET", function(data, textStatus, xhr) {
+		$('#membershiplisttable').children().remove();
+		for (var key in data) {
+			$('#membershiplisttable').append($('<tr>').append($('<td>').append(data[key].friendly_name)));
+		}
+		//alert(data);
+	});
 	//alert(g.auth.uuid);
 }
 
@@ -57,7 +64,7 @@ function showOrgPage() {
 }
 
 function loadOrgList() {
-	jsonQuery("", "/api/organizations.json", "GET", function(data, textStatus, xhr) {
+	jsonQuery(undefined, "/api/organizations.json", "GET", function(data, textStatus, xhr) {
 		g.orgs = data.organizations;
 		// Clear any old data
 		$('#parent_select').children().remove();
@@ -258,7 +265,7 @@ function formUrl(form) {
 // If func is passed, func(form, data) gets called for additional processing.
 function loadForm(selector, func) {
 	form = $(selector);
-	jsonQuery("", formUrl(form), "GET", function(data, textStatus, xhr) {
+	jsonQuery(undefined, formUrl(form), "GET", function(data, textStatus, xhr) {
 		for (var key in data) {
 			value = data[key]
 			var elem = $('input[name=' + key + ']', form)[0];

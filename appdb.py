@@ -257,6 +257,9 @@ class Membership(Base):
 	accepted_time = Column(DateTime) # Time of membership acceptance
 	terminated_time = Column(DateTime) # Time of membership termination
 	resignation_reason = Column(Text) # Reason for resignation
+	@staticmethod
+	def find_by_uuid(uuid):
+		return g.db.query(Membership, Organization).filter(User.id==Membership.user_id).filter(User.uuid==uuid).filter(Organization.id==Membership.organization_id).all()
 
 	
 class MetaDef(Base):
