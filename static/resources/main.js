@@ -30,10 +30,13 @@ function showOrgPage() {
 	loadOrgList();
 	if (g.page.arg1) {  // We are viewing some specific org
 		$('#orgedit').show();
-		loadForm('#orgform');
+		if (g.neworg != g.page.arg1) {
+			loadForm('#orgform');
+		}
 	} else {  // List of all orgs
 		$('#orglist').show();
 	}
+	g.neworg = '';
 }
 
 function loadOrgList() {
@@ -150,6 +153,7 @@ $(document).ready(function() {
 		ev.preventDefault();
 		var field = $('#orgcreatefield');
 		var url = '/org/' + field.attr('value');
+		g.neworg = field.attr('value');
 		field.attr('value', '');
 		navigate(url);
 	});
