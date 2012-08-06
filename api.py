@@ -55,6 +55,7 @@ def create_user():
 def get_user(user_id):
 	user = appdb.User.find(user_id)
 	if not user or user != g.user: abort(403)
+	addresses = appdb.Address.get_by_user(user)
 	# TODO: The following code should be
 	#   (a) eliminated if possible, or at least
 	#   (b) moved elsewhere (appdb.py?)
@@ -73,7 +74,8 @@ def get_user(user_id):
 		'ssn': user.ssn,
 		'location': user.location,
 		'joined': user.joined,
-		'last_seen': user.last_seen
+		'last_seen': user.last_seen,
+		'addresses': addresses,
 	}
 	return json_response(ret)
 

@@ -113,8 +113,25 @@ class Address(Base):
 	city = Column(String(64), nullable=False) # City/town/municipality of the recipient
 	state = Column(String(64)) #  State, if applicable
 	country = Column(String(64), nullable=False) # Country
+	def data_in_dict(self):
+		return dict(
+			line1 = self.line1,
+			line2 = self.line2,
+			street = self.street,
+			zipcode = self.zipcode,
+			city = self.city,
+			state = self.state,
+			country = self.country
+		)
+	
+	@staticmethod
+	def get_by_user(user):
+		ret = []
+		addr = g.db.query(Address).filter_by(user_id = user.id)
+		for a in addr:
+			ret.insert(a.data_in_dict(), 0 if user.address_id == a.id else -1)
+		return ret
 
-		   
 class Auth(Base):
 	__tablename__ = 'auth'
 	id = Column(Integer, primary_key=True) # Id of this token
