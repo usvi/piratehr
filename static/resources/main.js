@@ -33,7 +33,7 @@ function showUserPage() {
 			qr.addData(data.uuid_url);
 			qr.make();
 			input = $('input[name=uuid]', form);
-			input.before('<a id=qrcode href="' + data.uuid_url + '">' + qr.createImgTag() + '<br></a>');
+			input.before($('<a id=qrcode>').attr('href', data.uuid_url).html(qr.createImgTag() + '<br>'));
 		}
 	});
 }
