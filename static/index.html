@@ -41,12 +41,14 @@
 		<h2>Register</h2>
 
 		<form class=ajaxform action="/api/new_user.json" method=POST>
-		<input type=text name="legal_name" placeholder="Full name" required><br>
-		<input type=text name="residence" placeholder="City, Country" required><br>
-		<input type=tel name="phone" placeholder="Phone number"><br>
-		<input type=email name="email" placeholder="Email address"><br>
-		<input type=text name="dob" placeholder="Date of birth" required>
-		<input type=submit value="Send">
+		<table>
+		<tr><td>Full Name</td><td><input type=text name="legal_name" placeholder="First Middle Lastname" required></td></tr>
+		<tr><td>Residence</td><td><input type=text name="residence" placeholder="City, Country" required></td></tr>
+		<tr><td>Phone</td><td><input type=tel name="phone" placeholder="+XXX XXXXXXXX"></td></tr>
+		<tr><td>Email</td><td><input type=email name="email" placeholder="your@email"></td></tr>
+		<tr><td>Date of Birth</td><td><input type=text name="dob" placeholder="YYYY-MM-DD" required></td></tr>
+		<tr><td>&nbsp;</td><td><input type=submit value="Send"></td></tr>
+		</table>
 		</form>
 
 	</div>
@@ -68,8 +70,8 @@
 		<tr><td>SSN/Passport#</td><td><input type=text name="ssn"></td></tr>
 		<tr><td>Account Created</td><td><input type=datetime name="joined" readonly></td></tr>
 		<tr><td>Last Seen</td><td><input type=datetime name="last_seen" readonly></td></tr>
+		<tr><td>&nbsp;</td><td><input type=submit value="Save"></td></tr>
 		</table>
-		<input type=submit value="Save">
 		</form>
 	
 	</div>
