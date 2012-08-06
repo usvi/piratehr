@@ -88,7 +88,7 @@
 			<table id=orglisttable>
 			</table>
 			<form>
-			<input id=orgcreatefield type=text placeholder='shortname' pattern='[a-z0-9_-]{2,50}' required>
+			<input id=orgcreatefield type=text placeholder='shortname (example: international_pirates)' pattern='[a-z0-9_-]{2,50}' required>
 			<input id=orgcreatebutton type=submit value="Create new">
 			</form>
 			<br><br><br>
@@ -109,5 +109,6 @@
 
 </div></div>
 
+<script src="/resources/libs/js-webshim/extras/modernizr-custom.js"></script>
+<script src="/resources/libs/js-webshim/polyfiller.js">$.webshims.polyfill();</script>
 <script src="/resources/main.js"></script>
-
