@@ -132,6 +132,8 @@ def auth_change_password():
 	return json_response(dict(description='Password set'))
 
 
+@api.route("/memberships.json", methods=["GET"])
+@requires_auth
 def membership_get_all():
 	#(memberships,morgs) = appdb.Membership.find_by_uuid(g.user.uuid)
 	memberships = {}
