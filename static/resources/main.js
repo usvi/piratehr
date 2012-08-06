@@ -1,165 +1,39 @@
-var path;
+//
+//  PAGE HANDLERS
+//
 
-function flash(msg) {
-	var elem = $('#flash');
-	var p = $('<p>');
-	p.text(msg);
-	setTimeout(function() { p.slideUp('slow', function() { p.remove() }); }, Math.min(2000 + 10 * (msg || '').length, 10000));
-	p.appendTo(elem[0]);
-	elem.slideDown('slow');
-	elem.click(function () { $(this).slideUp('fast') });
-}
-
-var g = {};  // Global variables go in here
-
-function switchPage() {
-	if (g.page_location == window.location.href) return;  // Nothing to do
-	g.page_location = window.location.href;
-	g.page = {};  // Page-specific settings go here
-	$('.page').hide();
-	path = window.location.pathname.split('/');
-	var page = $('#' + path[1]);
-	g.page.arg1 = path[2];
-	g.page.arg2 = path[3];
-	// Test if the URL mapped to a page, otherwise redirect
-	if (page.length != 1) { redirects(path); return; }
-	// Activate the page specified by URL
-	page.show();
-	$(page).trigger("show");
-}
-
-function redirects() {
-	// Smart(?) redirect from UUID URL to some actual page
-	if (path[1] == 'uuid') {
-		path[1] = 'user';
-		navigate(path.join('/'), true);
+function showUserPage() {
+	// Handling for /user/ without uuid
+	if (!g.page.arg1) {
+		if (!g.auth) { redirects(); return; }
+		navigate('/user/' + g.auth.uuid, true);
 		return;
 	}
-	if (path[1] == 'reset') {
-		jsonQuery({'type':'login_token','token':g.page.arg1}, '/api/auth.json', 'POST', function(data, textStatus, xhr) {
-			flash('Change your password now');
-			navigate('/', true);
-		});
-	}
-	// Non-existing page, redirect...
-	if (path.length > 2 /* not root */) flash(path.join('/') + " not found, redirecting...");
-	if (g.auth) navigate("/user/", true);  // Note: user page re-redirects to specific uuid
-	else navigate("/register/", true);
-}
-
-function form_url(form) {
-	var url = form.attr('action');
-	if (g.page.arg1) url = url.replace('[arg1]', g.page.arg1);
-	if (g.page.arg2) url = url.replace('[arg2]', g.page.arg2);
-	return url;
-}
-
-// Load data into a form specified by selector string.
-// If func is passed, func(form, data) gets called for additional processing.
-function loadForm(selector, func) {
-	form = $(selector);
-	jsonQuery("", form_url(form), "GET", function(data, textStatus, xhr) {
-		for (var key in data) {
-			value = data[key]
-			var elem = $('input[name=' + key + ']', form)[0];
-			if (!elem) elem = $('select[name=' + key + ']', form)[0];
-			if (elem) $(elem).attr('value', value || '');
-			//else flash("Warning: Value ignored: " + key + "=" + value);
+	// Load user data
+	loadForm('#userform', function(form, data) {
+		if (g.page.arg1 != data.uuid) { flash("Internal error: Unexpected UUID returned by server"); }
+		// Render QRCode
+		if (data.uuid_url) {
+			$('#qrcode', form).remove();
+			var qr = qrcode(4, 'L');
+			qr.addData(data.uuid_url);
+			qr.make();
+			input = $('input[name=uuid]', form);
+			input.before('<a id=qrcode href="' + data.uuid_url + '">' + qr.createImgTag() + '<br></a>');
 		}
-		if (func) func(form, data);
 	});
 }
 
-$(document).ready(function() {
-	// AJAX handlers
-	$(document).ajaxSend(ajaxSend);
-	$(document).ajaxError(ajaxError);
-	// Restore session from Local Storage
-	login(localStorage['auth']);
-	$('#auth_logout').on('click', function(ev) {
-		logout("You have been logged out. Close this page and clear history to remove any remaining sensitive data.");
-	});
-	// Make back/forward call switchPage
-	$(window).on("popstate", switchPage);
-	// Set some classes (avoid tedious repeat in HTML)
-	$('input[type=text],input[type=tel],input[type=email],input[type=datetime]').addClass('inputfield');
-	$('input[type=submit]').addClass('inputsubmit');
-	// When user page is shown, load data...
-	$('#user').on('show', function() {
-		// Handling for /user/ without uuid
-		if (!path[2]) {
-			if (!g.auth) { redirects(); return; }
-			path[2] = g.auth.uuid;
-			navigate(path.join('/'), true);
-			return;
-		}
-		g.page.uuid = path[2];
-		// Request user data
-		loadForm('#userform', function(form, data) {
-			if (g.page.arg1 != data.uuid) { flash("Internal error: Unexpected UUID returned by server"); }
-			// Render QRCode
-			if (data.uuid_url) {
-				$('#qrcode', form).remove();
-				var qr = qrcode(4, 'L');
-				qr.addData(data.uuid_url);
-				qr.make();
-				input = $('input[name=uuid]', form);
-				input.before('<a id=qrcode href="' + data.uuid_url + '">' + qr.createImgTag() + '<br></a>');
-			}
-		});
-	});
-	$('#org').on('show', showOrgPages);
-	// Do not actually load pagenav links, only switch URL
-	$('#pagenav a').on('click', function(ev) {
-		ev.preventDefault();
-		navigate(this.href);
-	});
-	// Display organization create form when button clicked
-	$('#orgcreatebutton').on('click', function(ev) {
-		ev.preventDefault();
-		var field = $('#orgcreatefield');
-		var url = '/org/' + field.attr('value');
-		field.attr('value', '');
-		navigate(url);
-	});
-	// Load proper page
-	switchPage();
-});
 
-// Insert authentication data to requests
-function ajaxSend(ev, xhr) {
-	if (g.authstr) xhr.setRequestHeader("Authorization", "Basic " + utf8_to_b64("json:" + g.authstr));
-}
-
-// Handle common errors
-function ajaxError(e, xhr, textStatus, errorThrown) {
-	if (xhr.status == 401) {
-		if (g.auth) logout("Your session has expired and you need to login again.");
-		else flash("You need to be logged in to access this function.");
-		return;
+function showOrgPage() {
+	$('.org').hide();
+	loadOrgList();
+	if (g.page.arg1) {  // We are viewing some specific org
+		$('#orgedit').show();
+		loadForm('#orgform');
+	} else {  // List of all orgs
+		$('#orglist').show();
 	}
-	type = xhr.getResponseHeader('Content-type');
-	if (type == "application/json") {
-		json = JSON.parse(xhr.responseText);
-		flash(json.description);
-	} else {
-		flash(errorThrown + ": ");
-		$('#debug').html(xhr.responseText);
-	}
-}
-
-
-function jsonQuery(inputData, inputUrl, inputType, successFunc, completeFunc) {
-	var settings = {
-		data: JSON.stringify(inputData),
-		dataType: 'json',
-		url: inputUrl,
-		type: inputType,
-		contentType: "application/json",
-		success: successFunc,
-		complete: completeFunc
-	};
-	$.ajax(settings);
 }
 
 function loadOrgList() {
@@ -190,16 +64,9 @@ function loadOrgList() {
 }
 
 
-function showOrgPages() {
-	$('.org').hide();
-	loadOrgList();
-	if (g.page.arg1) {  // We are viewing some specific org
-		$('#orgedit').show();
-		loadForm('#orgform');
-	} else {  // List of all orgs
-		$('#orglist').show();
-	}
-}
+//
+//  CORE LOGIC
+//
 
 function login(authstr, msg) {
 	g.authstr = authstr;
@@ -222,6 +89,80 @@ function logout(msg) {
 	$('#auth_name').empty();
 	$('#authform input[name=login]').focus();
 }
+
+function switchPage() {
+	if (g.page_location == window.location.href) return;  // Nothing to do
+	g.page_location = window.location.href;
+	g.page = {};  // Page-specific settings go here
+	$('.page').hide();
+	var path = window.location.pathname.split('/');
+	g.page.base = path[1];
+	g.page.arg1 = path[2];
+	g.page.arg2 = path[3];
+	// Test if the URL mapped to a page, otherwise redirect
+	var page = $('#' + g.page.base);
+	if (page.length != 1) return redirects();
+	// Activate the page specified by URL
+	page.show();
+	$(page).trigger("show");
+}
+
+function redirects() {
+	var base = g.page.base;
+	// Smart(?) redirect from UUID URL to some actual page
+	if (base == 'uuid') return navigate('/user/' + g.page.arg1, true);
+	// Password reset URL
+	if (base == 'reset') {
+		jsonQuery({'type':'login_token','token':g.page.arg1}, '/api/auth.json', 'POST', function(data, textStatus, xhr) {
+			flash('Change your password now');
+			navigate('/', true);
+		});
+		return;
+	}
+	// Non-existing page, redirect...
+	if (base /* not root */) flash('Page ' + base + ' not found, redirecting...');
+	navigate(g.auth ? '/user/' + g.auth.uuid : '/register/', true);
+}
+
+$(document).ready(function() {
+	// AJAX handlers
+	$(document).ajaxSend(ajaxSend);
+	$(document).ajaxError(ajaxError);
+	// Restore session from Local Storage
+	login(localStorage['auth']);
+	$('#auth_logout').on('click', function(ev) {
+		logout("You have been logged out. Close this page and clear history to remove any remaining sensitive data.");
+	});
+	// Make back/forward call switchPage
+	$(window).on("popstate", switchPage);
+	// Do not actually load pagenav links, only switch URL
+	$('#pagenav a').on('click', function(ev) {
+		ev.preventDefault();
+		navigate(this.href);
+	});
+	// Set some classes (avoid tedious repeat in HTML)
+	$('input[type=text],input[type=tel],input[type=email],input[type=datetime]').addClass('inputfield');
+	$('input[type=submit]').addClass('inputsubmit');
+	$('#user').on('show', showUserPage);
+	$('#org').on('show', showOrgPage);
+	// Display organization create form when button clicked
+	$('#orgcreatebutton').on('click', function(ev) {
+		ev.preventDefault();
+		var field = $('#orgcreatefield');
+		var url = '/org/' + field.attr('value');
+		field.attr('value', '');
+		navigate(url);
+	});
+	// Load proper page
+	switchPage();
+});
+
+
+//
+//  HELPER FUNCTIONS
+//
+
+var g = {};  // Global variables go in here
 
 function navigate(url, redirect) {
 	// Allow for current events to finish before navigating
@@ -260,4 +201,73 @@ $('.ajaxform').submit(function(ev) {
 	}
 	$.ajax(settings);
 })
+
+function jsonQuery(inputData, inputUrl, inputType, successFunc, completeFunc) {
+	var settings = {
+		data: JSON.stringify(inputData),
+		dataType: 'json',
+		url: inputUrl,
+		type: inputType,
+		contentType: "application/json",
+		success: successFunc,
+		complete: completeFunc
+	};
+	$.ajax(settings);
+}
+
+// Insert authentication data to requests
+function ajaxSend(ev, xhr) {
+	if (g.authstr) xhr.setRequestHeader("Authorization", "Basic " + utf8_to_b64("json:" + g.authstr));
+}
+
+// Handle common errors
+function ajaxError(e, xhr, textStatus, errorThrown) {
+	if (xhr.status == 401) {
+		if (g.auth) logout("Your session has expired and you need to login again.");
+		else flash("You need to be logged in to access this function.");
+		return;
+	}
+	type = xhr.getResponseHeader('Content-type');
+	if (type == "application/json") {
+		json = JSON.parse(xhr.responseText);
+		flash(json.description);
+	} else {
+		flash(errorThrown + ": ");
+		$('#debug').html(xhr.responseText);
+	}
+}
+
+function formUrl(form) {
+	var url = form.attr('action');
+	if (g.page.arg1) url = url.replace('[arg1]', g.page.arg1);
+	if (g.page.arg2) url = url.replace('[arg2]', g.page.arg2);
+	return url;
+}
+
+// Load data into a form specified by selector string.
+// If func is passed, func(form, data) gets called for additional processing.
+function loadForm(selector, func) {
+	form = $(selector);
+	jsonQuery("", formUrl(form), "GET", function(data, textStatus, xhr) {
+		for (var key in data) {
+			value = data[key]
+			var elem = $('input[name=' + key + ']', form)[0];
+			if (!elem) elem = $('select[name=' + key + ']', form)[0];
+			if (elem) $(elem).attr('value', value || '');
+			//else flash("Warning: Value ignored: " + key + "=" + value);
+		}
+		if (func) func(form, data);
+	});
+}
+
+// Briefly display a message to inform the user of an action being taken or of the result of one
+function flash(msg) {
+	var elem = $('#flash');
+	var p = $('<p>');
+	p.text(msg);
+	setTimeout(function() { p.slideUp('slow', function() { p.remove() }); }, Math.min(2000 + 10 * (msg || '').length, 10000));
+	p.appendTo(elem[0]);
+	elem.slideDown('slow');
+	elem.click(function () { $(this).slideUp('fast') });
+}
 
