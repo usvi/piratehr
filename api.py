@@ -32,21 +32,21 @@ def after_request(resp):
 	return resp
 
 @api.route("/new_user.json", methods=["POST"])
-@request_fields('legal_name', 'residence', 'dob')
+@request_fields('name', 'residence', 'dob')
 def create_user():
 	user = appdb.User.create(
-		legal_name = g.req['legal_name'],
+		legal_name = g.req['name'],
 		residence = g.req['residence'],
 		phone = g.req.get('phone'),
 		email = g.req.get('email'),
 		dob = g.req['dob']
 	)
 	if not user: return json_response(dict(description='User could not be created. Check your input data.'), 422)
-	authentication.set_password(user, 'FIXME')  # FIXME: Do not set password by default
 	ret = {
 		'uuid': user.uuid,
 		'api_url': url_for('.get_user', user_id = user.uuid, _external = True),
-		'uuid_url': url_for('static', filename = "uuid/" + user.uuid, _external = True)  # UUID URIs (handled by UI in a user-friendly way)
+		'uuid_url': url_for('static', filename = "uuid/" + user.uuid, _external = True),  # UUID URIs (handled by UI in a user-friendly way)
+		'auth': authentication.create_session(user)
 	}
 	return json_response(ret, 201, headers=dict(Location=ret['api_url']))
 

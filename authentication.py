@@ -28,11 +28,7 @@ def login_password(login, password):
 		pw_hash = appdb.Auth.find_token_by_user(user, 'pw_hash')
 		if not pw_hash or pw_hash != bcrypt.hashpw(password, pw_hash): continue
 		users_passed.append(user)
-		auth_obj = {
-			'token': appdb.Auth.create_session(user),
-			'uuid': user.uuid,
-			'name': user.name
-		}
+		auth_obj = create_session(user)
 	if len(users_passed) > 1:
 		# Multiple matching users, reset all their passwords and deny login
 		# TODO: reset_password(users_passed)
@@ -53,4 +49,11 @@ def set_password(user, password):
 	auth.token_content = bcrypt.hashpw(password, bcrypt.gensalt(10))
 	auth.expiration_time = datetime.utcnow() + timedelta(days=365)
 	auth.store()
+
+def create_session(user):
+	return {
+		'token': appdb.Auth.create_session(user),
+		'uuid': user.uuid,
+		'name': user.name
+	}
 

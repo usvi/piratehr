@@ -225,7 +225,10 @@ $('.ajaxform').submit(function(ev) {
 	settings.success = function(data, textStatus, xhr) {
 		if (settings.type == 'POST') form[0].reset();  // Clear the form after successful POST
 		if (settings.url.split('/').pop() == 'auth.json') login(JSON.stringify(data), "Login successful");
-		else flash(data.description);
+		if (settings.url.split('/').pop() == 'new_user.json') {
+			login(JSON.stringify(data.auth), "User created and logged in");
+			navigate(data.uuid_url);
+		} else flash(data.description);
 	}
 	$.ajax(settings);
 })
