@@ -2,6 +2,20 @@
 //  PAGE HANDLERS
 //
 
+$(document).ready(function() {
+	$('#user').on('show', showUserPage);
+	$('#org').on('show', showOrgPage);
+	// Display organization create form when button clicked
+	$('#orgcreatebutton').on('click', function(ev) {
+		ev.preventDefault();
+		var field = $('#orgcreatefield');
+		var url = '/org/' + field.attr('value');
+		field.attr('value', '');
+		g.neworg = true;
+		navigate(url);
+	});
+});
+
 function showUserPage() {
 	// Handling for /user/ without uuid
 	if (!g.page.arg1) {
@@ -30,13 +44,11 @@ function showOrgPage() {
 	loadOrgList();
 	if (g.page.arg1) {  // We are viewing some specific org
 		$('#orgedit').show();
-		if (g.neworg != g.page.arg1) {
-			loadForm('#orgform');
-		}
+		if (!g.neworg) loadForm('#orgform');
+		g.neworg = false;
 	} else {  // List of all orgs
 		$('#orglist').show();
 	}
-	g.neworg = '';
 }
 
 function loadOrgList() {
@@ -146,17 +158,6 @@ $(document).ready(function() {
 	// Set some classes (avoid tedious repeat in HTML)
 	$('input[type=text],input[type=tel],input[type=email],input[type=datetime]').addClass('inputfield');
 	$('input[type=submit]').addClass('inputsubmit');
-	$('#user').on('show', showUserPage);
-	$('#org').on('show', showOrgPage);
-	// Display organization create form when button clicked
-	$('#orgcreatebutton').on('click', function(ev) {
-		ev.preventDefault();
-		var field = $('#orgcreatefield');
-		var url = '/org/' + field.attr('value');
-		g.neworg = field.attr('value');
-		field.attr('value', '');
-		navigate(url);
-	});
 	// Load proper page
 	switchPage();
 });
