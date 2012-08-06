@@ -4,6 +4,7 @@
 
 $(document).ready(function() {
 	$('#user').on('show', showUserPage);
+	$('#memberships').on('show', showMembershipsPage);
 	$('#org').on('show', showOrgPage);
 	// Display organization create form when button clicked
 	$('#orgcreatebutton').on('click', function(ev) {
@@ -38,6 +39,10 @@ function showUserPage() {
 	});
 }
 
+
+function showMembershipsPage() {
+	//alert(g.auth.uuid);
+}
 
 function showOrgPage() {
 	$('.org').hide();
@@ -76,10 +81,6 @@ function loadOrgList() {
 			$('#orglisttable').append($('<tr>').append($('<td>').append(anchor)).append($('<td>').text(org.friendly_name)));
 		}
 	});
-}
-
-function loadMembershipsList() {
-	//alert(g.auth.uuid);
 }
 
 
@@ -162,18 +163,6 @@ $(document).ready(function() {
 	// Set some classes (avoid tedious repeat in HTML)
 	$('input[type=text],input[type=tel],input[type=email],input[type=datetime]').addClass('inputfield');
 	$('input[type=submit]').addClass('inputsubmit');
-	$('#user').on('show', showUserPage);
-	$('#org').on('show', showOrgPage);
-	// Display organization create form when button clicked
-	$('#orgcreatebutton').on('click', function(ev) {
-		ev.preventDefault();
-		var field = $('#orgcreatefield');
-		var url = '/org/' + field.attr('value');
-		g.neworg = field.attr('value');
-		field.attr('value', '');
-		navigate(url);
-	});
-	$('#memberships').on('show', loadMembershipsList);
 	// Load proper page
 	switchPage();
 });
