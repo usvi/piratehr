@@ -43,7 +43,7 @@ function showUserPage() {
 
 function changeMembership(membershipOrg, operation) {
         jsonQuery({'operation':operation}, "/api/membership_" + membershipOrg + ".json", "POST", function(data, textStatus, xhr) {
-                ;
+                	;
                 });
 }
 

@@ -133,6 +133,8 @@ def auth_reset():
 	messenger.send_password_reset_emails(reset_list, url_for('static', filename = 'reset/', _external = True))
 	# Always return ok here: Attacker must not get knowledge about whether we have the email or not
 	return json_response(dict(description='Password reset requested'), 202)
+
+
 @api.route("/memberships.json", methods=["GET"])
 @requires_auth
 def membership_get_all():
@@ -157,9 +159,12 @@ def membership_get_all():
 
 @api.route("/membership_<org_perma_name>.json", methods=["POST"])
 @requires_auth
+@request_fields('operation')
 def membership_change(org_perma_name):
-	if g.req.has_key('operation') and g.req['operation'] == 'apply':
-		print "Application for org " + org_perma_name
+	if g.req['operation'] == 'apply':
+		#print "Application for org " + org_perma_name
+		# Do the actual application..
+		appdb.Membership.add(org_perma_name, g.user.uuid)
 	return json_response(dict(description='Test.'), 200)
 
 @api.route("/organizations.json", methods=["GET"])

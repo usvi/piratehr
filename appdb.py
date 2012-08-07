@@ -270,7 +270,7 @@ class Membership(Base):
 	organization_id = Column(Integer, ForeignKey('organization.id', onupdate="RESTRICT", ondelete="RESTRICT"), unique=True) # Organization this membership applies to
 	status = Column(Enum('applied', 'member', 'honorary_member', 'expelled', 'resigned', 'email' , name='status_types'), nullable=True) # Status type
 	position = Column(Enum('nonpriv', 'chair', 'vice_chair', 'secretary', 'board' , name='position_types'), nullable=True) # Position type
-	activist = Column(Boolean, nullable=False) # Sign of active membership. We send more email if this is ticked.
+	activist = Column(Boolean) # Sign of active membership. We send more email if this is ticked.
 	title = Column(String(128)) # Description of a special position in the organization
 	application = Column(Text, nullable=False) # As information for the board of the organization (includes UUID + name also)
 	applied_time = Column(DateTime, nullable=False) # Time of membership application
@@ -278,8 +278,31 @@ class Membership(Base):
 	terminated_time = Column(DateTime) # Time of membership termination
 	resignation_reason = Column(Text) # Reason for resignation
 	@staticmethod
-	def find_by_uuid(uuid):
+	def find_by_uuid(uuid): # Finds all memberships of the user
 		return g.db.query(Membership, Organization).filter(User.id==Membership.user_id).filter(User.uuid==uuid).filter(Organization.id==Membership.organization_id).all()
+	@staticmethod
+	def get(perma_name, uuid):
+		return g.db.query(Membership).filter(User.id==Membership.user_id).filter(User.uuid==uuid).filter(Organization.id==Membership.organization_id).filter(Organization.perma_name==perma_name).first()
+	@staticmethod
+	def add(perma_name, uuid): # If we have old membership, update it
+		user = User.find(uuid)
+		organization = Organization.find_by_perma(perma_name)
+		if not user or not organization: return None
+		print "Aplying user: " + user.legal_name
+		print "Aplying organization: " + organization.legal_name
+		# Got organization and user. Try to get membership. If does not exist, create.
+		membership = g.db.query(Membership).filter(Membership.user_id==user.id).filter(Membership.organization_id==organization.id).first() # Should return 1 or none
+		if not membership:
+			membership = Membership()
+			membership.user_id = user.id
+			membership.organization_id = organization.id
+			g.db.add(membership)
+		# Membership exists now as object at least.
+		membership.status = 'applied'
+		membership.application = user.uuid + ":" + user.legal_name
+		membership.applied_time = datetime.utcnow()
+		g.db.commit()
+
 
 	
 class MetaDef(Base):
