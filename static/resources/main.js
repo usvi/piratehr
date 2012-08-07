@@ -52,10 +52,12 @@ function showMembershipsPage() {
 		$('#membershiplisttable').children().remove();
 		for (var key in data) {
 			var button = $('<button>Apply for membership</button>');
-			button.on('click', function(ev) {
-				ev.preventDefault();
-				changeMembership(perma_name, 'apply');
-			});
+			button.on('click', (function(perma_name) {
+				return function(ev) {
+					ev.preventDefault();
+					changeMembership(perma_name, 'apply');
+				}
+			})(data[key].perma_name));
 			var status = "Not a member";
 			if (data[key].status != 'null') {
 				button = $('<button>Resign</button>');
