@@ -136,7 +136,6 @@ def auth_reset():
 @api.route("/memberships.json", methods=["GET"])
 @requires_auth
 def membership_get_all():
-	#(memberships,morgs) = appdb.Membership.find_by_uuid(g.user.uuid)
 	memberships = {}
 	for org in appdb.Organization.get_all():
 		tuple = {
@@ -159,8 +158,8 @@ def membership_get_all():
 @api.route("/membership_<org_perma_name>.json", methods=["POST"])
 @requires_auth
 def membership_change(org_perma_name):
-	if g.req.has_key('apply'):
-		print "Application for org " . org_perma_name
+	if g.req.has_key('operation') and g.req['operation'] == 'apply':
+		print "Application for org " + org_perma_name
 	return json_response(dict(description='Test.'), 200)
 
 @api.route("/organizations.json", methods=["GET"])

@@ -42,9 +42,9 @@ function showUserPage() {
 }
 
 function changeMembership(membershipOrg, operation) {
-	if (operation == 'apply') {
-		window.alert("Applying to " + membershipOrg);
-	}
+        jsonQuery({'operation':operation}, "/api/membership_" + membershipOrg + ".json", "POST", function(data, textStatus, xhr) {
+                ;
+                });
 }
 
 function showMembershipsPage() {
