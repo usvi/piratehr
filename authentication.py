@@ -39,8 +39,10 @@ def login_password(login, password):
 def login_token(token):
 	timer = delay_timer()
 	user = appdb.Auth.use_token('pw_reset', token)
+	ret = None
+	if user: ret = create_session(user)
 	sleep_until(timer)
-	return user
+	return ret
 
 def set_password(user, password):
 	auth = appdb.Auth()

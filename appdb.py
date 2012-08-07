@@ -113,13 +113,30 @@ class Address(Base):
 	city = Column(String(64), nullable=False) # City/town/municipality of the recipient
 	state = Column(String(64)) #  State, if applicable
 	country = Column(String(64), nullable=False) # Country
+	def data_in_dict(self):
+		return dict(
+			line1 = self.line1,
+			line2 = self.line2,
+			street = self.street,
+			zipcode = self.zipcode,
+			city = self.city,
+			state = self.state,
+			country = self.country
+		)
+	
+	@staticmethod
+	def get_by_user(user):
+		ret = []
+		addr = g.db.query(Address).filter_by(user_id = user.id)
+		for a in addr:
+			ret.insert(a.data_in_dict(), 0 if user.address_id == a.id else -1)
+		return ret
 
-		   
 class Auth(Base):
 	__tablename__ = 'auth'
 	id = Column(Integer, primary_key=True) # Id of this token
 	user_id = Column(Integer, ForeignKey('user.id'), nullable=False, primary_key=True) # Reference to the id of the user having this token
-	token_type = Column(Enum('session', 'pw_hash', 'pw_reset', 'facebook', 'openid', name='token_types'), nullable=False, primary_key=True) # Auth type
+	token_type = Column(Enum('session', 'pw_hash', 'pw_reset', 'facebook', 'openid'), nullable=False, primary_key=True) # Auth type
 	token_content = Column(String(512)) # Auth token content
 	expiration_time = Column(DateTime) # Expiration of the token
 	__table_args__ = (UniqueConstraint('user_id', 'token_type'),)
@@ -162,10 +179,10 @@ class Auth(Base):
 		return auth.token_content
 	
 	@staticmethod
-	def use_token(token_type, token_value):
-		auth = g.db.query(Auth).filter_by(token_type=token_type).filter_by(token_value=token_value).first()
+	def use_token(token_type, token_content):
+		auth = g.db.query(Auth).filter_by(token_type=token_type).filter_by(token_content=token_content).first()
 		if not auth: return None
-		user = auth.user
+		user = g.db.query(User).filter_by(id=auth.user_id).first()
 		g.db.delete(auth)
 		g.db.commit()
 		return user

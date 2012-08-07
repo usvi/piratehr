@@ -55,6 +55,7 @@ def create_user():
 def get_user(user_id):
 	user = appdb.User.find(user_id)
 	if not user or user != g.user: abort(403)
+	addresses = appdb.Address.get_by_user(user)
 	# TODO: The following code should be
 	#   (a) eliminated if possible, or at least
 	#   (b) moved elsewhere (appdb.py?)
@@ -73,7 +74,8 @@ def get_user(user_id):
 		'ssn': user.ssn,
 		'location': user.location,
 		'joined': user.joined,
-		'last_seen': user.last_seen
+		'last_seen': user.last_seen,
+		'addresses': addresses,
 	}
 	return json_response(ret)
 
@@ -102,15 +104,6 @@ def auth_post():
 		auth_obj = authentication.login_token(token)
 		if not auth_obj: abort(403)
 		return json_response(auth_obj)
-	elif reqtype == 'request_reset':
-		email = g.req.get('email')
-		if email:  # Reset by email
-			# TODO/SECURITY: Add request to queue instead of sending it to avoid information leakage by measuring request time
-			reset_list = appdb.Auth.reset_token_email(auth_request['email'])
-			messenger.send_password_reset_emails(reset_list, url_for('static', filename = 'reset', _external = True))
-		else: return json_response(dict(description='Field email must be specified.'), 422)
-		# Always return ok here: Attacker must not get knowledge about whether we have the email or not
-		return json_response(dict(description='Password reset requested'), 202)
 	else:
 		return json_response(dict(description='Invalid type requested.'), 422)
 
@@ -131,6 +124,15 @@ def auth_change_password():
 	authentication.set_password(user, new_password)
 	return json_response(dict(description='Password set'))
 
+
+@api.route("/auth_reset.json", methods=["POST"])
+@request_fields('email')
+def auth_reset():
+	# TODO/SECURITY: Add request to queue instead of sending it to avoid information leakage by measuring request time
+	reset_list = appdb.Auth.reset_token_email(g.req['email'])
+	messenger.send_password_reset_emails(reset_list, url_for('static', filename = 'reset/', _external = True))
+	# Always return ok here: Attacker must not get knowledge about whether we have the email or not
+	return json_response(dict(description='Password reset requested'), 202)
 @api.route("/memberships.json", methods=["GET"])
 @requires_auth
 def membership_get_all():

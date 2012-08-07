@@ -32,6 +32,7 @@ if app.config['DEBUG']:
 	})
 	# Static routing for index.html
 	@app.route("/")
+	@app.route("/reset/<string:token>")
 	@app.route("/uuid/<string:uuid>")
 	@app.route("/register/")
 	@app.route("/user/")

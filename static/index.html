@@ -40,6 +40,8 @@
 	<div class=page id=register>
 		<h2>Register</h2>
 
+		<h3>New member</h3>
+
 		<form class=ajaxform action="/api/new_user.json" method=POST autocomplete=on>
 		<table>
 		<tr><td>Full Name</td><td><input type=text name="name" placeholder="First Middle Lastname" required></td></tr>
@@ -51,6 +53,15 @@
 		</table>
 		</form>
 
+		<h3>Password reset</h3>
+
+		<form class=ajaxform action="/api/auth_reset.json" method=POST autocomplete=on>
+		<table>
+		<tr><td>Email</td><td><input type=email name="email" placeholder="your@email"></td></tr>
+		<tr><td>&nbsp;</td><td><input type=submit value="Send"></td></tr>
+		</table>
+		</form>
+		
 	</div>
 
 	<div class=page id=user>
