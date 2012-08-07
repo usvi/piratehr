@@ -131,7 +131,6 @@ def auth_change_password():
 	authentication.set_password(user, new_password)
 	return json_response(dict(description='Password set'))
 
-
 @api.route("/memberships.json", methods=["GET"])
 @requires_auth
 def membership_get_all():
@@ -154,6 +153,13 @@ def membership_get_all():
 		}
 		memberships[memorg.perma_name] = tuple
 	return json_response(memberships, 200)
+
+@api.route("/membership_<org_perma_name>.json", methods=["POST"])
+@requires_auth
+def membership_change(org_perma_name):
+	if g.req.has_key('apply'):
+		print "Application for org " . org_perma_name
+	return json_response(dict(description='Test.'), 200)
 
 @api.route("/organizations.json", methods=["GET"])
 def organization_get_all():

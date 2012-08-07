@@ -41,25 +41,32 @@ function showUserPage() {
 	});
 }
 
+function changeMembership(membershipOrg, operation) {
+	if (operation == 'apply') {
+		window.alert("Applying to " + membershipOrg);
+	}
+}
 
 function showMembershipsPage() {
 	jsonQuery(undefined, "/api/memberships.json", "GET", function(data, textStatus, xhr) {
 		$('#membershiplisttable').children().remove();
 		for (var key in data) {
-
 			var button = $('<button>Apply for membership</button>');
+			button.on('click', function(ev) {
+				ev.preventDefault();
+				changeMembership(perma_name, 'apply');
+			});
 			var status = "Not a member";
 			if (data[key].status != 'null') {
 				button = $('<button>Resign</button>');
+				status = data[key].status;
 			}
 			$('#membershiplisttable').append($('<tr>'));
 			$('#membershiplisttable').find('tr:last').append($('<td>').append(data[key].friendly_name));
 			$('#membershiplisttable').find('tr:last').append($('<td>').append(status));
 			$('#membershiplisttable').find('tr:last').append($('<td>').append(button));
 		}
-		//alert(data);
 	});
-	//alert(g.auth.uuid);
 }
 
 function showOrgPage() {
