@@ -41,10 +41,38 @@ function showUserPage() {
 	});
 }
 
-function changeMembership(membershipOrg, operation) {
-        jsonQuery({'operation':operation}, "/api/membership_" + membershipOrg + ".json", "POST", function(data, textStatus, xhr) {
-                	showMembershipsPage();
-                });
+function changeMembership(membershipOrg) {
+	// Determine operation type by ourselves.
+	var membership;
+	var operation;
+	var confirmed = false;
+	for (key in g.memberships) {
+		if(g.memberships[key].perma_name == membershipOrg) {
+			membership = g.memberships[key];
+			// FIXME: Break here. But not now.
+		}
+	}
+	if (membership.status == 'null' || membership.status == 'unsubscribed' || membership.status == 'resigned' || membership.status == 'expelled') {
+		operation = 'apply';
+		confirmed = true;
+	}
+	if (membership.status == 'email') {
+		operation = 'unsubscribe';
+		confirmed = confirm("Really unsubscribe from email list of " + membership.friendly_name + "?");
+	}
+	if (membership.status == 'applied') {
+		operation = 'cancel';
+		confirmed = confirm("Select OK to cancel membership application to " + membership.friendly_name + "");
+	}
+	if (membership.status == 'member' || membership.status == 'honorary_member') {
+		operation = 'resign';
+		confirmed = confirm("Really resign from " + membership.friendly_name + "?");
+	}
+	if (confirmed) {
+	        jsonQuery({'operation':operation}, "/api/membership_" + membershipOrg + ".json", "POST", function(data, textStatus, xhr) {
+        	});
+       		showMembershipsPage();
+	}
 }
 
 function showMembershipsPage() {
@@ -52,18 +80,33 @@ function showMembershipsPage() {
 		$('#membershiplisttable').children().remove();
 		g.memberships = data;
 		for (var key in g.memberships) {
-			var button = $('<button>Apply for membership</button>');
+			var button = $('<button></button>');
+			var status = "";
+			if (g.memberships[key].status == 'null' || g.memberships[key].status == 'unsubscribed') {
+				button.text("Apply");
+				status = "Not a member";
+			} else if (g.memberships[key].status == 'email') {
+				button.text("Unsubscribe");
+				status = "On email list only";
+			} else if (g.memberships[key].status == 'applied') {
+				button.text("Cancel application");
+				status = "Applied";
+			} else if (g.memberships[key].status == 'member') {
+				button.text("Resign");
+				status = "Member";
+			} else if (g.memberships[key].status == 'honorary_member') {
+				button.text("Resign");
+				status = "Honorary Member";
+			} else if (g.memberships[key].status == 'expelled') {
+				button.text("Apply");
+				status = "Expelled";
+			}
 			button.on('click', (function(perma_name) {
 				return function(ev) {
 					ev.preventDefault();
-					changeMembership(perma_name, 'apply');
+					changeMembership(perma_name);
 				}
 			})(g.memberships[key].perma_name));
-			var status = "Not a member";
-			if (g.memberships[key].status != 'null') {
-				button = $('<button>Resign</button>');
-				status = g.memberships[key].status;
-			}
 			$('#membershiplisttable').append($('<tr>'));
 			$('#membershiplisttable').find('tr:last').append($('<td>').append(g.memberships[key].friendly_name));
 			$('#membershiplisttable').find('tr:last').append($('<td>').append(status));
