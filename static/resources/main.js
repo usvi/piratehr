@@ -50,21 +50,22 @@ function changeMembership(membershipOrg, operation) {
 function showMembershipsPage() {
 	jsonQuery(undefined, "/api/memberships.json", "GET", function(data, textStatus, xhr) {
 		$('#membershiplisttable').children().remove();
-		for (var key in data) {
+		g.memberships = data;
+		for (var key in g.memberships) {
 			var button = $('<button>Apply for membership</button>');
 			button.on('click', (function(perma_name) {
 				return function(ev) {
 					ev.preventDefault();
 					changeMembership(perma_name, 'apply');
 				}
-			})(data[key].perma_name));
+			})(g.memberships[key].perma_name));
 			var status = "Not a member";
-			if (data[key].status != 'null') {
+			if (g.memberships[key].status != 'null') {
 				button = $('<button>Resign</button>');
-				status = data[key].status;
+				status = g.memberships[key].status;
 			}
 			$('#membershiplisttable').append($('<tr>'));
-			$('#membershiplisttable').find('tr:last').append($('<td>').append(data[key].friendly_name));
+			$('#membershiplisttable').find('tr:last').append($('<td>').append(g.memberships[key].friendly_name));
 			$('#membershiplisttable').find('tr:last').append($('<td>').append(status));
 			$('#membershiplisttable').find('tr:last').append($('<td>').append(button));
 		}
