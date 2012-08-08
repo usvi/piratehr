@@ -284,10 +284,7 @@ class Membership(Base):
 		# 19:14 < agronholm> so make that subselect into a subquery(), join it to the main query and filter
 		#
 		subquery = g.db.query(func.max(Membership.id).label('id')).filter(Membership.user_id == id).group_by(Membership.organization_id).subquery()
-		retmems = g.db.query(Membership).join(subquery, subquery.c.id == Membership.id).all()
-		for foo in retmems:
-			print "Membership: " + "orgid: " + str(foo.organization_id) + " id: " + str(foo.id)
-		return retmems
+		return g.db.query(Membership, Organization).filter(Membership.organization_id==Organization.id).join(subquery, subquery.c.id == Membership.id).all()
 	@staticmethod
 	def get(perma_name, uuid):
 		return g.db.query(Membership).filter(User.id==Membership.user_id).filter(User.uuid==uuid).filter(Organization.id==Membership.organization_id).filter(Organization.perma_name==perma_name).first()
