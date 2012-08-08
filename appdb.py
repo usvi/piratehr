@@ -267,7 +267,7 @@ class Membership(Base):
 	__tablename__ = 'membership'
 	id = Column(Integer, primary_key=True) # Id of this membership
 	user_id = Column(Integer, ForeignKey('user.id', onupdate="RESTRICT", ondelete="RESTRICT"), nullable=False) # User id this membership applies to
-	organization_id = Column(Integer, ForeignKey('organization.id', onupdate="RESTRICT", ondelete="RESTRICT"), unique=True) # Organization this membership applies to
+	organization_id = Column(Integer, ForeignKey('organization.id', onupdate="RESTRICT", ondelete="RESTRICT"), nullable=False) # Organization this membership applies to
 	status = Column(Enum('applied', 'member', 'honorary_member', 'expelled', 'resigned', 'email' , name='status_types'), nullable=True) # Status type
 	position = Column(Enum('nonpriv', 'chair', 'vice_chair', 'secretary', 'board' , name='position_types'), nullable=True) # Position type
 	activist = Column(Boolean) # Sign of active membership. We send more email if this is ticked.
