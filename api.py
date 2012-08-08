@@ -165,7 +165,8 @@ def membership_change(org_perma_name):
 		#print "Application for org " + org_perma_name
 		# Do the actual application..
 		appdb.Membership.add(org_perma_name, g.user.uuid)
-	return json_response(dict(description='Test.'), 200)
+		return json_response(dict(description='Test.'), 200)
+	return json_response(dict(description='Failed.'), 400)
 
 @api.route("/organizations.json", methods=["GET"])
 def organization_get_all():
