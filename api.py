@@ -146,7 +146,7 @@ def membership_get_all():
 			'perma_name': org.perma_name,
 			'status': 'null'
 		}
-		memberships[org.perma_name] = tuple
+		memberships[org.id] = tuple
 	for membership,memorg in appdb.Membership.find_by_user_id(g.user.id):
 		tuple = {
 			'legal_name': memorg.legal_name,
@@ -154,7 +154,7 @@ def membership_get_all():
 			'perma_name': memorg.perma_name,
 			'status': membership.status
 		}
-		memberships[memorg.perma_name] = tuple
+		memberships[memorg.id] = tuple
 	return json_response(memberships, 200)
 
 @api.route("/membership_<org_perma_name>.json", methods=["POST"])
