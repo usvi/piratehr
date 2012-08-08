@@ -279,16 +279,11 @@ class Membership(Base):
 	terminated_time = Column(DateTime) # Time of membership termination
 	resignation_reason = Column(Text) # Reason for resignation
 	@staticmethod
-	def find_by_uuid(uuid): # Finds all memberships of the user
+	def find_by_user_id(id): # Finds all memberships of the user
 		# SELECT * FROM membership JOIN (SELECT organization_id, MAX(id) AS max_id FROM membership GROUP BY organization_id) AS foo WHERE membership.id = foo.max_id;
 		# 19:14 < agronholm> so make that subselect into a subquery(), join it to the main query and filter
 		#
-		user = User.find(uuid)
-		if not user: return None
-		#retmems = g.db.query(Membership).join(subquery,subquery.c.organization_id).filter(subquery.c.organization_id==Membership.organization_id).all()
-		#subquery = g.db.query(Membership.organization_id, func.max(Membership.id)).group_by(Membership.organization_id).subquery()
-		#retmems = g.db.query(Membership).join(subquery, subquery.c.organization_id == Membership.organization_id).all()
-		subquery = g.db.query(func.max(Membership.id).label('id')).group_by(Membership.organization_id).subquery()
+		subquery = g.db.query(func.max(Membership.id).label('id')).filter(Membership.user_id == id).group_by(Membership.organization_id).subquery()
 		retmems = g.db.query(Membership).join(subquery, subquery.c.id == Membership.id).all()
 		for foo in retmems:
 			print "Membership: " + "orgid: " + str(foo.organization_id) + " id: " + str(foo.id)

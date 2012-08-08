@@ -147,6 +147,7 @@ def membership_get_all():
 			'status': 'null'
 		}
 		memberships[org.perma_name] = tuple
+	appdb.Membership.find_by_user_id(g.user.id)
 	#for membership,memorg in appdb.Membership.find_by_uuid(g.user.uuid):
 	#	tuple = {
 	#		'legal_name': memorg.legal_name,
