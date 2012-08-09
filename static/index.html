@@ -134,9 +134,19 @@
 
 		<div class=org id=orgapplications>
 			<h3>New membership applications</h3>
-			<form class=ajaxform id=orgform action="/api/organization_[arg1].json" method="PUT" autocomplete=off>
+			<form class=ajaxform id=orgapplicationsform action="/api/application_process_[arg1].json" method="PUT" autocomplete=off>
 			<table id=orgapplicationstable border=1>
 			</table>
+			<br>
+			Change all selected to:
+			<select id=orgapplicationprocess>
+				<option value=accept>Membership accepted</option>
+				<option value=reject>Membership rejected</option>
+				<option value=divert>Divert to other organization</option>
+			</select>
+			<select id=orgapplicationdivert>
+			</select>
+			<input type="submit" value="Confirm">
 			</form>
 		</div>
 	</div>
