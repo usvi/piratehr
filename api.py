@@ -241,8 +241,12 @@ def organization_get_applications(perma_name): # FIXME: Error & ACL checking
 
 @api.route("/applications_process_<perma_name>.json", methods=["POST"])
 @requires_auth
+@request_fields('uuid')
 def organization_process_applications(perma_name):
-	return json_response(dict(description='Failed.'), 422)
+	print repr(g.req.get('orgapplicationprocess'))
+	#for uuid in g.req.get('uuid'):
+	#	process_application(perma_name, uuid,  g.req.get('status')
+	return json_response(dict(description='Okay ^_^'), 200)
 
 
 @api.route("/settings.json", methods=["PUT"])
