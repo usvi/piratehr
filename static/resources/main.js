@@ -149,12 +149,18 @@ function loadApplicationsList(applicationOrg) {
 			$('#orgapplicationstable').find('tr:last').append($('<td>').append(data[key].email));
 			$('#orgapplicationstable').find('tr:last').append($('<td>').append(data[key].uuid));
 		}
-	});
-	// Set handler for select element orgapplicationprocess
-	$('#orgapplicationprocess').on('change', function(ev) {
-		ev.preventDefault();
-		if (this.value == 'divert') { $('#orgapplicationdivert').show(); }
-		else { $('#orgapplicationdivert').hide(); }
+		// Populate orgapplicationdivert
+		$('#orgapplicationdivert').children().remove();
+		for (var key in g.orgs) {
+			if(g.orgs[key].perma_name != applicationOrg)
+				$('#orgapplicationdivert').append($('<option>').attr('value', g.orgs[key].perma_name).text(g.orgs[key].friendly_name));
+		}
+		// Set handler for select element orgapplicationprocess
+		$('#orgapplicationprocess').on('change', function(ev) {
+			ev.preventDefault();
+			if (this.value == 'divert') { $('#orgapplicationdivert').show(); }
+			else { $('#orgapplicationdivert').hide(); }
+		});
 	});
 }
 
