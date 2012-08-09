@@ -148,6 +148,7 @@ function loadApplicationsList(applicationOrg) {
 			$('#orgapplicationstable').find('tr:last').append($('<td>').append(data[key].phone));
 			$('#orgapplicationstable').find('tr:last').append($('<td>').append(data[key].email));
 			$('#orgapplicationstable').find('tr:last').append($('<td>').append(data[key].uuid));
+			$('#orgapplicationstable').find('tr:last').append($('<td>').append('<input type=checkbox name=uuid value=' + data[key].uuid + '/>'));
 		}
 		// Populate orgapplicationdivert
 		$('#orgapplicationdivert').children().remove();
