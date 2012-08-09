@@ -134,17 +134,17 @@
 
 		<div class=org id=orgapplications>
 			<h3>New membership applications</h3>
-			<form class=ajaxform id=orgapplicationsform action="/api/applications_process_[arg1].json" method="POST" autocomplete=off>
+			<form class=ajaxform id=orgapplicationsform action="/api/applications_process_[arg1].json" method=POST autocomplete=off>
 			<table id=orgapplicationstable border=1>
 			</table>
 			<br>
 			Change all selected to:
-			<select id=orgapplicationprocess>
+			<select name=orgapplicationprocess id=orgapplicationprocess>
 				<option value=accept>Membership accepted</option>
 				<option value=reject>Membership rejected</option>
-				<option value=divert>Divert to other organization:</option>
+				<option value=transfer>Transfer to other organization:</option>
 			</select>
-			<select id=orgapplicationdivert>
+			<select name=orgapplicationtransfer id=orgapplicationtransfer>
 			</select>
 			<input type="submit" value="Confirm">
 			</form>

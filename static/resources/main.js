@@ -148,19 +148,19 @@ function loadApplicationsList(applicationOrg) {
 			$('#orgapplicationstable').find('tr:last').append($('<td>').append(data[key].phone));
 			$('#orgapplicationstable').find('tr:last').append($('<td>').append(data[key].email));
 			$('#orgapplicationstable').find('tr:last').append($('<td>').append(data[key].uuid));
-			$('#orgapplicationstable').find('tr:last').append($('<td>').append('<input type=checkbox name=uuid value=' + data[key].uuid + '/>'));
+			$('#orgapplicationstable').find('tr:last').append($('<td>').append('<input type=checkbox name=uuid value=' + data[key].uuid + ' />'));
 		}
-		// Populate orgapplicationdivert
-		$('#orgapplicationdivert').children().remove();
+		// Populate orgapplicationtransfer
+		$('#orgapplicationtransfer').children().remove();
 		for (var key in g.orgs) {
 			if(g.orgs[key].perma_name != applicationOrg)
-				$('#orgapplicationdivert').append($('<option>').attr('value', g.orgs[key].perma_name).text(g.orgs[key].friendly_name));
+				$('#orgapplicationtransfer').append($('<option>').attr('value', g.orgs[key].perma_name).text(g.orgs[key].friendly_name));
 		}
 		// Set handler for select element orgapplicationprocess
 		$('#orgapplicationprocess').on('change', function(ev) {
 			ev.preventDefault();
-			if (this.value == 'divert') { $('#orgapplicationdivert').show(); }
-			else { $('#orgapplicationdivert').hide(); }
+			if (this.value == 'transfer') { $('#orgapplicationtransfer').show(); }
+			else { $('#orgapplicationtransfer').hide(); }
 		});
 	});
 }
@@ -283,7 +283,7 @@ $(document).ready(function() {
 
 var g = {};  // Global variables go in here
 
-function navigate(url, redirect) {
+function navigate(url, redirect) { // FIXME: Check other parts of code that we use correct redirect value in calls.
 	// Allow for current events to finish before navigating
 	window.setTimeout(function() {
 		// Navigate without reloading if the browser supports it
@@ -316,9 +316,13 @@ $('.ajaxform').submit(function(ev) {
 	settings.success = function(data, textStatus, xhr) {
 		if (settings.type == 'POST') form[0].reset();  // Clear the form after successful POST
 		if (settings.url.split('/').pop() == 'auth.json') login(JSON.stringify(data), "Login successful");
-		if (settings.url.split('/').pop() == 'new_user.json') {
+		else if (settings.url.split('/').pop() == 'new_user.json') {
 			login(JSON.stringify(data.auth), "User created and logged in");
 			navigate(data.uuid_url);
+		}
+		else if (form.attr('id') == 'orgapplicationsform') {
+			flash(data.description);
+			navigate('/org/' + g.page.arg1);
 		} else flash(data.description);
 	}
 	$.ajax(settings);

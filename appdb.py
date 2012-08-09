@@ -325,20 +325,21 @@ class Membership(Base):
 		membership.terminated_time = datetime.utcnow()
 		g.db.commit()
 	@staticmethod
-	def process_application(perma_name, uuid, status, diverted_perma): # status is once of accept, reject, divert
+	def process_application(perma_name, uuid, status, diverted_perma): # status is once of accept, reject, transfer
 		membership = Membership.get(perma_name, uuid)
-		if not membership: return None
+		if not membership:
+			return None
 		if status == 'accept':
 			membership.status = 'member'
 			membership.position = 'nonpriv'
 			membership.accepted_time = datetime.utcnow()
 		elif status == 'reject':
 			Membership.delete_status(perma_name, uuid, 'expelled')
-		elif status == 'divert':
+		elif status == 'transfer':
 			divert_org = Organization.find_by_perma(diverted_perma)
 			membership.organization_id = divert_org.id
 		else:
-			return False
+			return None
 		g.db.commit()
 	
 class MetaDef(Base):

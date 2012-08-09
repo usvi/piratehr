@@ -241,13 +241,14 @@ def organization_get_applications(perma_name): # FIXME: Error & ACL checking
 
 @api.route("/applications_process_<perma_name>.json", methods=["POST"])
 @requires_auth
-@request_fields('uuid')
+@request_fields('uuid', 'orgapplicationprocess', 'orgapplicationtransfer')
 def organization_process_applications(perma_name):
+	applications = 0;
 	print repr(g.req.get('orgapplicationprocess'))
-	#for uuid in g.req.get('uuid'):
-	#	process_application(perma_name, uuid,  g.req.get('status')
-	return json_response(dict(description='Okay ^_^'), 200)
-
+	for uuid in g.req.get('uuid'):
+		appdb.Membership.process_application(perma_name, uuid,  g.req.get('orgapplicationprocess'), g.req.get('orgapplicationtransfer'))
+		applications = applications + 1
+	return json_response(dict(description='Processed ' + str(applications) + ' applications.'), 200)
 
 @api.route("/settings.json", methods=["PUT"])
 @requires_auth  # FIXME: Require admin user/password
