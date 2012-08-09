@@ -15,6 +15,10 @@ $(document).ready(function() {
 		g.neworg = true;
 		navigate(url);
 	});
+	$('#orgshowapplicationsbutton').on('click', function(ev) {
+		ev.preventDefault();
+		navigate('/org/' + g.page.arg1 + '/applications', false)
+	});
 });
 
 function showUserPage() {
@@ -123,12 +127,16 @@ function showMembershipsPage() {
 
 function showOrgPage() {
 	$('.org').hide();
+	$('#orgshowapplicationsbutton').show();
+	$('#orgapplicationstable').children().remove();
+	$('#orgapplicationtransfer').hide();
 	loadOrgList();
 	if (g.page.arg1) {  // We are viewing some specific org
 		$('#orgedit').show();
 		if (!g.neworg) loadForm('#orgform');
 		g.neworg = false;
 		if(g.page.arg2 == 'applications') { // Show applications for org
+			$('#orgshowapplicationsbutton').hide();
 			loadApplicationsList(g.page.arg1);
 			$('#orgapplications').show();
 		}
