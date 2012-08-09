@@ -150,6 +150,12 @@ function loadApplicationsList(applicationOrg) {
 			$('#orgapplicationstable').find('tr:last').append($('<td>').append(data[key].uuid));
 		}
 	});
+	// Set handler for select element orgapplicationprocess
+	$('#orgapplicationprocess').on('change', function(ev) {
+		ev.preventDefault();
+		if (this.value == 'divert') { $('#orgapplicationdivert').show(); }
+		else { $('#orgapplicationdivert').hide(); }
+	});
 }
 
 function loadOrgList() {
