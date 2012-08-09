@@ -138,13 +138,16 @@ function showOrgPage() {
 }
 
 function loadApplicationsList(applicationOrg) {
-	jsonQuery(undefined, "/api/applications_" + applicationOrg + ".json", "GET", function(data, textStatus, xhr) {
+	jsonQuery(undefined, "/api/applications_list_" + applicationOrg + ".json", "GET", function(data, textStatus, xhr) {
 		$('#orgapplicationstable').children().remove();
 		for (var key in data) {
 			$('#orgapplicationstable').append($('<tr>'));
 			$('#orgapplicationstable').find('tr:last').append($('<td>').append(data[key].legal_name));
 			$('#orgapplicationstable').find('tr:last').append($('<td>').append(data[key].dob));
+			$('#orgapplicationstable').find('tr:last').append($('<td>').append(data[key].residence));
+			$('#orgapplicationstable').find('tr:last').append($('<td>').append(data[key].phone));
 			$('#orgapplicationstable').find('tr:last').append($('<td>').append(data[key].email));
+			$('#orgapplicationstable').find('tr:last').append($('<td>').append(data[key].uuid));
 		}
 	});
 }

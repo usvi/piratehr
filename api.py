@@ -222,7 +222,7 @@ def organization_get(perma_name):
 	return json_response(ret, 200)
 
 
-@api.route("/applications_<perma_name>.json", methods=["GET"])
+@api.route("/applications_list_<perma_name>.json", methods=["GET"])
 @requires_auth
 def organization_get_applications(perma_name): # FIXME: Error & ACL checking
 	applications = appdb.Organization.get_applications(g.user.uuid, perma_name)
@@ -234,13 +234,12 @@ def organization_get_applications(perma_name): # FIXME: Error & ACL checking
 			'residence': user.residence,
 			'phone': user.phone,
 			'email': user.email,
-			'uuid': user.uuid,
-			'perma_name': perma_name
+			'uuid': user.uuid
 		}
 		ret.append(tuple)
 	return json_response(ret, 200)
 
-@api.route("/application_process_<perma_name>.json", methods=["POST"])
+@api.route("/applications_process_<perma_name>.json", methods=["POST"])
 @requires_auth
 def organization_process_applications(perma_name):
 	return json_response(dict(description='Failed.'), 422)
