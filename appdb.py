@@ -243,7 +243,7 @@ class Organization(Base):
 	def validate(self):
 		return True  # FIXME
 	@staticmethod
-	def generate_perma_name(friendly_name):
+	def generate_perma_name(friendly_name): # FIXME: We should enforce this here, not rely on javascript
 		import unicodedata
 		import re
 		if type(friendly_name) == int:
@@ -251,7 +251,7 @@ class Organization(Base):
 		perma_name = friendly_name.lower()
 		perma_name = perma_name.replace(" ", "_")
 		perma_name = unicodedata.normalize('NFKD', unicode(perma_name)).encode('ascii','ignore')
-		perma_name = "".join(re.findall('[a-z0-9_]+', perma_name))
+		perma_name = "".join(re.findall('[a-z0-9_-]+', perma_name)) # FIXME: is the last '-' in pattern ok?
 		return perma_name
 	@staticmethod
 	def get_all():
@@ -263,6 +263,12 @@ class Organization(Base):
 		return g.db.query(Organization).filter_by(id=self.parent_id).first()
 	def get_children(self):
 		return g.db.query(Organization).filter_by(parent_id=self.id).all()
+	@staticmethod
+	def get_applications(uuid, perma_name):
+		# Data needed: Full name, DOB, Residence, Phone, email, uuid, application id
+		return g.db.query(User).filter(Membership.status=='applied').filter(Membership.user_id==User.id).\
+			filter(Membership.organization_id==Organization.id).filter(Organization.perma_name==perma_name).order_by(Membership.id).all()
+	
 
 class Membership(Base):
 	__tablename__ = 'membership'

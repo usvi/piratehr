@@ -128,9 +128,25 @@ function showOrgPage() {
 		$('#orgedit').show();
 		if (!g.neworg) loadForm('#orgform');
 		g.neworg = false;
+		if(g.page.arg2 == 'applications') { // Show applications for org
+			loadApplicationsList(g.page.arg1);
+			$('#orgapplications').show();
+		}
 	} else {  // List of all orgs
 		$('#orglist').show();
 	}
+}
+
+function loadApplicationsList(applicationOrg) {
+	jsonQuery(undefined, "/api/applications_" + applicationOrg + ".json", "GET", function(data, textStatus, xhr) {
+		$('#orgapplicationstable').children().remove();
+		for (var key in data) {
+			$('#orgapplicationstable').append($('<tr>'));
+			$('#orgapplicationstable').find('tr:last').append($('<td>').append(data[key].legal_name));
+			$('#orgapplicationstable').find('tr:last').append($('<td>').append(data[key].dob));
+			$('#orgapplicationstable').find('tr:last').append($('<td>').append(data[key].email));
+		}
+	});
 }
 
 function loadOrgList() {
