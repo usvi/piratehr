@@ -292,7 +292,7 @@ class Membership(Base):
 		return g.db.query(Membership).filter(User.id==Membership.user_id).filter(User.uuid==uuid).filter(Organization.id==Membership.organization_id).\
 			filter(Organization.perma_name==perma_name).order_by(Membership.id.desc()).first()
 	@staticmethod
-	def add(perma_name, uuid): # If we have old membership, update it
+	def add(perma_name, uuid): # If we have old membership, update it ONLY if it is in state (applied)
 		user = User.find(uuid)
 		organization = Organization.find_by_perma(perma_name)
 		if not user or not organization: return None
@@ -301,7 +301,7 @@ class Membership(Base):
 		# Got organization and user. Try to get membership. If does not exist, create.
 		membership = g.db.query(Membership).filter(Membership.user_id==user.id).filter(Membership.organization_id==organization.id).\
 			order_by(Membership.id.desc()).first() # Just in case return latest only.
-		if not membership:
+		if not membership or membership.status != 'applied':
 			membership = Membership()
 			membership.user_id = user.id
 			membership.organization_id = organization.id
