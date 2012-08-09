@@ -52,7 +52,7 @@ function changeMembership(membershipOrg) {
 			// FIXME: Break here. But not now.
 		}
 	}
-	if (membership.status == 'null' || membership.status == 'unsubscribed' || membership.status == 'resigned' || membership.status == 'expelled') {
+	if (membership.status == 'null' || membership.status == 'unsubscribed' || membership.status == 'resigned' || membership.status == 'expelled' || membership.status == 'cancelled') {
 		operation = 'apply';
 		confirmed = true;
 	}
@@ -100,6 +100,12 @@ function showMembershipsPage() {
 			} else if (g.memberships[key].status == 'expelled') {
 				button.text("Apply");
 				status = "Expelled";
+			} else if (g.memberships[key].status == 'resigned') {
+				button.text("Apply");
+				status = "Resigned";
+			} else if (g.memberships[key].status == 'cancelled') {
+				button.text("Apply");
+				status = "Membership application cancelled";
 			}
 			button.on('click', (function(perma_name) {
 				return function(ev) {

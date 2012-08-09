@@ -147,7 +147,7 @@ def membership_get_all():
 			'status': 'null'
 		}
 		memberships[org.id] = tuple
-	for membership,memorg in appdb.Membership.find_by_user_id(g.user.id):
+	for membership,memorg in appdb.Membership.find_by_uuid(g.user.uuid):
 		tuple = {
 			'legal_name': memorg.legal_name,
 			'friendly_name': memorg.friendly_name,
@@ -161,10 +161,18 @@ def membership_get_all():
 @requires_auth
 @request_fields('operation')
 def membership_change(org_perma_name):
+	# FIXME: Check errors actually
 	if g.req['operation'] == 'apply':
-		#print "Application for org " + org_perma_name
-		# Do the actual application..
 		appdb.Membership.add(org_perma_name, g.user.uuid)
+		return json_response(dict(description='Test.'), 202)
+	if g.req['operation'] == 'unsubscribe':
+		appdb.Membership.delete_status(org_perma_name, g.user.uuid, 'unsubscribed')
+		return json_response(dict(description='Test.'), 200)
+	if g.req['operation'] == 'cancel':
+		appdb.Membership.delete_status(org_perma_name, g.user.uuid, 'cancelled')
+		return json_response(dict(description='Test.'), 200)
+	if g.req['operation'] == 'resign' :
+		appdb.Membership.delete_status(org_perma_name, g.user.uuid, 'resigned')
 		return json_response(dict(description='Test.'), 200)
 	return json_response(dict(description='Failed.'), 400)
 

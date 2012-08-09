@@ -269,7 +269,7 @@ class Membership(Base):
 	id = Column(Integer, primary_key=True) # Id of this membership
 	user_id = Column(Integer, ForeignKey('user.id', onupdate="RESTRICT", ondelete="RESTRICT"), nullable=False) # User id this membership applies to
 	organization_id = Column(Integer, ForeignKey('organization.id', onupdate="RESTRICT", ondelete="RESTRICT"), nullable=False) # Organization this membership applies to
-	status = Column(Enum('applied', 'member', 'honorary_member', 'expelled', 'resigned', 'email' , 'unsubscribed', name='status_types'), nullable=True) # Status type
+	status = Column(Enum('applied', 'member', 'honorary_member', 'expelled', 'resigned', 'cancelled', 'email' , 'unsubscribed', name='status_types'), nullable=True) # Status type
 	position = Column(Enum('nonpriv', 'chair', 'vice_chair', 'secretary', 'board' , name='position_types'), nullable=True) # Position type
 	activist = Column(Boolean) # Sign of active membership. We send more email if this is ticked.
 	title = Column(String(128)) # Description of a special position in the organization
@@ -279,15 +279,18 @@ class Membership(Base):
 	terminated_time = Column(DateTime) # Time of membership termination
 	resignation_reason = Column(Text) # Reason for resignation
 	@staticmethod
-	def find_by_user_id(id): # Finds all memberships of the user
+	def find_by_uuid(uuid): # Finds all memberships of the user
 		# SELECT * FROM membership JOIN (SELECT organization_id, MAX(id) AS max_id FROM membership GROUP BY organization_id) AS foo WHERE membership.id = foo.max_id;
 		# 19:14 < agronholm> so make that subselect into a subquery(), join it to the main query and filter
 		#
-		subquery = g.db.query(func.max(Membership.id).label('id')).filter(Membership.user_id == id).group_by(Membership.organization_id).subquery()
+		user = User.find(uuid)
+		if not user: return None
+		subquery = g.db.query(func.max(Membership.id).label('id')).filter(Membership.user_id == user.id).group_by(Membership.organization_id).subquery()
 		return g.db.query(Membership, Organization).filter(Membership.organization_id==Organization.id).join(subquery, subquery.c.id == Membership.id).order_by(Organization.id).all()
 	@staticmethod
 	def get(perma_name, uuid):
-		return g.db.query(Membership).filter(User.id==Membership.user_id).filter(User.uuid==uuid).filter(Organization.id==Membership.organization_id).filter(Organization.perma_name==perma_name).first()
+		return g.db.query(Membership).filter(User.id==Membership.user_id).filter(User.uuid==uuid).filter(Organization.id==Membership.organization_id).\
+			filter(Organization.perma_name==perma_name).order_by(Membership.id.desc()).first()
 	@staticmethod
 	def add(perma_name, uuid): # If we have old membership, update it
 		user = User.find(uuid)
@@ -296,7 +299,8 @@ class Membership(Base):
 		print "Aplying user: " + user.legal_name
 		print "Aplying organization: " + organization.legal_name
 		# Got organization and user. Try to get membership. If does not exist, create.
-		membership = g.db.query(Membership).filter(Membership.user_id==user.id).filter(Membership.organization_id==organization.id).first() # Should return 1 or none
+		membership = g.db.query(Membership).filter(Membership.user_id==user.id).filter(Membership.organization_id==organization.id).\
+			order_by(Membership.id.desc()).first() # Just in case return latest only.
 		if not membership:
 			membership = Membership()
 			membership.user_id = user.id
@@ -306,6 +310,13 @@ class Membership(Base):
 		membership.status = 'applied'
 		membership.application = user.uuid + ":" + user.legal_name
 		membership.applied_time = datetime.utcnow()
+		g.db.commit()
+	@staticmethod
+	def delete_status(perma_name, uuid, status): # If we have old membership, update it
+		membership = Membership.get(perma_name, uuid)
+		if not membership: return None
+		membership.status = status
+		membership.terminated_time = datetime.utcnow()
 		g.db.commit()
 
 
