@@ -243,11 +243,16 @@ def organization_get_applications(perma_name): # FIXME: Error & ACL checking
 @requires_auth
 @request_fields('uuid', 'orgapplicationprocess', 'orgapplicationtransfer')
 def organization_process_applications(perma_name):
+	if not appdb.User.manage_memberships(g.user.uuid, perma_name):
+		return json_response(dict(description='Access denied while trying to process applications.'), 403)
 	applications = 0;
-	print repr(g.req.get('orgapplicationprocess'))
+	print "GGGGGGGGGGGG"
+	print repr(g.req.get('uuid'))
 	for uuid in g.req.get('uuid'):
 		appdb.Membership.process_application(perma_name, uuid,  g.req.get('orgapplicationprocess'), g.req.get('orgapplicationtransfer'))
-		applications = applications + 1
+		applications += 1
+		print "ZZZZZZZZZZZZ"
+		print applications
 	return json_response(dict(description='Processed ' + str(applications) + ' applications.'), 200)
 
 @api.route("/settings.json", methods=["PUT"])

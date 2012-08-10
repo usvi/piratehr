@@ -96,12 +96,26 @@ class User(Base):
 	def validate(self):
 		return True  # FIXME
 	@staticmethod
-	def find(user_id):
-		return g.db.query(User).filter_by(uuid=user_id).first()
+	def find(uuid):
+		return g.db.query(User).filter_by(uuid=uuid).first()
 	@staticmethod
 	def find_by_email(email):
 		return g.db.query(User).filter_by(email=email).all()
-
+	@staticmethod
+	def manage_memberships(uuid, perma_name):
+		# Check whether we gan manage the data for the organization. Needs board level access.
+		user = User.find(uuid)
+		if not user:
+			return False
+		organization = Organization.find_by_perma(perma_name)
+		while organization:
+			# Check for possible membership. If got, check that it is of status 'member' and of something else than non-priv position.
+			membership = Membership.get(organization.perma_name, uuid)
+			if membership and membership.status == 'member' and membership.position != None and membership.position != 'nonpriv':
+				print "ACCESS GRANTED!"
+				return True
+			organization = organization.get_parent()
+		return False # Ok, the topmost organization didn't have board membership for user. Access denied.
 
 class Address(Base):
 	__tablename__ = 'address'
