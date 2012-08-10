@@ -102,7 +102,7 @@ class User(Base):
 	def find_by_email(email):
 		return g.db.query(User).filter_by(email=email).all()
 	@staticmethod
-	def manage_memberships(uuid, perma_name):
+	def manage_organization(uuid, perma_name, operation_description): # FIXME: Log with operation_description!
 		# Check whether we gan manage the data for the organization. Needs board level access.
 		user = User.find(uuid)
 		if not user:
@@ -111,11 +111,11 @@ class User(Base):
 		while organization:
 			# Check for possible membership. If got, check that it is of status 'member' and of something else than non-priv position.
 			membership = Membership.get(organization.perma_name, uuid)
-			if membership and membership.status == 'member' and membership.position != None and membership.position != 'nonpriv':
-				print "ACCESS GRANTED!"
+			if membership and membership.status == 'member' and (membership.position == 'chair' or membership.position == 'vice_chair'\
+										or membership.position == 'secretary' or membership.position == 'board'):
 				return True
 			organization = organization.get_parent()
-		return False # Ok, the topmost organization didn't have board membership for user. Access denied.
+		return False # Ok, the topmost organization didn't have privileged membership for user. Access denied.
 
 class Address(Base):
 	__tablename__ = 'address'
@@ -339,7 +339,7 @@ class Membership(Base):
 		membership.terminated_time = datetime.utcnow()
 		g.db.commit()
 	@staticmethod
-	def process_application(perma_name, uuid, status, diverted_perma): # status is once of accept, reject, transfer
+	def process_application(perma_name, uuid, status, transfer_perma): # status is once of accept, reject, transfer
 		membership = Membership.get(perma_name, uuid)
 		if not membership:
 			return None
@@ -350,8 +350,8 @@ class Membership(Base):
 		elif status == 'reject':
 			Membership.delete_status(perma_name, uuid, 'expelled')
 		elif status == 'transfer':
-			divert_org = Organization.find_by_perma(diverted_perma)
-			membership.organization_id = divert_org.id
+			transfer_org = Organization.find_by_perma(transfer_perma)
+			membership.organization_id = transfer_org.id
 		else:
 			return None
 		g.db.commit()

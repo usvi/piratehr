@@ -136,6 +136,7 @@ function showOrgPage() {
 		if (!g.neworg) loadForm('#orgform');
 		g.neworg = false;
 		if(g.page.arg2 == 'applications') { // Show applications for org
+			$('#orgapplicationsform')[0].reset();
 			$('#orgshowapplicationsbutton').hide();
 			loadApplicationsList(g.page.arg1);
 			$('#orgapplications').show();
