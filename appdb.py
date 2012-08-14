@@ -232,6 +232,7 @@ class Organization(Base):
 	__tablename__ = 'organization'
 	id = Column(Integer, primary_key=True) # Id of this organization
 	parent_id = Column(Integer, ForeignKey('organization.id', onupdate="RESTRICT", ondelete="RESTRICT")) # Reference to the 
+	group_id = Column(Integer, unique=False) # Group id. User can be a member of only one group_id
 	legal_name = Column(String(128), nullable=False, unique=True) # Full legal name of the organization
 	friendly_name = Column(String(128), nullable=False, unique=True) # Friendly short name of the organization
 	perma_name = Column(String(128), nullable=False, unique=True) # Permanent name identifier of the organization. Admin-mutable (in the future).
@@ -245,6 +246,7 @@ class Organization(Base):
 		if data.has_key('perma_name') and data['perma_name'] != self.perma_name: return False
 		if data.has_key('friendly_name'): self.friendly_name = data['friendly_name']
 		if data.has_key('legal_name'): self.legal_name = data['legal_name']
+		if data.has_key('group_id'): self.group_id = data['group_id']
 		if data.get('parent_name'):
 			p = Organization.find_by_perma(data['parent_name'])
 			if not p: return False
@@ -277,6 +279,8 @@ class Organization(Base):
 		return g.db.query(Organization).filter_by(id=self.parent_id).first()
 	def get_children(self):
 		return g.db.query(Organization).filter_by(parent_id=self.id).all()
+	def get_siblings(self):
+		return g.db.query(Organization).filter_by(group_id=self.group_id).all()
 	@staticmethod
 	def get_applications(uuid, perma_name):
 		# Data needed: Full name, DOB, Residence, Phone, email, uuid, application id
