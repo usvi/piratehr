@@ -131,9 +131,11 @@
 			<input type="submit" value="Create">
 			</form>
 			<br>
+			<h3>Organization group</h3>
+			<table name=grouplisttable id=grouplisttable>
+			</table>
 			<button type="button" id=orgshowapplicationsbutton>Show membership applications</button> 
 		</div>
-
 		<div class=org id=orgapplications>
 			<h3>New membership applications</h3>
 			<form class=ajaxform id=orgapplicationsform action="/api/applications_process_[arg1].json" method=POST autocomplete=off>

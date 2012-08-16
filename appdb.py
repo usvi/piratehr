@@ -103,6 +103,7 @@ class User(Base):
 		return g.db.query(User).filter_by(email=email).all()
 	@staticmethod
 	def manage_organization(uuid, perma_name, operation_description): # FIXME: Log with operation_description!
+		print "AAAAAAAAAAAAAAAAAa"
 		# Check whether we gan manage the data for the organization. Needs board level access.
 		user = User.find(uuid)
 		if not user:

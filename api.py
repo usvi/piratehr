@@ -144,6 +144,7 @@ def membership_get_all():
 			'legal_name': org.legal_name,
 			'friendly_name': org.friendly_name,
 			'perma_name': org.perma_name,
+			'group_id': org.group_id,
 			'status': 'null'
 		}
 		memberships[org.id] = tuple
@@ -152,6 +153,7 @@ def membership_get_all():
 			'legal_name': memorg.legal_name,
 			'friendly_name': memorg.friendly_name,
 			'perma_name': memorg.perma_name,
+			'group_id': org.group_id,
 			'status': membership.status
 		}
 		memberships[memorg.id] = tuple
@@ -185,7 +187,8 @@ def organization_get_all():
 		tuple = {
 			'legal_name': organization.legal_name,
 			'friendly_name': organization.friendly_name,
-			'perma_name': organization.perma_name
+			'perma_name': organization.perma_name,
+			'group_id': organization.group_id
 		}
 		ret.append(tuple)
 	return json_response({'organizations':ret})
@@ -215,7 +218,8 @@ def organization_get(perma_name):
 	ret = {
 		'legal_name': org.legal_name,
 		'friendly_name': org.friendly_name,
-		'perma_name': org.perma_name
+		'perma_name': org.perma_name,
+		'group_id': org.group_id
 	}
 	parent_org = org.get_parent()
 	if parent_org: ret['parent_name'] = parent_org.perma_name
@@ -225,6 +229,8 @@ def organization_get(perma_name):
 @api.route("/applications_list_<perma_name>.json", methods=["GET"])
 @requires_auth
 def organization_get_applications(perma_name): # FIXME: Error & ACL checking
+	if not appdb.User.manage_organization(g.user.uuid, perma_name, 'Approve memberships'):
+		return json_response(dict(description='Access denied while trying to list applications.'), 403)
 	applications = appdb.Organization.get_applications(g.user.uuid, perma_name)
 	ret = []
 	for user in applications:

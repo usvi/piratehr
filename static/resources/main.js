@@ -179,11 +179,13 @@ function loadOrgList() {
 		g.orgs = data.organizations;
 		// Clear any old data
 		$('#parent_select').children().remove();
+		$('#grouplisttable').children().remove(); // FIXME: JSON data on this is assumed to be sorted!!!
 		$('#parent_select').append($('<option>').attr('value', '').text('(No parent)'));
 		$('#orglisttable').children().remove();
+		var last_group = -1;
 		for (var key in g.orgs) {
 			var org = g.orgs[key];
-			// Update organization create form parent options
+			// Update organization create form parent options to show sibling organizations.
 			$('#parent_select').append($('<option>').attr('value', org.perma_name).text(org.friendly_name));
 			// Add a row to organization table
 			var anchor = $('<a>');
@@ -197,7 +199,20 @@ function loadOrgList() {
 			});
 			// Add table row
 			$('#orglisttable').append($('<tr>').append($('<td>').append(anchor)).append($('<td>').text(org.friendly_name)));
+			if (last_group != org.group_id) {
+				//$('#grouplisttable').append($('<tr>').append($('<td>').text(org.friendly_name)));
+				$('#grouplisttable').append($('<tr>').append($('<td>').append('<input type=radio name=group_id value=' +
+					org.group_id + ' id=' + org.group_id + ' >')).append($('<td>').text(org.friendly_name)));
+				$('#grouplisttable').find('tr:last').find('td:last').wrapInner('<label for=' + org.group_id + '>');
+				last_group = org.group_id;
+			} else {
+				// Append inside cell
+				//$('#grouplisttable').append($('<tr>').append($('<td>').append("")).append($('<td>').text(org.friendly_name)))
+				$('#grouplisttable').find('tr:last').find('td:last').find('label[for=' + last_group + ']').append('<br>\n' + org.friendly_name);
+			}
 		}
+		// Finalise sibling list
+		$('#grouplisttable  td:nth-child(2)').wrapInner("<fieldset>");
 	});
 }
 
