@@ -203,12 +203,17 @@ function loadOrgList() {
 				//$('#grouplisttable').append($('<tr>').append($('<td>').text(org.friendly_name)));
 				$('#grouplisttable').append($('<tr>').append($('<td>').append('<input type=radio name=group_id value=' +
 					org.group_id + ' id=' + org.group_id + ' >')).append($('<td>').text(org.friendly_name)));
-				$('#grouplisttable').find('tr:last').find('td:last').wrapInner('<label for=' + org.group_id + '>');
+				$('#grouplisttable').find('tr:last').find('td:last').on('click', (function(group_id) {
+					return function(ev) {
+						ev.preventDefault();
+						$('input:radio[name=group_id][value=' + group_id + ']').click();
+					}
+				})(org.group_id));
 				last_group = org.group_id;
 			} else {
 				// Append inside cell
 				//$('#grouplisttable').append($('<tr>').append($('<td>').append("")).append($('<td>').text(org.friendly_name)))
-				$('#grouplisttable').find('tr:last').find('td:last').find('label[for=' + last_group + ']').append('<br>\n' + org.friendly_name);
+				$('#grouplisttable').find('tr:last').find('td:last').append('<br>\n' + org.friendly_name);
 			}
 		}
 		// Finalise sibling list
