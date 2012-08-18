@@ -103,7 +103,6 @@ class User(Base):
 		return g.db.query(User).filter_by(email=email).all()
 	@staticmethod
 	def manage_organization(uuid, perma_name, operation_description): # FIXME: Log with operation_description!
-		print "AAAAAAAAAAAAAAAAAa"
 		# Check whether we gan manage the data for the organization. Needs board level access.
 		user = User.find(uuid)
 		if not user:
@@ -247,7 +246,15 @@ class Organization(Base):
 		if data.has_key('perma_name') and data['perma_name'] != self.perma_name: return False
 		if data.has_key('friendly_name'): self.friendly_name = data['friendly_name']
 		if data.has_key('legal_name'): self.legal_name = data['legal_name']
-		if data.has_key('group'): self.group_id = data['group']
+		if data.has_key('group') and data['group'] == -1:
+			# We might need new id. But lets not change it if its the only one
+			if len(g.db.query(Organization).filter(Organization.group_id==self.group_id).all()) > 1:
+				# Ok, we actually need the new id.
+				max_group_org = g.db.query(Organization).order_by(Organization.group_id.desc()).first()
+				if not max_group_org:
+					self.group_id = 1
+				else:
+					self.group_id = max_group_org.group_id + 1
 		if data.get('parent_name'):
 			p = Organization.find_by_perma(data['parent_name'])
 			if not p: return False
@@ -259,7 +266,15 @@ class Organization(Base):
 		g.db.commit()
 		return True
 	def validate(self):
-		return True  # FIXME
+		# FIXME: Thorough validation.
+		# FIXME: ACL when setting parent
+		# FIXME: Check NULL parents
+		# Case 1: ALL new siblings must have the same parent as this
+		new_siblings = self.get_siblings()
+		for sibling in new_siblings:
+			if sibling.parent_id != self.parent_id:
+				return False
+		return True
 	@staticmethod
 	def generate_perma_name(friendly_name): # FIXME: We should enforce this here, not rely on javascript
 		import unicodedata

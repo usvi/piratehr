@@ -178,13 +178,20 @@ function loadApplicationsList(applicationOrg) {
 
 function loadSiblingList() {
 	// Assumes stuff is in g.orgs
-	// FIXME: Sort by group_id
+	// FIXME: Sort by group_id, then order_id
+	var orgs = g.orgs.slice(0);
+	orgs.sort(function(a, b) {
+		if (a.group_id == b.group_id) {
+			return a.order_id - b.order_id;
+		}
+		return a.group_id - b.group_id;
+	});
 	$('#grouplisttable').children().remove(); // FIXME: JSON data on this is assumed to be sorted!!!
 	var last_group = -1;
 	var select_group_id = -1;
 	var org_count = [];
-	for (var key in g.orgs) {
-		var org = g.orgs[key];
+	for (var key in orgs) {
+		var org = orgs[key];
 		if (!org_count[org.group_id]) { org_count[org.group_id] = 0; }
 		org_count[org.group_id]++;
 		// Add sibling list
@@ -255,6 +262,11 @@ function loadOrgData() {
 	var args = arguments;
 	jsonQuery(undefined, "/api/organizations.json", "GET", function(data, textStatus, xhr) {
 		g.orgs = data.organizations;
+		var i = 0;
+		for (var org in g.orgs) {
+			g.orgs[org]['order_id'] = i;
+			i++;
+		}
 		for (var i = 0; i < args.length; i++) {
 			args[i]();
 		}

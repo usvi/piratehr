@@ -199,7 +199,9 @@ def organization_get_all():
 @requires_auth
 @request_fields('legal_name', 'friendly_name')
 def organization_put(perma_name):
-	# FIXME: Proper permissions checking required
+	# FIXME: Proper permissions checking required. A bit tricky for new organizations.
+	if not appdb.User.manage_organization(g.user.uuid, perma_name, 'Approve memberships'):
+		return json_response(dict(description='Access denied while trying to list applications.'), 403)
 	if g.req.has_key('perma_name'):
 		if g.req['perma_name'] != perma_name:
 			return json_response(dict(description='Supplied (optional) perma_name does not match URL'), 422)
