@@ -199,8 +199,8 @@ function loadOrgList() {
 			});
 			// Add table row
 			$('#orglisttable').append($('<tr>').append($('<td>').append(anchor)).append($('<td>').text(org.friendly_name)));
+			// Add sibling list
 			if (last_group != org.group_id) {
-				//$('#grouplisttable').append($('<tr>').append($('<td>').text(org.friendly_name)));
 				$('#grouplisttable').append($('<tr>').append($('<td>').append('<input type=radio name=group_id value=' +
 					org.group_id + ' id=' + org.group_id + ' >')).append($('<td>').text(org.friendly_name)));
 				$('#grouplisttable').find('tr:last').find('td:last').on('click', (function(group_id) {
@@ -211,8 +211,6 @@ function loadOrgList() {
 				})(org.group_id));
 				last_group = org.group_id;
 			} else {
-				// Append inside cell
-				//$('#grouplisttable').append($('<tr>').append($('<td>').append("")).append($('<td>').text(org.friendly_name)))
 				$('#grouplisttable').find('tr:last').find('td:last').append('<br>\n' + org.friendly_name);
 			}
 		}
