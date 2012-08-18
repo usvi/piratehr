@@ -130,7 +130,7 @@ function showOrgPage() {
 	$('#orgshowapplicationsbutton').show();
 	$('#orgapplicationstable').children().remove();
 	$('#orgapplicationtransfer').hide();
-	loadOrgData(loadSiblingList);
+	loadOrgData(loadOrgList, loadSiblingList);
 	if (g.page.arg1) {  // We are viewing some specific org
 		$('#orgedit').show();
 		$('#grouplisttable').show();
@@ -215,35 +215,41 @@ function loadSiblingList() {
 	$('input:radio[name=group][value=' + select_group_id + ']').click();
 }
 
-
-function loadOrgData(inputFunction) {
-	jsonQuery(undefined, "/api/organizations.json", "GET", function(data, textStatus, xhr) {
-		g.orgs = data.organizations;
-		// Clear any old data
-		$('#parent_select').children().remove();
-		$('#parent_select').append($('<option>').attr('value', '').text('(No parent)'));
-		$('#orglisttable').children().remove();
-		for (var key in g.orgs) {
-			var org = g.orgs[key];
-			// Update organization create form parent options to show sibling organizations.
-			$('#parent_select').append($('<option>').attr('value', org.perma_name).text(org.friendly_name));
-			// Add a row to organization table
-			var anchor = $('<a>');
-			anchor.attr('href', '/org/' + org.perma_name);
-			anchor.attr('id', 'organization_' + org.perma_name);
-			anchor.text(org.perma_name);
-			// AJAX navigation
-			anchor.on('click', function(ev) {
-				ev.preventDefault();
-				navigate(this.href);
-			});
-			// Add table row
-			$('#orglisttable').append($('<tr>').append($('<td>').append(anchor)).append($('<td>').text(org.friendly_name)));
-		}
-		if (inputFunction) { inputFunction(); }
-	});
+function loadOrgList() {
+	// Stuff is in g.orgs
+	// Clear any old data
+	$('#parent_select').children().remove();
+	$('#parent_select').append($('<option>').attr('value', '').text('(No parent)'));
+	$('#orglisttable').children().remove();
+	for (var key in g.orgs) {
+		var org = g.orgs[key];
+		// Update organization create form parent options to show sibling organizations.
+		$('#parent_select').append($('<option>').attr('value', org.perma_name).text(org.friendly_name));
+		// Add a row to organization table
+		var anchor = $('<a>');
+		anchor.attr('href', '/org/' + org.perma_name);
+		anchor.attr('id', 'organization_' + org.perma_name);
+		anchor.text(org.perma_name);
+		// AJAX navigation
+		anchor.on('click', function(ev) {
+			ev.preventDefault();
+			navigate(this.href);
+		});
+		// Add table row
+		$('#orglisttable').append($('<tr>').append($('<td>').append(anchor)).append($('<td>').text(org.friendly_name)));
+	}
 }
 
+function loadOrgData() {
+	var args = arguments;
+	jsonQuery(undefined, "/api/organizations.json", "GET", function(data, textStatus, xhr) {
+		g.orgs = data.organizations;
+		for (var i = 0; i < args.length; i++) {
+			//alert(typeof(args[i]));
+			args[i]();
+		}
+	});
+}
 
 //
 //  CORE LOGIC
