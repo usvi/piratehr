@@ -185,6 +185,7 @@ function loadOrgList() {
 		$('#parent_select').append($('<option>').attr('value', '').text('(No parent)'));
 		$('#orglisttable').children().remove();
 		var last_group = -1;
+		var select_group_id = -1;
 		for (var key in g.orgs) {
 			var org = g.orgs[key];
 			// Update organization create form parent options to show sibling organizations.
@@ -202,6 +203,7 @@ function loadOrgList() {
 			// Add table row
 			$('#orglisttable').append($('<tr>').append($('<td>').append(anchor)).append($('<td>').text(org.friendly_name)));
 			// Add sibling list
+			if (g.page.arg1 == org.perma_name) { select_group_id = org.group_id; }
 			if (last_group != org.group_id) {
 				$('#grouplisttable').append($('<tr>').append($('<td>').append('<input type=radio name=group_id value=' +
 					org.group_id + ' id=' + org.group_id + ' >')).append($('<td>').text(org.friendly_name)));
@@ -218,6 +220,7 @@ function loadOrgList() {
 		}
 		// Finalise sibling list
 		$('#grouplisttable  td:nth-child(2)').wrapInner("<fieldset>");
+		$('input:radio[name=group_id][value=' + select_group_id + ']').click();
 	});
 }
 
