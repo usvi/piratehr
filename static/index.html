@@ -124,17 +124,24 @@
 		<div class=org id=orgedit>
 			<form class=ajaxform id=orgform action="/api/organization_[arg1].json" method="PUT" autocomplete=off>
 			<table>
-			<tr><td>Legal name of the organization</td><td><input type="text" name="legal_name" placeholder="The Pirate Organization of X" required></td></tr>
-			<tr><td>Friendly name of the organization</td><td><input type="text" name="friendly_name" placeholder="Pirates of X" required></td></tr>
-			<tr><td>Parent organization</td><td><select name="parent_name" id="parent_select"></select></td></tr>
+				<tr><td valign=top><table>
+					<tr><td>Legal name of the organization</td><td><input type="text" name="legal_name" placeholder="The Pirate Organization of X" required></td></tr>
+					<tr><td>Friendly name of the organization</td><td><input type="text" name="friendly_name" placeholder="Pirates of X" required></td></tr>
+					<tr><td>Parent organization</td><td><select name="parent_name" id="parent_select"></select></td></tr>
+				</table>
+				<br>
+				<input type="submit" value="Create">
+				<br>
+				<br>
+				<button type="button" id=orgshowapplicationsbutton>Show membership applications</button>
+				</td>
+				<td>
+				<table name=grouplisttable id=grouplisttable>
+				</table>
+				</td></tr>
 			</table>
-			<input type="submit" value="Create">
 			</form>
 			<br>
-			<h3>Organization group</h3>
-			<table name=grouplisttable id=grouplisttable>
-			</table>
-			<button type="button" id=orgshowapplicationsbutton>Show membership applications</button> 
 		</div>
 		<div class=org id=orgapplications>
 			<h3>New membership applications</h3>
@@ -153,6 +160,7 @@
 			<input type="submit" value="Confirm">
 			</form>
 		</div>
+		<br><br><br>
 	</div>
 
 

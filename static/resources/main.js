@@ -133,9 +133,11 @@ function showOrgPage() {
 	loadOrgList();
 	if (g.page.arg1) {  // We are viewing some specific org
 		$('#orgedit').show();
+		$('#grouplisttable').show();
 		if (!g.neworg) loadForm('#orgform');
 		g.neworg = false;
 		if(g.page.arg2 == 'applications') { // Show applications for org
+			$('#grouplisttable').hide();
 			$('#orgapplicationsform')[0].reset();
 			$('#orgshowapplicationsbutton').hide();
 			loadApplicationsList(g.page.arg1);
