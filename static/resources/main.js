@@ -211,7 +211,7 @@ function loadOrgList() {
 				// We have some kind of strange namespace collision from somewhere in here and must use group as a name
 				// for the input elements.
 				$('#grouplisttable').append($('<tr>').append($('<td>').append('<input type=radio name=group value=' +
-					org.group_id + ' id=' + org.group_id + ' >')).append($('<td>').text(org.friendly_name)));
+					org.group_id + ' >')).append($('<td>').text(org.friendly_name)));
 				$('#grouplisttable').find('tr:last').find('td:last').on('click', (function(input_group_id) {
 					return function(ev) {
 						ev.preventDefault();
@@ -224,8 +224,8 @@ function loadOrgList() {
 			}
 		}
 		if (org_count[select_group_id] > 1) { // Organization can be placed in new group. Offer it.
-			$('#grouplisttable').prepend($('<tr>').append($('<td>').append('<input type=radio name=group value=-1 id=new_group >')).append($('<td>').text('(New list)')));
-			$('#grouplisttable').find('tr:last').find('td:first').on('click', function(input_group_id) {
+			$('#grouplisttable').prepend($('<tr>').append($('<td>').append('<input type=radio name=group value=-1 >')).append($('<td>').text('(New list)')));
+			$('#grouplisttable').find('tr:first').find('td:last').on('click', function() {
 				$('input:radio[name=group][value=-1]').click();
 			});
 		}
