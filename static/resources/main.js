@@ -130,7 +130,7 @@ function showOrgPage() {
 	$('#orgshowapplicationsbutton').show();
 	$('#orgapplicationstable').children().remove();
 	$('#orgapplicationtransfer').hide();
-	loadOrgList();
+	loadOrgData(loadSiblingList);
 	if (g.page.arg1) {  // We are viewing some specific org
 		$('#orgedit').show();
 		$('#grouplisttable').show();
@@ -176,21 +176,55 @@ function loadApplicationsList(applicationOrg) {
 	});
 }
 
-function loadOrgList() {
+function loadSiblingList() {
+	// Assumes stuff is in g.orgs
+	$('#grouplisttable').children().remove(); // FIXME: JSON data on this is assumed to be sorted!!!
+	var last_group = -1;
+	var select_group_id = -1;
+	var org_count = [];
+	for (var key in g.orgs) {
+		var org = g.orgs[key];
+		if (!org_count[org.group_id]) { org_count[org.group_id] = 0; }
+		org_count[org.group_id]++;
+		// Add sibling list
+		if (g.page.arg1 == org.perma_name) { select_group_id = org.group_id;}
+		if (last_group != org.group_id) {
+			// We have some kind of strange namespace collision from somewhere in here and must use group as a name
+			// for the input elements.
+			$('#grouplisttable').append($('<tr>').append($('<td>').append('<input type=radio name=group value=' +
+				org.group_id + ' >')).append($('<td>').text(org.friendly_name)));
+			$('#grouplisttable').find('tr:last').find('td:last').on('click', (function(input_group_id) {
+				return function(ev) {
+					ev.preventDefault();
+					$('input:radio[name=group][value=' + input_group_id + ']').click();
+				}
+			})(org.group_id));
+			last_group = org.group_id;
+		} else {
+			$('#grouplisttable').find('tr:last').find('td:last').append('<br>\n' + org.friendly_name);
+		}
+	}
+	if (org_count[select_group_id] > 1) { // Organization can be placed in new group. Offer it.
+		$('#grouplisttable').prepend($('<tr>').append($('<td>').append('<input type=radio name=group value=-1 >')).append($('<td>').text('(New list)')));
+		$('#grouplisttable').find('tr:first').find('td:last').on('click', function() {
+			$('input:radio[name=group][value=-1]').click();
+		});
+	}
+	// Finalise sibling list
+	$('#grouplisttable  td:nth-child(2)').wrapInner("<fieldset>");
+	$('input:radio[name=group][value=' + select_group_id + ']').click();
+}
+
+
+function loadOrgData(inputFunction) {
 	jsonQuery(undefined, "/api/organizations.json", "GET", function(data, textStatus, xhr) {
 		g.orgs = data.organizations;
 		// Clear any old data
 		$('#parent_select').children().remove();
-		$('#grouplisttable').children().remove(); // FIXME: JSON data on this is assumed to be sorted!!!
 		$('#parent_select').append($('<option>').attr('value', '').text('(No parent)'));
 		$('#orglisttable').children().remove();
-		var last_group = -1;
-		var select_group_id = -1;
-		var org_count = [];
 		for (var key in g.orgs) {
 			var org = g.orgs[key];
-			if (!org_count[org.group_id]) { org_count[org.group_id] = 0; }
-			org_count[org.group_id]++;
 			// Update organization create form parent options to show sibling organizations.
 			$('#parent_select').append($('<option>').attr('value', org.perma_name).text(org.friendly_name));
 			// Add a row to organization table
@@ -205,33 +239,8 @@ function loadOrgList() {
 			});
 			// Add table row
 			$('#orglisttable').append($('<tr>').append($('<td>').append(anchor)).append($('<td>').text(org.friendly_name)));
-			// Add sibling list
-			if (g.page.arg1 == org.perma_name) { select_group_id = org.group_id;}
-			if (last_group != org.group_id) {
-				// We have some kind of strange namespace collision from somewhere in here and must use group as a name
-				// for the input elements.
-				$('#grouplisttable').append($('<tr>').append($('<td>').append('<input type=radio name=group value=' +
-					org.group_id + ' >')).append($('<td>').text(org.friendly_name)));
-				$('#grouplisttable').find('tr:last').find('td:last').on('click', (function(input_group_id) {
-					return function(ev) {
-						ev.preventDefault();
-						$('input:radio[name=group][value=' + input_group_id + ']').click();
-					}
-				})(org.group_id));
-				last_group = org.group_id;
-			} else {
-				$('#grouplisttable').find('tr:last').find('td:last').append('<br>\n' + org.friendly_name);
-			}
 		}
-		if (org_count[select_group_id] > 1) { // Organization can be placed in new group. Offer it.
-			$('#grouplisttable').prepend($('<tr>').append($('<td>').append('<input type=radio name=group value=-1 >')).append($('<td>').text('(New list)')));
-			$('#grouplisttable').find('tr:first').find('td:last').on('click', function() {
-				$('input:radio[name=group][value=-1]').click();
-			});
-		}
-		// Finalise sibling list
-		$('#grouplisttable  td:nth-child(2)').wrapInner("<fieldset>");
-		$('input:radio[name=group][value=' + select_group_id + ']').click();
+		if (inputFunction) { inputFunction(); }
 	});
 }
 
