@@ -232,13 +232,6 @@ function loadOrgList() {
 	var parent_name = '';
 	for (var key in g.orgs) {
 		var org = g.orgs[key];
-		if (org.perma_name == g.page.arg1) { // Need to weed out current organization, we cannot have self as parent.
-			if ('parent_name' in org) {
-				parent_name = org.parent_name;
-			}
-			continue;
-		}
-		$('#parent_select').append($('<option>').attr('value', org.perma_name).text(org.friendly_name));
 		// Add a row to organization table
 		var anchor = $('<a>');
 		anchor.attr('href', '/org/' + org.perma_name);
@@ -251,9 +244,16 @@ function loadOrgList() {
 		});
 		// Add table row
 		$('#orglisttable').append($('<tr>').append($('<td>').append(anchor)).append($('<td>').text(org.friendly_name)));
+		// Add to parent list if we are not the parent.
+		if (org.perma_name == g.page.arg1) {
+			if ('parent_name' in org) {
+				parent_name = org.parent_name;
+			}
+			continue;
+		}
+		$('#parent_select').append($('<option>').attr('value', org.perma_name).text(org.friendly_name));
 	}
 	if (parent_name) { // Finally, set parent selected in list
-		//$('input:radio[name=group][value=' + select_group_id + ']').click();
 		$('#parent_select').val(parent_name).select();
 	}
 }
