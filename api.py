@@ -180,7 +180,6 @@ def membership_change(org_perma_name):
 
 @api.route("/organizations.json", methods=["GET"])
 def organization_get_all():
-	# TODO: Organization parent/child relations as JSON tree
 	organizations = appdb.Organization.get_all()
 	ret = []
 	for organization in organizations:
@@ -190,6 +189,9 @@ def organization_get_all():
 			'perma_name': organization.perma_name,
 			'group_id': organization.group_id
 		}
+		parent = organization.get_parent()
+		if parent:
+			tuple['parent_name'] = parent.perma_name
 		ret.append(tuple)
 	return json_response({'organizations':ret})
 

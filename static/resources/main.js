@@ -178,6 +178,7 @@ function loadApplicationsList(applicationOrg) {
 
 function loadSiblingList() {
 	// Assumes stuff is in g.orgs
+	// FIXME: Sort by group_id
 	$('#grouplisttable').children().remove(); // FIXME: JSON data on this is assumed to be sorted!!!
 	var last_group = -1;
 	var select_group_id = -1;
@@ -221,9 +222,15 @@ function loadOrgList() {
 	$('#parent_select').children().remove();
 	$('#parent_select').append($('<option>').attr('value', '').text('(No parent)'));
 	$('#orglisttable').children().remove();
+	var parent_name = '';
 	for (var key in g.orgs) {
 		var org = g.orgs[key];
-		// Update organization create form parent options to show sibling organizations.
+		if (org.perma_name == g.page.arg1) { // Need to weed out current organization, we cannot have self as parent.
+			if ('parent_name' in org) {
+				parent_name = org.parent_name;
+			}
+			continue;
+		}
 		$('#parent_select').append($('<option>').attr('value', org.perma_name).text(org.friendly_name));
 		// Add a row to organization table
 		var anchor = $('<a>');
@@ -238,6 +245,10 @@ function loadOrgList() {
 		// Add table row
 		$('#orglisttable').append($('<tr>').append($('<td>').append(anchor)).append($('<td>').text(org.friendly_name)));
 	}
+	if (parent_name) { // Finally, set parent selected in list
+		//$('input:radio[name=group][value=' + select_group_id + ']').click();
+		$('#parent_select').val(parent_name).select();
+	}
 }
 
 function loadOrgData() {
@@ -245,7 +256,6 @@ function loadOrgData() {
 	jsonQuery(undefined, "/api/organizations.json", "GET", function(data, textStatus, xhr) {
 		g.orgs = data.organizations;
 		for (var i = 0; i < args.length; i++) {
-			//alert(typeof(args[i]));
 			args[i]();
 		}
 	});
@@ -381,6 +391,10 @@ $('.ajaxform').submit(function(ev) {
 		else if (form.attr('id') == 'orgapplicationsform') {
 			flash(data.description);
 			navigate('/org/' + g.page.arg1);
+		} 
+		else if (form.attr('id') == 'orgform') {
+			flash(data.description);
+			loadOrgData(loadOrgList, loadSiblingList);
 		} else flash(data.description);
 	}
 	$.ajax(settings);

@@ -247,7 +247,7 @@ class Organization(Base):
 		if data.has_key('perma_name') and data['perma_name'] != self.perma_name: return False
 		if data.has_key('friendly_name'): self.friendly_name = data['friendly_name']
 		if data.has_key('legal_name'): self.legal_name = data['legal_name']
-		if data.has_key('group_id'): self.group_id = data['group_id']
+		if data.has_key('group'): self.group_id = data['group']
 		if data.get('parent_name'):
 			p = Organization.find_by_perma(data['parent_name'])
 			if not p: return False
@@ -255,6 +255,7 @@ class Organization(Base):
 		if not self.validate():
 			g.db.rollback()
 			return False
+		
 		g.db.commit()
 		return True
 	def validate(self):
