@@ -79,38 +79,47 @@ function changeMembership(membershipOrg) {
 	}
 }
 
+function renderApplicationButton(inputStatus, inputEnabled) {
+	var button = $('<button></button>');
+	var status = "";
+	if (inputStatus == 'null' || inputStatus == 'unsubscribed') {
+		button.text("Apply");
+		status = "Not a member";
+	} else if (inputStatus == 'email') {
+		button.text("Unsubscribe");
+		status = "On email list only";
+	} else if (inputStatus == 'applied') {
+		button.text("Cancel application");
+		status = "Applied";
+	} else if (inputStatus == 'member') {
+		button.text("Resign");
+		status = "Member";
+	} else if (inputStatus == 'honorary_member') {
+		button.text("Resign");
+		status = "Honorary Member";
+	} else if (inputStatus == 'expelled') {
+		button.text("Apply");
+		status = "Expelled";
+	} else if (inputStatus == 'resigned') {
+		button.text("Apply");
+		status = "Resigned";
+	} else if (inputStatus == 'cancelled') {
+		button.text("Apply");
+		status = "Membership application cancelled";
+	}
+	return button;
+}
+
 function showMembershipsPage() {
 	jsonQuery(undefined, "/api/memberships.json", "GET", function(data, textStatus, xhr) {
 		$('#membershiplisttable').children().remove();
-		g.memberships = data;
+		// Sort by group_id, assume stability for now FIXME: Stabilize sort for non-standard implementations
+		g.memberships = [];
+		for (var key in data) {
+			g.memberships.push(data[key])
+		}
 		for (var key in g.memberships) {
-			var button = $('<button></button>');
-			var status = "";
-			if (g.memberships[key].status == 'null' || g.memberships[key].status == 'unsubscribed') {
-				button.text("Apply");
-				status = "Not a member";
-			} else if (g.memberships[key].status == 'email') {
-				button.text("Unsubscribe");
-				status = "On email list only";
-			} else if (g.memberships[key].status == 'applied') {
-				button.text("Cancel application");
-				status = "Applied";
-			} else if (g.memberships[key].status == 'member') {
-				button.text("Resign");
-				status = "Member";
-			} else if (g.memberships[key].status == 'honorary_member') {
-				button.text("Resign");
-				status = "Honorary Member";
-			} else if (g.memberships[key].status == 'expelled') {
-				button.text("Apply");
-				status = "Expelled";
-			} else if (g.memberships[key].status == 'resigned') {
-				button.text("Apply");
-				status = "Resigned";
-			} else if (g.memberships[key].status == 'cancelled') {
-				button.text("Apply");
-				status = "Membership application cancelled";
-			}
+			var button = renderApplicationButton(g.memberships[key].status, true);
 			button.on('click', (function(perma_name) {
 				return function(ev) {
 					ev.preventDefault();

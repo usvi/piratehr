@@ -156,7 +156,7 @@ def membership_get_all():
 			'group_id': org.group_id,
 			'status': membership.status
 		}
-		memberships[memorg.id] = tuple
+		memberships[memorg.id] = tuple # FIXME: Do we leak information here (memorg.id)?
 	return json_response(memberships, 200)
 
 @api.route("/membership_<org_perma_name>.json", methods=["POST"])
