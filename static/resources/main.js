@@ -113,11 +113,18 @@ function renderApplicationButton(inputStatus, inputEnabled) {
 function showMembershipsPage() {
 	jsonQuery(undefined, "/api/memberships.json", "GET", function(data, textStatus, xhr) {
 		$('#membershiplisttable').children().remove();
-		// Sort by group_id, assume stability for now FIXME: Stabilize sort for non-standard implementations
 		g.memberships = [];
 		for (var key in data) {
 			g.memberships.push(data[key])
 		}
+		mships = [];
+		for (var key in g.memberships) {
+			if (!(g.memberships.group_id in mships)) {
+				mships[g.memberships.group_id] = [];
+			}
+			mships[g.memberships.group_id].push(g.memberships[key]);
+		}
+		// Sort by group_id, assume stability for now FIXME: Stabilize sort for non-standard implementations
 		for (var key in g.memberships) {
 			var button = renderApplicationButton(g.memberships[key].status, true);
 			button.on('click', (function(perma_name) {
