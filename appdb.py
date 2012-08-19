@@ -335,7 +335,7 @@ class Membership(Base):
 			filter(Organization.perma_name==perma_name).order_by(Membership.id.desc()).first()
 	@staticmethod
 	def add(perma_name, uuid): # If we have old membership, update it ONLY if it is in state (applied)
-		# FIXME: Use transactions here and also elsewhere where deemed necessary.
+		# FIXME: Use transactions here and also elsewhere where deemed necessary(???).
 		user = User.find(uuid)
 		organization = Organization.find_by_perma(perma_name)
 		if not user or not organization: return None
@@ -351,6 +351,7 @@ class Membership(Base):
 		existing_memberships = g.db.query(Membership).filter(Membership.user_id==user.id).filter(Organization.group_id==organization.group_id).\
 			filter(Membership.organization_id==Organization.id).filter(Membership.status=='applied').all()
 		if len(existing_memberships) > 0:
+			g.db.rollback()
 			return None
 		# Membership exists now as object at least.
 		membership.status = 'applied'
