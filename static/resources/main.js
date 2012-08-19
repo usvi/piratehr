@@ -213,7 +213,7 @@ function loadApplicationsList(applicationOrg) {
 
 function renderSiblingList() {
 	// Assumes stuff is in g.orgs
-	// FIXME: Sort by group_id, then order_id
+	// Sort by group_id, then order_id
 	var orgs = g.orgs.slice(0);
 	orgs.sort(function(a, b) {
 		if (a.group_id == b.group_id) {
