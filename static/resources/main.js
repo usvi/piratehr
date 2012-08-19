@@ -139,7 +139,7 @@ function showOrgPage() {
 	$('#orgshowapplicationsbutton').show();
 	$('#orgapplicationstable').children().remove();
 	$('#orgapplicationtransfer').hide();
-	loadOrgData(loadOrgList, loadSiblingList);
+	loadOrgData(renderOrgList, renderSiblingList);
 	if (g.page.arg1) {  // We are viewing some specific org
 		$('#orgedit').show();
 		$('#grouplisttable').show();
@@ -185,7 +185,7 @@ function loadApplicationsList(applicationOrg) {
 	});
 }
 
-function loadSiblingList() {
+function renderSiblingList() {
 	// Assumes stuff is in g.orgs
 	// FIXME: Sort by group_id, then order_id
 	var orgs = g.orgs.slice(0);
@@ -232,7 +232,7 @@ function loadSiblingList() {
 	$('input:radio[name=group][value=' + select_group_id + ']').click();
 }
 
-function loadOrgList() {
+function renderOrgList() {
 	// Stuff is in g.orgs
 	// Clear any old data
 	$('#parent_select').children().remove();
@@ -415,7 +415,7 @@ $('.ajaxform').submit(function(ev) {
 		} 
 		else if (form.attr('id') == 'orgform') {
 			flash(data.description);
-			loadOrgData(loadOrgList, loadSiblingList);
+			loadOrgData(renderOrgList, renderSiblingList);
 		} else flash(data.description);
 	}
 	$.ajax(settings);
