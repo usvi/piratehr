@@ -82,9 +82,11 @@ function changeMembership(membershipOrg) {
 function renderApplicationButton(inputStatus, inputEnabled) {
 	var button = $('<button></button>');
 	var status = "";
+	button.attr("disabled", false);
 	if (inputStatus == 'null' || inputStatus == 'unsubscribed') {
 		button.text("Apply");
 		status = "Not a member";
+		if (!inputEnabled) { button.attr("disabled", true); }
 	} else if (inputStatus == 'email') {
 		button.text("Unsubscribe");
 		status = "On email list only";
@@ -100,14 +102,17 @@ function renderApplicationButton(inputStatus, inputEnabled) {
 	} else if (inputStatus == 'expelled') {
 		button.text("Apply");
 		status = "Expelled";
+		if (!inputEnabled) { button.attr("disabled", true); }
 	} else if (inputStatus == 'resigned') {
 		button.text("Apply");
 		status = "Resigned";
+		if (!inputEnabled) { button.attr("disabled", true); }
 	} else if (inputStatus == 'cancelled') {
 		button.text("Apply");
 		status = "Membership application cancelled";
+		if (!inputEnabled) { button.attr("disabled", true); }
 	}
-	return button;
+	return [button, status];
 }
 
 function showMembershipsPage() {
@@ -117,18 +122,29 @@ function showMembershipsPage() {
 		for (var key in data) {
 			g.memberships.push(data[key])
 		}
-		mships = [];
+		var mships = [];
+		var application_counts = [];
 		for (var key in g.memberships) {
 			if (!(g.memberships[key].group_id in mships)) {
 				mships[g.memberships[key].group_id] = [];
+				application_counts[g.memberships[key].group_id] = 0;
+				
 			}
 			mships[g.memberships[key].group_id].push(g.memberships[key]);
+			if (['null', 'unsubscribed', 'expelled', 'resigned', 'cancelled'].indexOf(g.memberships[key].status) == -1) {
+				application_counts[g.memberships[key].group_id]++;
+			}
+			
 		}
 		// FIXME: Sort by group_id, assume stability for now
 		// FIXME: Stabilize sort for non-standard implementations
 		for (var group in mships) {
+			$('#membershiplisttable').append('<tr><td colspan=3>&nbsp;</td></tr>');
+			var button_enabled = (application_counts[mships[group][0].group_id] <= 0);
 			for (var key in mships[group]) {
-				var button = renderApplicationButton(mships[group][key].status, true);
+				var button;
+				var status;
+				[button,status] = renderApplicationButton(mships[group][key].status, button_enabled);
 				button.on('click', (function(perma_name) {
 					return function(ev) {
 						ev.preventDefault();
