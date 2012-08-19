@@ -153,7 +153,7 @@ def membership_get_all():
 			'legal_name': memorg.legal_name,
 			'friendly_name': memorg.friendly_name,
 			'perma_name': memorg.perma_name,
-			'group_id': org.group_id,
+			'group_id': memorg.group_id,
 			'status': membership.status
 		}
 		memberships[memorg.id] = tuple # FIXME: Do we leak information here (memorg.id)?

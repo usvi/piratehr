@@ -119,24 +119,27 @@ function showMembershipsPage() {
 		}
 		mships = [];
 		for (var key in g.memberships) {
-			if (!(g.memberships.group_id in mships)) {
-				mships[g.memberships.group_id] = [];
+			if (!(g.memberships[key].group_id in mships)) {
+				mships[g.memberships[key].group_id] = [];
 			}
-			mships[g.memberships.group_id].push(g.memberships[key]);
+			mships[g.memberships[key].group_id].push(g.memberships[key]);
 		}
-		// Sort by group_id, assume stability for now FIXME: Stabilize sort for non-standard implementations
-		for (var key in g.memberships) {
-			var button = renderApplicationButton(g.memberships[key].status, true);
-			button.on('click', (function(perma_name) {
-				return function(ev) {
-					ev.preventDefault();
-					changeMembership(perma_name);
-				}
-			})(g.memberships[key].perma_name));
-			$('#membershiplisttable').append($('<tr>'));
-			$('#membershiplisttable').find('tr:last').append($('<td>').append(g.memberships[key].friendly_name));
-			$('#membershiplisttable').find('tr:last').append($('<td>').append(status));
-			$('#membershiplisttable').find('tr:last').append($('<td>').append(button));
+		// FIXME: Sort by group_id, assume stability for now
+		// FIXME: Stabilize sort for non-standard implementations
+		for (var group in mships) {
+			for (var key in mships[group]) {
+				var button = renderApplicationButton(mships[group][key].status, true);
+				button.on('click', (function(perma_name) {
+					return function(ev) {
+						ev.preventDefault();
+						changeMembership(perma_name);
+					}
+				})(mships[group][key].perma_name));
+				$('#membershiplisttable').append($('<tr>'));
+				$('#membershiplisttable').find('tr:last').append($('<td>').append(mships[group][key].friendly_name));
+				$('#membershiplisttable').find('tr:last').append($('<td>').append(status));
+				$('#membershiplisttable').find('tr:last').append($('<td>').append(button));
+			}
 		}
 	});
 }
