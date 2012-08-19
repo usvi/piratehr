@@ -269,6 +269,7 @@ class Organization(Base):
 		# FIXME: Thorough validation.
 		# FIXME: ACL when setting parent
 		# FIXME: Check NULL parents
+		# FIXME: After groups we might have memberships in sibling organizations.
 		# Case 1: ALL new siblings must have the same parent as this
 		new_siblings = self.get_siblings()
 		for sibling in new_siblings:
