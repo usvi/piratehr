@@ -255,6 +255,8 @@ class Organization(Base):
 					self.group_id = 1
 				else:
 					self.group_id = max_group_org.group_id + 1
+		elif data.has_key('group'):
+			self.group_id = data['group']
 		if data.get('parent_name'):
 			p = Organization.find_by_perma(data['parent_name'])
 			if not p: return False
