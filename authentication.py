@@ -26,7 +26,7 @@ def login_password(login, password):
 	users_passed = []
 	for user in users:
 		pw_hash = appdb.Auth.find_token_by_user(user, 'pw_hash')
-		if not pw_hash or pw_hash != bcrypt.hashpw(password, pw_hash): continue
+		if not pw_hash or pw_hash != bcrypt.hashpw(password.encode("UTF-8"), pw_hash.encode("UTF-8")): continue
 		users_passed.append(user)
 		auth_obj = create_session(user)
 	if len(users_passed) > 1:
@@ -48,7 +48,7 @@ def set_password(user, password):
 	auth = appdb.Auth()
 	auth.user_id = user.id
 	auth.token_type = 'pw_hash'
-	auth.token_content = bcrypt.hashpw(password, bcrypt.gensalt(10))
+	auth.token_content = bcrypt.hashpw(password.encode("UTF-8"), bcrypt.gensalt(10))
 	auth.expiration_time = datetime.utcnow() + timedelta(days=365)
 	auth.store()
 
