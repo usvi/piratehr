@@ -151,7 +151,7 @@ class Auth(Base):
 	__tablename__ = 'auth'
 	id = Column(Integer, primary_key=True) # Id of this token
 	user_id = Column(Integer, ForeignKey('user.id'), nullable=False, primary_key=True) # Reference to the id of the user having this token
-	token_type = Column(Enum('session', 'pw_hash', 'pw_reset', 'facebook', 'openid'), nullable=False, primary_key=True) # Auth type
+	token_type = Column(Enum('session', 'pw_hash', 'pw_reset', 'facebook', 'openid', name='token_types'), nullable=False, primary_key=True) # Auth type
 	token_content = Column(String(512)) # Auth token content
 	expiration_time = Column(DateTime) # Expiration of the token
 	__table_args__ = (UniqueConstraint('user_id', 'token_type'),)
