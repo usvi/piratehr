@@ -110,6 +110,7 @@ class User(Base):
 		organization = Organization.find_by_perma(perma_name)
 		while organization:
 			# Check for possible membership. If got, check that it is of status 'member' and of something else than non-priv position.
+			# FIXME: Organizations are completely  independent; there is no hiearchy. The code should be changed to reflect.
 			membership = Membership.get(organization.perma_name, uuid)
 			if membership and membership.status == 'member' and (membership.position == 'chair' or membership.position == 'vice_chair'\
 										or membership.position == 'secretary' or membership.position == 'board'):
